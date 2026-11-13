@@ -27,7 +27,7 @@
 % \numberwithin{equation}{section}
 % \numberwithin{theorem}{section}
 
-\title{Normalization By Evaluation of Higher-Order Rows}
+\title{Normalization by Evaluation of Higher-Order Rows}
 \author{Alex Hubers}
 \orcid{0000-0002-6237-3326}
 \affiliation{
