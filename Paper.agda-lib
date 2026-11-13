@@ -3,6 +3,6 @@ depend: standard-library
 include : 
   ./paper
   ./Agda
-
+  ./
 
 flags:
