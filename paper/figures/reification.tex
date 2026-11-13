@@ -1,0 +1,23 @@
+\begin{figure}
+\begin{agdaf}
+reify {kappa = *} tau = tau 
+reify {kappa = L} tau = tau
+reify {kappa = kappa_1 '-> kappa_2} phi = 
+  `\ (reify (phi S (reflect (` Z)))) 
+reify {kappa = R[ kappa ]} (l := tau) = l := (reify tau)
+reify {kappa = R[ kappa ]} (rho_2 - rho_1) = reify rho_2 - reify rho_1
+reify {kappa = R[ kappa ]} (phi .map. tau) = 
+  `\ (reify (phi S (` Z))) .map. (reify tau)
+reify {kappa = R[ kappa ]} (row rho q) = 
+  row (reifyRow rho) (reifyPreservesOrdering q)
+  where
+    reifyRow : Row (SemType Delta kappa) -> 
+               List (Label times NormalType Delta kappa)
+    reifyRow (0 , P) = [] 
+    reifyRow (suc n , P) with P fzero 
+    ... | (l , tau) = 
+      (l , reify tau) :: reifyRow (n , P . fsuc)
+\end{agdaf}
+\caption{Reification}
+\label{fig:reification}
+\end{figure}

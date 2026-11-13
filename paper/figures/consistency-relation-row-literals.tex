@@ -1,0 +1,11 @@
+\begin{figure}
+\begin{agdaf}
+[[ [] ]]R~~_ (zero , P) = Top
+[[ x :: rho ]]R~~ (suc n , P) = 
+  [[ x ]]~~2 (P fzero) times [[ rho ]]R~~ (n , P . fsuc)
+  where
+    [[ (ell_1 , tau) ]]~~2 (ell_2 , v) = (ell_1 .=. ell_2) times [[ tau ]]~~ v 
+\end{agdaf}
+\caption{Consistency relation (row literals)}
+\label{fig:consistency-relation-row-literals}
+\end{figure}

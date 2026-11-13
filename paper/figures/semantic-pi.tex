@@ -1,0 +1,10 @@
+% \begin{figure}
+\begin{agdaf}
+Pi' : SemType Delta R[ kappa ] -> SemType Delta kappa
+Pi' {kappa = *} rho = Pi (reify rho)
+Pi' {kappa = kappa_1 -> kappa_1} phi = \ r v -> Pi' (renSem r phi ??' v)
+Pi' {kappa = R[ kappa ]} rho = (\ r v -> Pi' v) .map.' rho
+\end{agdaf}
+% \caption{Semantic $\Pi$}
+% \label{fig:semantic-pi}
+% \end{figure}

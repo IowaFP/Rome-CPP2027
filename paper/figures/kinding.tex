@@ -1,0 +1,62 @@
+
+\begin{figure}
+\fbox{$\KindJ \Delta \pi {\RowK \kappa}$}\, \fbox{$\KindJ \Delta \tau \kappa$}
+{\small
+\begin{gather*}
+\ib{\irule[\ksrule{$\lesssim$}]
+  {\KindJ \Delta {\rho_{i}} {\RowK \kappa}};
+  {\KindJ \Delta {\LeqP {\rho_{1}} {\rho_{2}}} {\RowK \kappa}}}
+\isp
+\ib{\irule[\ksrule{$\cdot$}]
+  {\KindJ \Delta {\rho_{i}} {\RowK \kappa}};
+  {\KindJ \Delta {\PlusP {\rho_{1}} {\rho_{2}} {\rho_3}} {\RowK \kappa}}}
+\\
+\ib{\irule[\ksrule{lab}]
+          {};
+          {\KindJ \Delta \ell \LabK}}
+\isp
+\ib{\irule[\ksrule{$\then$}]
+  {\KindJ \Delta \pi {\RowK \kappa}} 
+  {\KindJ \Delta \tau \TypeK};
+  {\KindJ \Delta {\pi \then \tau} {\TypeK}}}
+\\
+\ib{\irule[\ksrule{row}]
+          {\KindJ \Delta {\ell_i} \LabK}
+          {\KindJ \Delta {\tau_i} \kappa}
+          {\forall i < j. \, \ell_i < \ell_j};
+          {\KindJ \Delta {\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}} {\RowK \kappa}}}
+\\
+\rsp 
+\ib{\irule[\krrule{rsing}]
+          {\KindJ \Delta {\xi} \LabK}
+          {\KindJ \Delta {\tau} \kappa};
+          {\KindJ \Delta {\{\LabTy \xi \tau\}} {\RowK \kappa}}}          
+\\
+\ib{\irule[\krrule{map}]
+          {\KindJ \Delta \phi {\kappa_1 \to \kappa_2}}
+          {\KindJ \Delta \rho {\RowK {\kappa_1}}};
+          {\KindJ \Delta {\Mapp \phi \rho } {\RowK{\kappa_2}}}}
+\\
+\ib{\irule[\krrule{compl}]
+          {\KindJ \Delta {\rho_2} {\RowK\kappa}}
+          {\KindJ \Delta {\rho_1} {\RowK\kappa}};
+          {\KindJ \Delta {\rho_2 \Compl \rho_1} {\RowK\kappa}}}
+\\[5pt]
+\fbox{$T : \kappa$}
+\\
+\begin{aligned}
+(\to) &: \TypeK \to \TypeK \to \TypeK \\
+\mu &: (\TypeK \to \TypeK) \to \TypeK \\ 
+\end{aligned}
+\qquad\qquad
+\begin{aligned}
+\KFam \Pi \kappa &: \RowK \kappa \to \kappa \\
+\KFam \Sigma \kappa &: \RowK \kappa \to \kappa 
+\end{aligned}\\ 
+\begin{aligned}
+\text{where } & \kappa \notin \mathcal K = \{ \LabK, \RowK \kappa, \kappa' \to \kappa \mid  \kappa \in \mathcal K \} 
+\end{aligned}
+\end{gather*}}
+\caption{Kinding}
+\label{fig:kinding}
+\end{figure}

@@ -1,0 +1,21 @@
+\begin{figure}
+\begin{agdaf}
+[[_]]~~_ : Type Delta kappa -> SemType Delta kappa -> Set
+[[_]]~~_ {kappa = *} tau  v = tau .=.t Up v
+[[_]]~~_ {kappa = L} tau  v = tau .=.t Up v
+[[_]]~~_ {kappa = kappa_1 `-> kappa_2} phi F = consistentKripke phi F
+[[_]]~~_ {kappa = R[ kappa ]} tau (row (n , P) q) =
+  exists[ xs ] exists[ oxs ]
+  (tau .=.t row xs oxs) times [[ xs ]]R~~ (n , P)
+[[_]]~~_ {kappa = R[ kappa ]} tau (n := v) = 
+  exists[ upsilon ] (tau .=.t (UpNE n := upsilon)) times [[ upsilon ]]~~ v
+[[_]]~~_ {kappa = R[ kappa ]} tau (rho_2 - rho_1) = 
+  exists[ upsilon_2 ] exists[ upsilon_1 ] (tau .=.t (upsilon_2 - upsilon_1))
+  times [[ upsilon_2 ]]~~ rho_2 times [[ upsilon_1 ]]~~ rho_1
+[[_]]~~_ {kappa = R[ kappa ]} tau (F .map. n) = 
+  exists[ phi ] (tau .=.t (phi .map. UpNE n)) times 
+  (consistentKripkeNE phi F)
+\end{agdaf}
+\caption{Consistency relation}
+\label{fig:consistency-relation}
+\end{figure}

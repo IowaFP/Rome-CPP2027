@@ -1,0 +1,42 @@
+\begin{figure}
+\begin{gather*}
+\begin{array}{r@{\hspace{7px}}l@{\qquad\qquad}r@{\hspace{7px}}l}
+  \text{Type variables} & \alpha \in \mathcal A &
+  \text{Labels} & \ell \in \mathcal L
+\end{array} \\
+\begin{doublesyntaxarray}
+  \mcl{\text{Ground Kinds}}  & \gamma   & ::= & \TypeK \mid \LabK \\
+  \mcl{\text{Kinds}}         & \kappa    & ::= & \shade{\gamma} \mid \kappa \to \kappa \mid  \RowK \kappa \\
+  \mcl{\text{Predicates}} & {\Normal \pi} & ::= & \LeqP {\Normal \tau} {\Normal \tau} \\
+  \mcl{\text{Row Literals}}   & \NormalRows \ni \Normal \rho    & ::= & \shade{\RowIx i 0 m {\LabTy {\ell_i} {\Normal {\tau_i}}}} \\
+  \mcl{\text{Neutral Types}} & n    & ::= & \alpha \mid n \, {\Normal \tau}  \\
+  \mcl{\text{Normal Types}}  & \NormalTypes \ni \Normal \tau, \Normal \phi & ::= & n \mid \shade{\Mapp {\hat{\phi}} {n} \mid \Normal{\rho}} \mid \Normal{\pi} \then \Normal{\tau} \\
+                             &       &     & \mid &  \forall \alpha\co\kappa. \Normal{\tau} \mid \lambda \alpha\co\kappa. \Normal{\tau}  \\ 
+                             &       &     & \mid & \Normal \tau \to \Normal \tau \mid \mu\, \Normal \tau \\
+                             &       &     & \mid & \shade{\{\LabTy n {\Normal \tau}\}} \mid \ell \mid \shade{{\Normal \tau} \Compl {\Normal \tau}}  \\
+                             &       &     & \mid & \shade{{\KFam \Pi \TypeK} {\Normal \tau} \mid {\KFam \Sigma \TypeK} {\Normal \tau}} 
+\end{doublesyntaxarray}
+\end{gather*}
+\begin{small}
+\begin{gather*}
+\fbox{$\KindJNF \Delta {\Normal \tau} {\kappa}$} \, \fbox{$\KindJNE \Delta {n} {\kappa}$} \\
+\ib{
+  \irule[\kruleNF{ne}]
+    {\KindJNE \Delta n \shade{\gamma}};
+    {\KindJNF \Delta n \shade{\gamma}}}
+\rsp
+\ib{
+  \irule[\kruleNF{$\triangleright$}]
+    {\shade{\KindJNE \Delta {n} {\LabK}}}{\KindJNF \Delta {\Normal \tau} \kappa};
+    {\KindJNF \Delta {\LabTy n {\Normal \tau}}{\RowK \kappa}}}
+\\
+\ib{
+  \irule[\kruleNF{$\Compl$}]
+    {\KindJNF \Delta {\Normal {\tau_i}} {\RowK \kappa}}
+    {\shade{\Normal{\tau_1} \notin \NormalRows \, \text{or}\, \Normal{\tau_2} \notin \NormalRows}};
+    {\KindJNF \Delta {\Normal{\tau_2} \Compl \Normal{\tau_1}} {\RowK \kappa}}}
+\end{gather*}
+\end{small}
+\caption{Normal type forms}
+\label{fig:type-normalization}
+\end{figure}

@@ -1,0 +1,29 @@
+\begin{figure}
+\begin{agdaf}
+eval : Type Delta_1 -> SemEnv Delta_1  Delta_2 -> SemType Delta_2  kappa
+eval (` x) eta = eta x
+eval (tau_1  cdot  tau_2) eta = (eval tau_1  eta) cdot' (eval tau_2  eta)
+eval (rho_2 - rho_1) eta = 
+  if isRowLiteral rho_2 and isRowLiteral rho_1
+  then eval rho_2 eta COMPL' eval rho_1 eta 
+  else eval rho_2 eta COMPL eval rho_1 eta
+eval Pi eta = \ r v -> Pi' v
+eval Sigma eta = \ r v -> Sigma' v
+eval (phi .map. tau) eta = eval phi eta .map.' eval n tau
+eval (l := tau) eta with eval l eta 
+... | ne n = (n := eval tau eta)
+... | lab ell = row (1 , \ { 
+        fzero -> (ell , eval tau eta )}) tt
+eval (row rho q) eta = row 
+  (evalRow rho eta) 
+  (evalPreservesOrdering q)
+where
+  evalRow : List (Label times (Type Delta_1 kappa)) -> 
+            SemEnv Delta_1  Delta_2 -> Row (SemType Delta_2 kappa)
+  evalRow [] eta = emptyRow
+  evalRow ((ell , tau) :: rho) eta = 
+    (ell , eval tau eta) ;; evalRow rho eta
+\end{agdaf}
+\caption{Evaluation}
+\label{fig:evaluation}
+\end{figure}
