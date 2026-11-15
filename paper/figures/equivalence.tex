@@ -14,8 +14,19 @@
 \\
 \ib{\irule[\errule{map}]
           {\KindJ \Delta \phi {\kappa_1 \to \kappa_2}}
-          {\KindJ \Delta {\RowIx i 0 n {\LabTy {\xi_i} {\tau_i}}} {\RowK{\kappa_1}}};
-          {\TEqvJ \Delta {\Mapp {\phi} {\RowIx i 0 n {\LabTy {\xi_i} {\tau_i}}}} {\RowIx i 0 n {\LabTy {\xi_i} {\phi\,\tau_i}}} {\RowK{\kappa_2}}}}
+          {\KindJ \Delta {\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}} {\RowK{\kappa_1}}};
+          {\TEqvJ \Delta 
+          {\Mapp {\phi} {\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}}} 
+          {\RowIx i 0 n {\LabTy {\ell_i} {\phi\,\tau_i}}} 
+          {\RowK{\kappa_2}}}}
+\\
+\ib{\irule[\errule{map$_\Labels$}]
+          {\KindJ \Delta \phi {\kappa_1 \to \kappa_2}}
+          {\KindJ \Delta {\Row {\LabTy {\xi} {\tau}}} {\RowK{\kappa_1}}};
+          {\TEqvJ \Delta 
+            {\Mapp {\phi} {\Row {\LabTy {\xi} {\tau}}}} 
+            {\Row {\LabTy {\xi} {\phi\,\tau}}} 
+            {\RowK{\kappa_2}}}}
 \\
 \ib{\irule[\errule{map$_\mathsf{id}$}]
           {\KindJ \Delta \rho {\RowK\kappa}};

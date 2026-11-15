@@ -7,6 +7,8 @@
 - [ ] When ready to publish, nuke the git history
 
 # Writing
+- [x] Remove header.tex; unfuck package management
+- [ ] Change in-lined code with $math$, e.g., !Pi! to $\Pi$
 - [ ] Outline intended changes to draft in response to reviewer feedback
 - [ ] Implement copy changes
 - [ ] Add citations to Zenodo & github
@@ -16,12 +18,17 @@
 - [x] Format inlined Rosi code, and some Agda code, to \R
 - [x] Format Rosi code segments with minted using dissertation styling
 - [x] Change all ' to ′
+- [x] Update rosi-pygments so that ⋆ and L are reserved keywords
 - [ ] Can I make the Agda and Rosi colors match? Would probably need to implement my own Minted color theme.
   - Will probably need to build a different Pygments component, so add to iowaFP/rosi-pygments
   - Mainly, change:
     - reserved keywords to Agda's orange
     - Capitalized Type names to Agda's blue
     - Labels to Agda's green
+- [ ] See if we can get inline-agda to work
+  - see [documentation](https://agda.readthedocs.io/en/latest/tools/generating-latex.html#latex-inline-references)
+- [x] Remove claim of strong normalization.
+- [x] Explain that consistency *is* weak normalization.
 
 # Code 
 - [x] Change semantic helpers to be <$>, <Π>, etc
@@ -37,8 +44,8 @@
 - [x] Use a typeclass for ⇓, or rename to subscripted
   - [x] Can likewise use a typeclass for evaluation
 - [ ] Use ωmap instead of fromWitness (foo (toWitness)) etc in text
-- [ ] In response to cranky reviewer: Prove strong normalization.
-  - [ ] Weak is just surjectivity... Specify the connection in paper.
+- [x] ~~In response to cranky reviewer: Prove strong normalization.~~
+
  
 
 elsewhere: 

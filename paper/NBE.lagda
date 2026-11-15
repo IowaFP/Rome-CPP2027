@@ -1,20 +1,57 @@
-\documentclass[sigplan,10pt]{acmart}\settopmatter{printfolios=true,printccs=true,printacmref=true}
-% \overfullrule=1mm
-% \usepackage[margin=1.5in]{geometry}
+\documentclass[sigplan,10pt]{acmart}
+\settopmatter{printfolios=true,printccs=true,printacmref=true}
 
-\include{header.tex}
+% -----------------------------------------------------------------------------
+% Packages 
 
+\usepackage{accents}        % accents below math symbols
+\usepackage{amsfonts}       % math fonts and blackboards
+\usepackage{amsthm}         % theorem environments
+\usepackage{array}          % extended table column types
+\usepackage{caption}        % customize figure captions
+\usepackage{centernot}      % center negation over symbols
+\usepackage{enumitem}       % customize list layouts
+\usepackage{ifthen}         % conditional logic in macros
+\usepackage{listings}       % source code formatting
+\usepackage{minted}         % Pygments syntax highlighting
+\usepackage{newunicodechar} % define Unicode chars in TeX
+\usepackage{stmaryrd}       % extra math/logic symbols
+\usepackage{subcaption}     % subfigures and subcaptions
+\usepackage{xspace}         % smart spaces after macros
+
+% -----------------------------------------------------------------------------
+% Configured packages
+
+\usepackage[para]{footmisc}                % paragraph-style footnotes
+\usepackage[utf8]{inputenc}                % UTF-8 source text encoding
+\usepackage[T1]{fontenc}                   % T1 output font encoding
+\usepackage[svgnames, dvipsnames]{xcolor}  % named colors and shading
+\usepackage[capitalize,noabbrev]{cleveref} % capitalized cross-refs
+\usepackage[normalem]{ulem}                % text underlining/striking
+\PassOptionsToPackage                      % PDF bookmarks/links
+  {unicode,naturalnames}{hyperref}
+
+% -----------------------------------------------------------------------------
+% My packages
+
+\usepackage{./sty/mathwidth}
+\usepackage{./sty/infer}
 \usepackage{./sty/agda}
+\usepackage{./sty/NBE}
+\usepackage{./sty/commands}
+\usepackage{./sty/environments}
+\usepackage{./sty/unicode}
+
+% Some configuration
 \AgdaNoSpaceAroundCode
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
 
+% -----------------------------------------------------------------------------
+% Set counter to 0 (for abstract)
+\setcounter{section}{0}
 
-\usepackage{enumitem}
-\setlist[enumerate]{nosep,label={\arabic*.}}
-\setlist[itemize]{nosep}
- 
+% -----------------------------------------------------------------------------
 % ACM garbage
+
 \setcopyright{none}
 \citestyle{acmauthoryear}
 \settopmatter{printacmref=false, printfolios=true}
@@ -23,9 +60,8 @@
 \pagestyle{empty}
 \fancyfoot{}
 
-%\usepackage[utf8]{inputenc}
-% \numberwithin{equation}{section}
-% \numberwithin{theorem}{section}
+% -----------------------------------------------------------------------------
+% Title and Author
 
 \title{Normalization by Evaluation of Higher-Order Rows}
 \author{Alex Hubers}
@@ -50,24 +86,28 @@
   \country{USA}}
 \email{garrett-morris@uiowa.edu}
 
-\setlength{\abovedisplayskip}{0pt}
-\setlength{\belowdisplayskip}{0pt}
-\setlength{\abovedisplayshortskip}{0pt}
-\setlength{\belowdisplayshortskip}{0pt}
+% -----------------------------------------------------------------------------
+% Document
 
-\usepackage{breakcites}
 \begin{document}
 \InlineOn{}
 
 \maketitle
 
 \begin{code}[hide]
+{-# OPTIONS -W noUnreachableClauses #-}
 module NBE where 
 open import Rome.Prelude
 \end{code}
 
+% -----------------------------------------------------------------------------
+% Abstract
+
 \section*{Abstract}
 Row types map labels to types, and are used to \emph{structurally} type records and variants. The presence of higher-order rows, in which labels map to types of higher kind, introduces nontrivial forms of type computation. This paper presents a sound and complete equational theory for types in \Rome (pronounced ``Rome''), a higher-order row type theory. We normalize \Rome types by evaluation in the interactive proof assistant Agda. Moreover, we contribute extensions to logical relation techniques for intrinsic mechanization to prove this procedure is stable, sound, and consistent. As a result, we obtain the first decidable type-conversion algorithm for a higher-order row type theory.
+
+% -----------------------------------------------------------------------------
+% Introduction
 
 \section{Introduction}
 Row types, as introduced by \citet{wand87}, describe type-level associations of labels to types. Rows can be used dually to type \emph{records} (i.e., classes and objects) and \emph{variants} (i.e., algebraic data types). Recent row type systems~\citep{HubersM23,Chlipala10,Chlipala16, TooheyCJX26} use higher-order rows to describe meta- and generic programs. However, these calculi lack a formal metatheory of type computation.
@@ -78,22 +118,27 @@ Type conversion is typically decided by reducing types to normal forms and perfo
 
 Type normalization is necessary for important metatheoretic claims, but can be nontrivial. An equational theory for System \FO involves only one nontrivial equation: $\beta$-reduction. The presence of higher-order row types and type operators introduces an abundance of nontrivial type equalities, e.g., the reduction of a map over a row. Likewise, subtle boundary cases arise when constructing record and variant types from nested rows. Consequently, an equational theory with higher-order rows cannot defer to its parent system to inherit a proof of type normalization, nor claim such a proof is an orthogonal triviality. 
 
-This paper closes this metatheoretic gap. We introduce \Rome (pronounced ``Rome''), a novel row calculus extending System \RO~\citep{HubersM23} with row mapping, iso-recursive types, and a novel complement operator on rows. We provide a sound and complete equational theory of types in \Rome and prove that this theory, when viewed as a reduction sequence, is strongly normalizing.
+This paper closes this metatheoretic gap. We introduce \Rome (pronounced ``Rome''), a novel row calculus extending System \RO~\citep{HubersM23} with row mapping, iso-recursive types, and a novel complement operator on rows. We provide a sound and complete equational theory of types in \Rome and prove that this theory, when viewed as a reduction sequence, is normalizing.
 
 This involves two key contributions. First, we implement a \emph{normalization by evaluation} (NbE) procedure that maps types to normal forms. This procedure is not only responsible for reducing along nontrivial row type equalities, but also for identifying the precise normal and neutral forms of rows and row operations. Second, we prove the equational theory is sound and complete with respect to this normalization function via two Kripke-style logical relations. Our contributions are mechanized in the interactive theorem prover Agda. \Citet{AbelAHPMSS19} highlight the challenge of \emph{Kripke-style logical relations} on \emph{intrinsically well-typed terms}, for which ``developing [logical relation] proofs for realistic languages can require an almost heroic mechanization effort in existing general-purpose proof assistants.'' Our development follows \citet{AllaisBM13} and \citet{ChapmanKNW19} in contributing additional tooling for this known challenge. Our artifact serves as a reference for future NbE and logical-relation proofs of normalization for systems with computation beyond $\beta$-reduction.
 
 In contrast to developments where normalization predicates live in a propositionally irrelevant universe (e.g., that of \citet{TooheyCJX26}), our development is \emph{constructive}: we do not merely assert the existence of normal forms, but rather compute a normal form $\hat{\tau}$ for each type $\tau$. Moreover, decidability of the equational theory is constructive: given types $\KindJ \Gamma \tau \kappa$ and $\KindJ \Gamma \upsilon \kappa$, we can either (i) compute a derivation of $\TEqvJ \Gamma \tau \upsilon \kappa$, or (ii) show no such derivation can exist.   
 
-% \paragraph{Contributions}
+% -----------------------------------------------------------------------------
+% Contributions
+
 In summary, this paper contributes: 
 
 \begin{enumerate}
   \item \Rome{}'s types, kinds, and equational theory \cref{sec:Rome};
   \item a classification of the normal and neutral forms required for higher-order rows, including inert maps, neutral-label rows, and residual row complements \cref{sec:normal-forms};
   \item an NbE algorithm whose semantic operations implement $\beta$-reduction, row mapping and complements, and nested $\Pi$ and $\Sigma$ computation \cref{sec:NbE};  
-  \item mechanized proofs of stability, soundness, completeness in Agda, yielding a decision procedure for \Rome type equivalence \cref{sec:metatheory};
+  \item mechanized proofs of stability, soundness, and completeness in Agda, yielding a decision procedure for \Rome type equivalence \cref{sec:metatheory}; and
   \item a \emph{fully safe} Agda artifact witnessing the computability of normal forms and type equivalence.
 \end{enumerate}
+
+% -----------------------------------------------------------------------------
+% Rows in Action
 
 \section{Rows in Action}
 \label{sec:rows-in-action}
@@ -117,9 +162,9 @@ tree : μ (Σ {'Node   ▹ const Int,
 \Ni The row underlying the \R{tree} type is a row of type operators, permitted by \Rome's higher-order capabilities. We can abstract over such rows to do powerful metaprogramming. For example, we can simulate the deriving of a functor typeclass instance: 
 
 \begin{rosi}
-type Functor : (* → *) → *
+type Functor : (⋆ → ⋆) → ⋆
 type Functor f = ∀ a b. (a → b) → f a → f b
-fmapΣ : ∀ z : R[* → *]. Π (Functor ＠ z) → Functor (Σ z)
+fmapΣ : ∀ z : R[⋆ → ⋆]. Π (Functor z) → Functor (Σ z)
 \end{rosi}
 
 The syntax $\forall z : \RowK {\TypeK \to \TypeK}$ quantifies a \emph{row variable} !z! containing type operators at kind $\TypeK \to \TypeK$. The syntax \R{Functor} \R{＠ z} denotes the mapping of the \R{Functor} type operator over row !z!---that is, the application of \R{Functor} to each operator in !z!. The type of \R{fmapΣ} states that, given a record of \R{fmap} instances at type \R{Π (Functor} \R{＠ z)}, we can give a \R{Functor} instance for \R{Σ z}. This is analogous to components of Haskell's \emph{Deriving Functor} machinery~\citep{Laarhoven07}, but without resort to meta-programming, GHC internals~\citep{GhcAPI}, or Template Haskell~\cite{SheardJ02}.
@@ -131,7 +176,7 @@ The type of \R{fmapΣ} is \emph{not} in normal form. Expanding the \R{Functor} t
 
 
 \begin{rosi}
-fmapΣ : ∀ z : R[* → *]. 
+fmapΣ : ∀ z : R[⋆ → ⋆].
         Π ((λ f. ∀ a b. 
             (a → b) → f a → f b) ＠ z) →
         ∀ a b. (a → b) → (Σ z) a → (Σ z) b 
@@ -179,10 +224,16 @@ type BoolF = {'T ▹ const ⊤ , 'F ▹ const ⊤ ,
               'If ▹ λ b. b × b × b , 'Or ▹ λ b. b × b}  
 \end{rosi}
 
-We specify an evaluation function as taking the fixed point of the variant constructed by \R{BoolF} and returning a variant that is either the true or false case.
+We specify an evaluation function as taking the least fixed-point of the variant constructed by \R{BoolF} and returning a variant that is either the true or false case.
 
 \begin{rosi}
 eval : μ (Σ BoolF) → Σ {'T ▹ ⊤ , 'F ▹ ⊤}
+\end{rosi}
+
+Observe first that $\mu$, the least fixed-point type operator in \Rome, expects its input to be canonically $\lambda$-bound, otherwise the types of term constants such as \R{out} \R{:} \R{μ BoolF} \R{→} \R{BoolF (μ BoolF)} cannot compute. As \R{Σ BoolF} has kind $\TypeK \to \TypeK$ in an empty context, this should be the case. But this means that the expression \R{Σ BoolF} must (in-line and) normalize to: 
+
+\begin{rosi}
+λ b. \Sigma {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
 \end{rosi}
 
 Now consider a desugaring pass to replace the \R{Or} constructor with \R{If} statements. Such a pass is typed as follows:
@@ -192,7 +243,7 @@ type Or = {'Or ▹ λ b. b × b}
 desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
 \end{rosi}
 
-The syntax \R{(BoolF ∖ Or)} describes the row obtained by removing the \R{Or} row fields from the \R{BoolF} row---hence the type specifies precisely the intent of desugaring. We should expect the following computation:
+\Ni The syntax \R{(BoolF ∖ Or)} describes the row obtained by removing the \R{Or} row fields from the \R{BoolF} row---hence the type specifies precisely the intent of desugaring. We should expect the following computation:
 
 \begin{rosi}
   BoolF ∖ Or
@@ -213,11 +264,11 @@ type LamF  = {'Lam ▹ λ x. x ,
 Using row polymorphism and the \emph{row containment} predicates \R{BoolF < y} and \R{LamF < (y  ∖  BoolF)}, we specify that \R{desugar} can operate on any row !y! that includes at least the \R{BoolF} fields and, once those fields are removed, still contains the \R{LambF} fields. This formulation provides a powerful abstraction, enabling \R{desugar} to process any AST that incorporates Boolean constructors.
 
 \begin{rosi}
-desugar : ∀ z : R[*]. BoolF < z, LamF < (z ∖ BoolF) ⇒
+desugar : ∀ z : R[⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
           μ (Σ z) → μ (Σ (z ∖ BoolF))  
 \end{rosi}
 
-While this example demonstrates no new forms of \emph{row computation}, it highlights that with each additional row operator comes (possibly many) new \emph{neutral} forms: the types \R{z ∖ BoolF} and \R{BoolF ∖ z} each may not reduce with a value for \R{z}.
+While this example demonstrates no new forms of \emph{row computation}, it highlights that with each additional row operator comes (possibly many) new \emph{neutral} forms: the types !z! \R{∖ BoolF} and \R{BoolF ∖ z} each may not reduce with a value for !z!.
 
 % \paragraph{Label-generic extension}
 % While they incur no forms of type computation, it is nevertheless helpful to highlight that System \RO (and hence \Rome) permits first-class labels~\citep{Leijen04} in the kind, type, and term calculus. For example, with first-class labels we can specify the addition of an arbitrary constructor !l! with type !tau! to \emph{any} variant lacking !{l ▹ tau}!:
@@ -228,6 +279,9 @@ While this example demonstrates no new forms of \emph{row computation}, it highl
 % \end{rosi}
 
 % Critically, the type variable !l! is quantified with \emph{label kind} !L!, and so we express !{l ▹ tau}! as a row singleton with \emph{variable label}. The type !# l! has kind !*! and permits the label to be a first-class argument to the !extend! function.
+
+% -----------------------------------------------------------------------------
+% Rωμ type system
 
 \section{The \Rome{} Type System}
 \label{sec:Rome}
@@ -346,7 +400,9 @@ Second, we impose a canonical ordering of row literals via the predicate !Ordere
 
 We define reduction on types by directing the type equivalence judgment $\TEqvJ \Delta \tau {\upsilon} \kappa$ (\cref{fig:equivalence}) from left to right. The full equivalence relation is the congruence closure of \cref{fig:equivalence} plus rules for reflexivity, symmetry, and transitivity. 
 
-The rules \erule{$\beta$} and \erule{$\eta$} are expected. The rule \erule{map} maps the type operator $\phi$ over the contents of the row $\Row{\LabTy {\xi_i} {\tau_i}}$. The rules \erule{map$_\mathsf{id}$} and \erule{map$_{\circ}$} describe functor mapping laws. Normally, the rules \erule{$\eta$} and \erule{map$_{\circ}$} would proceed in the opposite direction. However, this direction enforces that arrow and row kinded types land in canonical form ($\lambda$-bindings and row mappings, respectively).
+The rules \erule{$\beta$} and \erule{$\eta$} are expected. The rules \erule{map} and \erule{map$_\Labels$} map the type operator $\phi$ over the contents of the row literal $\Row{\LabTy {\ell_i} {\tau_i}}$ and row singleton $\Row{\LabTy \xi \tau}$, respectively.
+
+The rules \erule{map$_\mathsf{id}$} and \erule{map$_{\circ}$} describe functor mapping laws. Normally, the rules \erule{$\eta$} and \erule{map$_{\circ}$} would be presented in the opposite direction (i.e., that $\Mapp {(\lambda \alpha. \alpha)} \rho = \rho$). However, this direction enforces that arrow-kinded variables are canonically $\lambda$-bound and row-kinded variables are canonically maps. Incorporating these rules into the equational theory is not mandatory. For example, \citet{ChapmanKNW19} do not reason modulo $\eta$-equivalence. However it simplifies metatheory, as our mechanization logic may rule out row-kinded and arrow-kinded neutrals, making the definition of semantic types and later logical relations (e.g., in \cref{sec:consistency}) much simpler.
 
 The interesting rules describe row complement computation and the interplay of $\Pi$ and $\Sigma$ with edge cases. The rule \erule{$\Compl$} reduces row complements algorithmically by subtracting the elements of the second operand from the first. The syntax $\{ \LabTy {\ell} {\tau}, \rho\}$ is metanotation, treating rows as lists. The rule \erule{map$_\setminus$} specifies that mapping distributes over complements. The rule \erule{assoc$_\Xi$} reassociates applications of $\Pi$ and $\Sigma$ of the form $(\Pi\, \rho)\, \tau$ to $\Pi\, (\rho \, \Flap \, \tau)$, ensuring that $\Pi$ is the outermost syntax and that reduction may continue by supplying each operator in $\rho$ with the argument $\tau$. The rule \erule{$\Xi$} reveals that the application of $\Pi$ and $\Sigma$ to nested rows is instead mapping. To illustrate, consider the following type with kind $\TypeK \to \TypeK$.
 
@@ -360,10 +416,12 @@ The interesting rules describe row complement computation and the interplay of $
 Π {'a ▹ Σ {'b ▹ λ x. x}}
 \end{rosi}
 
-\Ni This process is repeated as many times as necessary. As this type has arrow kind, It is desirable that normalization produces a canonical $\lambda$-bound form. We might expect to need the following rule for $\Xi \in \{ \Pi , \Sigma\}$, which commutes $\Xi$ over $\lambda$-bindings in rows: 
+\Ni This process is repeated as many times as necessary. Of note too is that, as this type has arrow kind, normalization must produce a canonical $\lambda$-bound form. We might expect to need the following rule to commute $\Xi \in \{\Pi, \Sigma\}$ over $\lambda$-bindings in rows: 
+
+
 \begin{small}
 \begin{align*}
-\ib{\irule
+\ib{\irule[\erule{$\eta\Xi$}]
   {\KindJ 
     {\Delta, \alpha \co \kappa_1} 
     {\tau} 
@@ -373,14 +431,14 @@ The interesting rules describe row complement computation and the interplay of $
     {\Delta} 
     {\Xi \, {\Row {\LabTy {\xi} {\lambda \alpha \co \kappa_1. \tau}}}} 
     {\lambda \alpha \co \kappa_1. {\Xi \, {\Row {\LabTy {\xi} {\tau}}}}} 
-    {\kappa_1 \to \kappa_2}}}
+    {\kappa_1 \to \kappa_2}}} 
 \end{align*}
 \end{small}
 
-\Ni But this rule is in fact derivable.
+\Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it. 
 
 \paragraph{Mechanized representations}
-Equivalence on predicates and types is represented mechanically by the typed relations $({\equiv}t)$ and $({\equiv}p)$.
+Equivalence on predicates and types is represented mechanically by the typed relations $\Infix{\TEqv}$ and $\Infix{\PEqv}$.
 
 \begin{AgdaAlign}
 \begin{code}
@@ -460,6 +518,9 @@ module Embedding where
 \label{fig:embedding}
 \end{figure}
 
+% -----------------------------------------------------------------------------
+% Design choices, renaming, substitution
+
 \section{Design Choices in Formalized Metatheory}
 
 Our development occupies a sweet-spot in intrinsically well-typed syntax. Because variables are well-scoped and types are well-kinded, relations and functions defined on types preserve kind and context definitionally. This reduces the overhead of tedious well-formedness predicates and preservation lemmas. 
@@ -530,6 +591,9 @@ module SubId where
   sub-id = Substitution.sub-id
 \end{code}
 
+% -----------------------------------------------------------------------------
+% Normalization by Evaluation
+
 \section{Normalization by Evaluation}
 \label{sec:NbE}
 
@@ -568,7 +632,6 @@ module SemTypes where
 
 \paragraph{Functions} We interpret arrow-kinded types as \emph{Kripke function spaces} \citep{JungT93, Abel13}, which permit the application of interpreted function $\KindJ {\Delta_1} \phi {\kappa_1 \to \kappa_2}$ at any environment !Delta_2! provided a renaming from !Delta_1! into !Delta_2!. The Kripke flavor here is that environments may be viewed as \emph{worlds}, and so each Kripke function returns a type in any \emph{reachable} environment.
 
-
 \begin{code}[hide]
   module _ where private
     SemType : KEnv → Kind → Set
@@ -583,6 +646,14 @@ module SemTypes where
 \begin{code}[hide]
     SemType _ _ = ⊥
 \end{code}
+
+Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are canonically $\lambda$-bound, and hence our definition of !SemType! needn't account for the evaluation of arrow-kinded variables. Contrast our definition with that of \citet{ChapmanKNW19}, for which the evaluation of e.g. variable $v : \TypeK \to \TypeK$ is !left (` v)!: 
+
+\begin{code}
+    SemType Δ₁ (κ₁ `→ κ₂) = 
+        NeutralType Δ₁ (κ₁ `→ κ₂) 
+     or KripkeFunction Δ₁ κ₁ κ₂
+\end{code} 
 
 
 \paragraph{Row literals} We define the interpretation of row literals ${\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}}$ as the type !Row! !(SemType! !Delta! !kappa)!, which is defined generically over arbitrary type !A : Set! below. The !Row! type is a finitely indexed map. We choose this representation because operations like row mapping can be expressed as function composition. We will commonly refer to the empty row and cons case on !Row!s as $\epsilon$ and !_::_!, respectively.
@@ -703,7 +774,7 @@ module ReflectReify where
 
 
 
-Reflection asserts that neutral forms have semantic representations. We define reflection (\cref{fig:reflection}) mutually recursively with reification (\cref{fig:reification}). Types at kind !*! and !L! can be promoted straightforwardly with the !ne! constructor. Neutral types at arrow kind must be expanded into Kripke functions: The input !v! has type !SemType Delta_2 kappa_1! and must be reified, while The function !phi! is kinded in environment !Delta_1! and so must be renamed to !Delta_2!, the environment of !v!. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by !(\! !r! !n! $\to$ !reflect! !n)!. This equation implements the expansion of \erule{map$_\mathsf{id}$} for neutral types.
+Reflection asserts that neutral forms have semantic representations. We define reflection (\cref{fig:reflection}) mutually recursively with reification (\cref{fig:reification}). Types at kind $\TypeK$ and $\LabK$ can be promoted straightforwardly with the !ne! constructor. Neutral types at arrow kind must be expanded into Kripke functions: The input !v! has type !SemType Delta_2 kappa_1! and must be reified, while The function !phi! is kinded in environment !Delta_1! and so must be renamed to !Delta_2!, the environment of !v!. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by !(\! !r! !n! $\to$ !reflect! !n)!. This equation implements the expansion of \erule{map$_\mathsf{id}$} for neutral types.
 
 \subsection{Reification}
 \label{sec:reification}
@@ -797,6 +868,9 @@ module ηNorm where
   subNF-id = Substitution.subₜNF-id
 \end{code}
 
+% -----------------------------------------------------------------------------
+% Evaluation
+
 \section{Evaluation}
 \label{sec:Evaluation}
 Our next task is to \emph{evaluate} terms of type !Type Delta kappa! into the semantic domain at type !SemType Delta kappa!. This component of the normalization algorithm implements row computation. We proceed by defining semantic helpers that reduce !SemType! arguments.
@@ -860,7 +934,6 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 
 The mapping of !phi! over a complement is distributive, following rule \errule{map$_{\setminus}$}. Likewise, we follow rule \errule{map$_\circ$} in grouping the nested map !phi_1! !.map.! !(phi_2 .map. n)! into a composed map. Here again a functional representation pays off by permitting composition in the semantic domain.
 
-
 \paragraph{Semantic complement} The complement of two row-kinded semantic types is always inert when one (or both) are not row literals, and thus constructed simply by the !_COMPL_! constructor. The interesting case is when we must reduce two row literals to another row literal.
 
 \begin{AgdaAlign}
@@ -894,9 +967,9 @@ We define a semantic version of the flap operator as follows. This definition is
 \begin{code}
   apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
   apply a = λ ρ F → F ⟨·⟩ (renSem ρ a)
-  _<?>V_ : SemType Δ R[ κ₁ `→ κ₂ ] → 
+  _⟨?⟩_ : SemType Δ R[ κ₁ `→ κ₂ ] → 
            SemType Δ κ₁ → SemType Δ R[ κ₂ ]
-  f <?>V a = apply a ⟨$⟩ f
+  f ⟨?⟩ a = apply a ⟨$⟩ f 
 \end{code}
 
 \paragraph{Semantic $\Pi$ and $\Sigma$} 
@@ -906,19 +979,19 @@ The defining equations for the reduction of $\Pi$ is given below. The logic for 
 \begin{code}
   ⟨Π⟩ : SemType Δ R[ κ ] → SemType Δ κ 
   ⟨Π⟩ {κ = ★} x = Π (reify x)
-  ⟨Π⟩ {κ = κ₁ `→ κ₂} F = λ ρ v → ⟨Π⟩ (renSem ρ F <?>V v)
-  ⟨Π⟩ {κ = R[ κ ]} ρ = (λ _ v → ⟨Π⟩ v) ⟨$⟩ ρ
+  ⟨Π⟩ {κ = κ₁ `→ κ₂} F = λ ρ v → ⟨Π⟩ (renSem ρ F ⟨?⟩ v)
+  ⟨Π⟩ {κ = R[ κ ]} ρ = const ⟨Π⟩ ⟨$⟩ ρ
 \end{code}
 \begin{code}[hide]
   ⟨Π⟩ {κ = L} x = lab "impossible"
   ⟨Σ⟩ : SemType Δ R[ κ ] → SemType Δ κ 
   ⟨Σ⟩ {κ = ★} x = Σ (reify x)
-  ⟨Σ⟩ {κ = κ₁ `→ κ₂} F = λ ρ v → ⟨Σ⟩ (renSem ρ F <?>V v)
+  ⟨Σ⟩ {κ = κ₁ `→ κ₂} F = λ ρ v → ⟨Σ⟩ (renSem ρ F ⟨?⟩ v)
   ⟨Σ⟩ {κ = R[ κ ]} ρ = (λ _ v → ⟨Σ⟩ v) ⟨$⟩ ρ  
   ⟨Σ⟩ {κ = L} _ = lab "impossible"
 \end{code}
  
-Recall that we may only construct record types in normal form at kind !*!, and so for the case that !kappa = *! we simply reify the input and construct the record via the !NormalType! constructor !Pi!. We exclude the case that !kappa = L! because it is impossible (recall that in the !Type! syntax, we restrict the formation of the !Pi! constructor to just non-label kinds.) 
+Recall that we may only construct record types in normal form at kind $\TypeK$, and so for the case that $\kappa = \TypeK$ we simply reify the input and construct the record via the !NormalType! constructor !Pi!. We exclude the case that $\kappa = \LabK$ because it is impossible (recall that in the !Type! syntax, we restrict the formation of the $\Pi$ constructor to just non-label kinds.) 
 
 Next, when applying !Pi'V! to a function, we expand the semantic $\lambda$-binding outwards. Thereafter, we apply rule \errule{assoc$_\Pi$} to explain how !Pi'V! operates on a single operand. We implement rule \errule{$\Pi$} directly in the last equation: the application of !Pi'V! to a row-kinded input $\rho$ is simply the mapping of !Pi'V!  over $\rho$.
 
@@ -949,23 +1022,23 @@ A semantic environment maps type variables to semantic types. The identity envir
   ⟦_⟧ₚ (ρ₁ ≲ ρ₂) η = reify (⟦ ρ₁ ⟧ₜ η) ≲ reify (⟦ ρ₂ ⟧ₜ η)
 \end{code}
 \begin{code}
-  ⟦ ` v ⟧ₜ η = η v
+  ⟦ ` v ⟧ₜ η       = η v
   ⟦ τ₁ · τ₂ ⟧ₜ η   = (⟦ τ₁ ⟧ₜ η) ⟨·⟩ (⟦ τ₂ ⟧ₜ η)
   ⟦ ρ₂ ∖ ρ₁ ⟧ₜ η = ⟦ ρ₂ ⟧ₜ η ⟨∖⟩′ ⟦ ρ₁ ⟧ₜ η
   ⟦ Π ⟧ₜ η         = λ _ v → ⟨Π⟩ v
   ⟦ Σ ⟧ₜ η         = λ _ v → ⟨Σ⟩ v
   ⟦ f $ a ⟧ₜ η     = ⟦ f ⟧ₜ η ⟨$⟩ ⟦ a ⟧ₜ η
   ⟦ ξ ▹ τ ⟧ₜ η with ⟦ ξ ⟧ₜ η 
-  ... | ne ν   = (ν ▹ ⟦ τ ⟧ₜ η)
-  ... | lab l = row (1 , λ { fzero → (l , ⟦ τ ⟧ₜ η) }) tt
-  ⟦ ⦅ ρ ⦆ ω ⟧ₜ η = row 
+  ... | ne ν       = (ν ▹ ⟦ τ ⟧ₜ η)
+  ... | lab l      = row (1 , λ { fzero → (l , ⟦ τ ⟧ₜ η) }) tt
+  ⟦ ⦅ ρ ⦆ ω ⟧ₜ η   = row 
     (⟦ ρ ⟧ᵣ η) 
     (⟦ toWitness ω ⟧ₒ η)
     where
       ⟦_⟧ᵣ : RowLiteral (Type Δ₁ κ) → 
             SemEnv Δ₁ Δ₂ → 
             Row (SemType Δ₂ κ)
-      ⟦ [] ⟧ᵣ η = ε
+      ⟦ [] ⟧ᵣ η          = ε
       ⟦ (l , τ) ∷ ρ ⟧ᵣ η = (l , ⟦ τ ⟧ₜ η) ⨾⨾ ⟦ ρ ⟧ᵣ η
       ⟦_⟧ₒ : {ρ : RowLiteral (Type Δ₁ κ)} → 
              Ordered ρ → 
@@ -1003,6 +1076,9 @@ We describe only the interesting cases of evaluation. The first equation states 
   ⇓ : Type Δ κ → NormalType Δ κ 
   ⇓ τ = reify (⟦ τ ⟧ₜ idEnv)
 \end{code}
+
+% -----------------------------------------------------------------------------
+% Metatheory
 
 \section{Metatheory}
 \label{sec:metatheory}
@@ -1061,7 +1137,7 @@ module Metatheory where
   open import Rome.Kinds
   open import Rome.NormalTypes.NBE
 \end{code}
-\emph{Stability} asserts that $\Norm$ behaves as a normalization function ought to. That is, normal forms are fixed-points of normalization.
+\emph{Stability} asserts that $\Norm$ behaves as a normalization function ought to. That is, normal forms are fixed points of normalization.
 
 \begin{code}
   stability : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ 
@@ -1087,7 +1163,8 @@ module Metatheory where
 \end{code}
 \end{AgdaAlign}
 
-\subsection{Soundness} 
+\subsection{Soundness}
+\label{sec:soundness} 
 \emph{Soundness} of the equational theory states that if $\TEqvJ \Delta \tau \upsilon \kappa$, then $\tau$ and $\upsilon$ normalize to the same form.
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -1144,7 +1221,8 @@ module Uniformity where
 \label{fig:uniformity-and-PE}
 \end{figure}
 
-The relation is defined compositionally in the cases where !kappa = *!, !kappa = L!, or !kappa = R[ kappa ]! and the equated rows are neutral-labeled or inert complements.
+
+The relation is defined compositionally in the cases where $\kappa = \TypeK$, $\kappa = \LabK$, or $\kappa = \RowK \kappa$ and the equated rows are neutral-labeled or inert complements.
 \begin{AgdaAlign}
 \begin{code}[hide]
 module SoundnessRelation where
@@ -1173,7 +1251,7 @@ module SoundnessRelation where
     Uniform φ × Uniform ψ × PointEqual-≈ {Δ₁} φ ψ 
 \end{code}
 
-\Ni Uniformity states that passing a renaming !r_2! to a Kripke function is equivalent to renaming it algorithmically---that is, semantic renaming (!renSem!) commutes with Kripke renaming. The uniformity property is attributable to \citet{AllaisBM13} but simplified by \citet{ChapmanKNW19}. The !PointEqual!!-!!~~! predicate circumvents any need to postulate functional extensionality. Rather, we assert that two Kripke functions $\phi$ and $\psi$ map equivalent inputs to equivalent outputs under all renamings.
+\Ni Uniformity states that passing a renaming $r_2$ to a Kripke function is equivalent to renaming it algorithmically---that is, semantic renaming (!renSem!) commutes with Kripke renaming. The uniformity property is attributable to \citet{AllaisBM13} but simplified by \citet{ChapmanKNW19}. The !PointEqual!!-!!~~! predicate circumvents any need to postulate functional extensionality. Rather, we assert that two Kripke functions $\phi$ and $\psi$ map equivalent inputs to equivalent outputs under all renamings.
 
 Some plumbing is necessary in the case that we are equating two inert maps $\Mapp {\phi} {n}$ and $\Mapp {\psi} {m}$: 
 
@@ -1277,8 +1355,10 @@ Soundness follows from the fundamental lemma in the identity semantic environmen
 \end{AgdaAlign}
 
 \subsection{Consistency}
+\label{sec:consistency}
 
-\emph{Consistency} states that every type is equivalent to its normalization. 
+\emph{Consistency} states that every type is equivalent to its normalization. Or, equivalently, \emph{consistency} states that $\Infix{\TEqv}$ is \emph{normalizing}.
+
 \begin{AgdaAlign} 
 \begin{code}[hide]
 module ConsistencyStatement where
@@ -1296,7 +1376,7 @@ module ConsistencyStatement where
 \end{AgdaAlign}
 
 
-We define a logical relation for consistency $\llbracket \tau \rrbracket{\approx}\, V$ by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to ⟨$⟩$ at ground kind when $\tau$ is equivalent to the embedding of ⟨$⟩$. In other words, $\tau$ and ⟨$⟩$ are identified up to type equivalence.
+We define a logical relation for consistency $\llbracket \tau \rrbracket{\approx}\, V$ by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ is equivalent to the embedding of $V$. In other words, $\tau$ and $V$ are identified up to type equivalence.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -1317,7 +1397,7 @@ module ConsistencyRelation where
   ⟦_⟧≈_ {κ = L} τ V = τ ≡ₜ ⇑ V
 \end{code}
 
-\Ni Two kripke functions are related when they map related inputs to related outputs under all renamings.
+\Ni Two kripke functions are related when they map related inputs to related outputs under all renamings. That our system reduces modulo $\eta$-equivalence simplifies this definition, which needn't account for when $\phi$ is neutral.
 
 \begin{code}
   ⟦_⟧≈_ {Δ₁} {κ = κ₁ `→ κ₂} f φ = 
@@ -1482,6 +1562,9 @@ module DecTyEquiv where
   ... | no  p = no (p ∘ soundness)
 \end{code}
 \end{AgdaAlign}
+
+% -----------------------------------------------------------------------------
+% Formalization choices & related work
 
 \section{Formalization Choices \& Related Work}
 \label{sec:related-work}

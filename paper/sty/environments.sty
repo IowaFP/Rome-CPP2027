@@ -1,0 +1,143 @@
+% -----------------------------------------------------------------------------
+% Listings formatting, which has largely been outmoded by Minted, however
+% I still use listings for inline code in some places
+
+\lstloadlanguages{Haskell}
+\lstset{
+  xleftmargin=\parindent,
+  basicstyle=\ttfamily\small,
+  keepspaces=true,
+  keywordstyle=\underbar,
+  numberstyle=\tiny,
+  flexiblecolumns=false,
+  basewidth={0.5em,0.45em},
+  aboveskip=\smallskipamount,
+  belowskip=-1em,
+  morekeywords={instance, class, if, where, data, then, else, type, require, linear, primitive, Pi, Sigma, forall, \\, /\\, \#, prj, in },
+  keywordstyle={\color{\KeywordColor}\bfseries},
+  morecomment=[l]{--},
+  mathescape=true,
+  literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+    {/=}{{$\not=$}}2
+    {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+    {\\\\}{{\char`\\\char`\\}}1 {\\"}{{\char`\\"}}2
+    {->}{{$\to$}}2 {-@}{{$\lto$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+    {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
+    {\ .\ }{{$\circ$}}3
+    {>>}{{>>}}2 {>>=}{{>>=}}2
+    {|}{{$\mid$}}1
+    {\#}{{\TypeKeyword{$\#$}}}1
+    {...}{{$\dots$}}3
+    {@}{{$@$}}1 {@!}{{$@^!$}}1 {-!>}{{$\uto$}}2 {:+:}{{$\oplus$}}1
+    {.<.}{{$\sqsubseteq$}}1 {//}{{$\div$}}1
+    {.map.}{{$\mathdollar$}}1
+    {+}{{$\cdot$}}1 {~?~}{{$\triangledown$}}1 { ~ }{{$\sim$}}1
+    {++}{{$\Concat$}}2
+    {<}{{$\lesssim$}}1
+    {Mu}{{\TypeKeyword{$\mu$}}}1
+    {Pi}{{\TypeKeyword{$\Pi$}}}1
+    {Sigma}{{\TypeKeyword{$\Sigma$}}}1
+    {/\\}{{\TypeKeyword{$\Lambda$}}}1
+    {forall}{{{\TypeKeyword{$\forall$}}}}1
+    {:=}{{$\triangleright$}}1
+    {\ -\ }{{$\Compl$}}3
+    {COMPL}{{$\Compl$}}1
+    {*}{$\star$}1
+    {Delta}{$\Delta$}1
+    {Delta_1}{${\Delta_{1}}\,$}1
+    {Delta_2}{${\Delta_{2}}\,$}1
+    {Delta_3}{${\Delta_{3}}\,$}1
+    {kappa}{$\kappa$}1
+    {kappa_1}{${\kappa_{1}}\,$}1
+    {kappa_2}{${\kappa_{2}}\,$}1
+    {kappa_3}{${\kappa_{3}}\,$}1
+    {Gamma}{$\Gamma$}1
+    {Phi}{$\Phi$}1
+    {rho}{$\rho$}1
+    {rho_1}{${\rho_{1}}$}1
+    {rho_2}{${\rho_{2}}$}1
+    {rho_3}{${\rho_{3}}$}1  
+    {rho_4}{${\rho_{4}}$}1  
+    {tau}{$\tau$}1
+    {tau_1}{${\tau_{1}}$}1
+    {tau_2}{${\tau_{2}}$}1
+    {tau_3}{${\tau_{3}}$}1
+    {upsilon}{$\upsilon$}1
+    {upsilon_1}{${\upsilon_{1}}$}1
+    {upsilon_2}{${\upsilon_{2}}$}1
+    {upsilon_3}{${\upsilon_{3}}$}1          
+    {phi}{$\phi$}1
+    {phi_1}{${\phi_{1}}$}1
+    {phi_2}{${\phi_{2}}$}1
+    {phi_3}{${\phi_{3}}$}1     
+    {ell}{$\ell$}1
+    {ell_1}{${\ell_{1}}$}1
+    {ell_2}{${\ell_{2}}$}1
+    {ell_3}{${\ell_{3}}$}1   
+    {times}{${\times}$}1 
+    {exists}{${\exists}$}1
+    {cdot}{${\cdot}$}1
+    {Down}{$\Downarrow$}1
+    {Up}{$\Uparrow$}1
+    {beta}{$\beta$}1
+    {eta}{$\eta$}1
+    {eta_1}{${\eta_{1}}$}1
+    {eta_2}{${\eta_{2}}$}1
+    {eta_3}{${\eta_{3}}$}1     
+    {.=.}{$\equiv$}1
+    {Top}{$\top$}1
+    {Bot}{$\bot$}1
+    {~~2}{${\approx}_{2}$}1
+    {~~}{$\approx$}1
+    {n_1}{${n_{1}}$}1
+    {n_2}{${n_{2}}$}1
+    {v_1}{${v_{1}}$}1
+    {v_2}{${v_{2}}$}1
+    {v_3}{${v_{3}}$}1
+    {r_1}{${r_{1}}$}1
+    {r_2}{${r_{2}}$}1    
+    {emptyset}{$\emptyset$}1    
+    {alpha}{$\alpha$}1
+    {completeness^-1}{$\mathtt{completeness}^{-1}$}1
+    {[[}{$\llbracket$}1
+    {]]}{$\rrbracket$}1
+    {sigma}{$\sigma$}1
+    {vdash}{$\vdash$}1
+    {emptyRow}{$\varepsilon$}1
+    {pi}{$\pi$}1
+    {-.-}{-$\circ$-}1
+}
+\lstnewenvironment{codef}{\lstset{basicstyle=\lstfont,xleftmargin=1.5em}}{}
+\newcommand*\lstfont{\ttfamily\small}  % For some reason, footnotesize *in particular* breaks the listings package. Good stuff.
+\lstnewenvironment{haskell}{\lstset{basicstyle=\lstfont}}{}
+\lstnewenvironment{agda}{\lstset{basicstyle=\lstfont,aboveskip=0pt,belowskip=0pt}}{}
+\lstnewenvironment{agdaf}{\lstset{basicstyle=\lstfont,aboveskip=0pt,belowskip=0pt,numbers=left}}{}
+
+\usemintedstyle{colorful}
+\newminted[rosi]{rosi}{mathescape, escapeinside=!!, xleftmargin=\parindent, fontsize=\footnotesize}
+\newcommand\R[1]{\Code{rosi}{#1}}
+
+
+\newenvironment{syntaxarray}%
+{\begin{array}[t]{@{}lr@{\hspace{5px}}r@{\hspace{5px}}l@{}}}%
+{\end{array}\ignorespacesafterend}
+
+\newenvironment{syntax}%
+{\[\begin{syntaxarray}}%
+{\end{syntaxarray}\]\ignorespacesafterend}
+
+\newenvironment{doublesyntaxarray}%
+  {\begin{array}{l@{}lr@{\hspace{5px}}c@{\hspace{5px}}l@{\hspace{15px}}lr@{\hspace{5px}}c@{\hspace{5px}}l}}%
+  {\end{array}\ignorespacesafterend}
+
+\newenvironment{doublesyntax}%
+  {\[\begin{doublesyntaxarray}}
+  {\end{doublesyntaxarray}\]\ignorespacesafterend}
+
+  \newenvironment{smalle}
+  {\begingroup\small}
+  {\endgroup\ignorespacesafterend}
+
+  \newenvironment{old}
+  {\begingroup\color{BurntOrange}}
+  {\endgroup\ignorespacesafterend}
