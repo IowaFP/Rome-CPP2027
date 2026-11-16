@@ -1,8 +1,6 @@
 \documentclass[sigplan,10pt]{acmart}
 \settopmatter{printfolios=true,printccs=true,printacmref=true}
-
-% -----------------------------------------------------------------------------
-% Packages 
+ 
 
 \usepackage{accents}        % accents below math symbols
 \usepackage{amsfonts}       % math fonts and blackboards
@@ -25,7 +23,7 @@
 \usepackage[para]{footmisc}                % paragraph-style footnotes
 \usepackage[utf8]{inputenc}                % UTF-8 source text encoding
 \usepackage[T1]{fontenc}                   % T1 output font encoding
-\usepackage[svgnames, dvipsnames]{xcolor}  % named colors and shading
+% \usepackage[svgnames, dvipsnames]{xcolor}  % named colors and shading
 \usepackage[capitalize,noabbrev]{cleveref} % capitalized cross-refs
 \usepackage[normalem]{ulem}                % text underlining/striking
 \PassOptionsToPackage                      % PDF bookmarks/links
@@ -98,6 +96,7 @@
 {-# OPTIONS -W noUnreachableClauses #-}
 module NBE where 
 open import Rome.Prelude
+open import Rome.Prelude.Equivalence
 \end{code}
 
 % -----------------------------------------------------------------------------
@@ -1137,7 +1136,7 @@ module Metatheory where
   open import Rome.Kinds
   open import Rome.NormalTypes.NBE
 \end{code}
-\emph{Stability} asserts that $\Norm$ behaves as a normalization function ought to. That is, normal forms are fixed points of normalization.
+\emph{Stability} asserts that embedding $\Infix{\Embed}$ is right-inverse to normalization $\Infix{\Norm}$:
 
 \begin{code}
   stability : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ 
@@ -1147,7 +1146,7 @@ module Metatheory where
   stability = Stability.stability
 \end{code}
 
-\Ni Stability implies idempotency:
+\Ni Stability implies idempotency of normalization:
 \begin{code}
   idempotency : ∀ (τ : Type Δ κ) → 
                 ((⇑ ∘ ⇓) ∘ (⇑ ∘ ⇓)) τ ≡ (⇑ ∘ ⇓) τ 
@@ -1162,6 +1161,34 @@ module Metatheory where
   surjectivity τ = ⇑ τ , stability τ
 \end{code}
 \end{AgdaAlign}
+
+\paragraph{Normal Forms}
+A \emph{normal form} is typically defined with respect to a step relation, stating that each type cannot take a \emph{single} step:
+
+\begin{code}[hide]
+  module _ {Δ : KEnv} {κ : Kind} where 
+    _—→ₜ_ : (_ _ : Type Δ κ) → Set
+    _ —→ₜ _  = ⊤ 
+\end{code}
+\begin{code}
+    _↛ₜ : (τ : Type Δ κ) → Set 
+    τ ↛ₜ = ¬ (Σ[ υ ∈ (Type Δ κ) ] (τ —→ₜ υ))
+\end{code}
+
+\Ni However, we haven't such a relation, viewing any derivation of $\tau \TEqv \upsilon$ instead as a \emph{sequence} of steps. In turn, we instead define normal forms as fixed points of normalization:
+
+\begin{code}
+  NormalForm  : Type Δ κ → Set
+  NormalForm τ = (⇑ ∘ ⇓) τ ≡ τ
+\end{code}
+
+\Ni In other words, normalization has no effect on a type in normal form. Stability implies this property for all normal types.
+
+\begin{code}
+  allNormal : (τ : NormalType Δ κ) → NormalForm (⇑ τ)
+  allNormal τ = cong ⇑ (stability τ)
+\end{code}
+
 
 \subsection{Soundness}
 \label{sec:soundness} 
@@ -1357,7 +1384,7 @@ Soundness follows from the fundamental lemma in the identity semantic environmen
 \subsection{Consistency}
 \label{sec:consistency}
 
-\emph{Consistency} states that every type is equivalent to its normalization. Or, equivalently, \emph{consistency} states that $\Infix{\TEqv}$ is \emph{normalizing}.
+\emph{Consistency} states that every type is equivalent to its normalization.
 
 \begin{AgdaAlign} 
 \begin{code}[hide]
@@ -1374,7 +1401,6 @@ module ConsistencyStatement where
   consistency = Consistency.consistency
 \end{code}
 \end{AgdaAlign}
-
 
 We define a logical relation for consistency $\llbracket \tau \rrbracket{\approx}\, V$ by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ is equivalent to the embedding of $V$. In other words, $\tau$ and $V$ are identified up to type equivalence.
 
@@ -1505,13 +1531,26 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
     (sub-id τ) (fund-⟦⟧≈ τ idEnv-⟦⟧≈)
 \end{code}
 
-\Ni Consistency follows from reification, which asserts that $\tau$ is equivalent to $\Embed (\text{reify} V)$ if $\tau$ is related to ⟨$⟩$.
+\Ni Consistency follows from reification, which asserts that $\tau$ is equivalent to $\Embed (\text{reify} V)$ if $\tau$ is related to $V$.
 
 \begin{code}
   consistency : (τ : Type Δ₁ κ) → τ ≡ₜ ⇑ (⇓ τ) 
   consistency = reify-⟦⟧≈ ∘ ⊢⟦_⟧≈
 \end{code}
 \end{AgdaAlign}
+
+\paragraph{(Weak) Normalization}
+\emph{Weak normalization} states that each type $\tau$ has \emph{some} reduction sequence to a normal form. Of course, consistency tells us this fact \emph{constructively}:
+
+\begin{code}[hide]
+  module _ where 
+    open import Rome.Metatheory.NBE.Normalization using (NormalForm ; allNormal)
+\end{code}
+\begin{code}
+    normalization : ∀ (τ : Type Δ κ) → 
+                      Σ[ υ ∈ Type Δ κ ] (τ ≡ₜ υ × NormalForm υ)
+    normalization τ = ⇑ (⇓ τ) , consistency τ , allNormal (⇓ τ)
+\end{code}
 
 \paragraph{Completeness}
 

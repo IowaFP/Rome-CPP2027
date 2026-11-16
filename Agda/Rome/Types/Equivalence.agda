@@ -17,8 +17,8 @@ open import Rome.NormalTypes.NBE.Normalization
 -------------------------------------------------------------------------------
 -- Small step relation on terms
 
-infix 0 _≡ₜ_
-infix 0 _≡ₚ_
+infix 3 _≡ₜ_
+infix 3 _≡ₚ_
 data _≡ₚ_ : Pred (Type Δ R[ κ ]) → Pred (Type Δ R[ κ ]) → Set
 data _≡ₜ_ : Type Δ κ → Type Δ κ → Set 
 
