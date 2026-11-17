@@ -39,7 +39,7 @@ reifyRow' (suc n) P with P fzero
 reifyRow : Row (SemType Δ κ) → RowLiteral (NormalType Δ κ)
 reifyRow (n , P) = reifyRow' n P
 
-reifyRowOrdered : ∀ {Δ : KEnv} {κ : Kind} (ρ : Row (SemType Δ κ)) → OrderedRow ρ →  Ordered (reifyRow ρ)
+reifyRowOrdered : ∀ {Δ : KEnv} {κ : Kind} {ρ : Row (SemType Δ κ)} → OrderedRow ρ →  Ordered (reifyRow ρ)
 reifyRowOrdered' : ∀ {Δ : KEnv} {κ : Kind} (n : ℕ) → (P : Fin n → Label × SemType Δ κ) → 
                       OrderedRow (n , P) →  Ordered (reifyRow (n , P))
 
@@ -47,7 +47,7 @@ reifyRowOrdered' zero P ω = tt
 reifyRowOrdered' (suc zero) P ω = tt
 reifyRowOrdered' (suc (suc n)) P (l₁<l₂ , ih) = l₁<l₂ , (reifyRowOrdered' (suc n) (P ∘ fsuc) ih)
 
-reifyRowOrdered (n , P) ω = reifyRowOrdered' n P ω
+reifyRowOrdered {ρ = n , P} ω = reifyRowOrdered' n P ω
 
 reifyPreservesNR : ∀ (ρ₁ ρ₂ : SemRow Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
                      (nr : notRowLiteral ρ₁ or notRowLiteral ρ₂) → notRowLiteralNF (reify ρ₁) or notRowLiteralNF (reify ρ₂)
@@ -59,7 +59,7 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
-reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
+reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered q))
 reify {κ = R[ κ ]} (φ $ τ) =  (`λ (reify (φ S (` Z))) $ τ)
 reify {κ = R[ κ ]} ((ρ₂ ∖ ρ₁) {nrl}) = (reify ρ₂ ∖ reify ρ₁) {fromWitness (reifyPreservesNR ρ₂ ρ₁ nrl)}
 

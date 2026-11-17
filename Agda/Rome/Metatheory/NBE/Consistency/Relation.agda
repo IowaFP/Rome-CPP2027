@@ -49,9 +49,9 @@ SoundKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ �
 ⟦_⟧≈_ {κ = ★} τ₁ τ₂ = τ₁ ≡ₜ ⇑ τ₂
 ⟦_⟧≈_ {κ = L} τ₁ τ₂ = τ₁ ≡ₜ ⇑ τ₂
 ⟦_⟧≈_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
-⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (row ρ q) =
+⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (row ρ ω) =
     let xs = ⇑ᵣ (reifyRow ρ) in 
-    (τ ≡ₜ ⦅ xs ⦆ (fromWitness (⇑ₒ (reifyRow ρ) (reifyRowOrdered ρ q)))) × 
+    (τ ≡ₜ ⦅ xs ⦆ (fromWitness (⇑ₒ {ρ = reifyRow ρ} (reifyRowOrdered ω)))) × 
     (⟦ xs ⟧≈ᵣ ρ)
 ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (l ▹ V) = (τ ≡ₜ (⇑ₙₑ l ▹ ⇑ (reify V))) × (⟦ ⇑ (reify V) ⟧≈ V)
 ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ ((ρ₂ ∖ ρ₁) {nr}) = (τ ≡ₜ (⇑ (reify ((ρ₂ ∖ ρ₁) {nr})))) × (⟦ ⇑ (reify ρ₂) ⟧≈ ρ₂) × (⟦ ⇑ (reify ρ₁) ⟧≈ ρ₁)

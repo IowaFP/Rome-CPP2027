@@ -340,7 +340,7 @@ weaken-⇓² τ = reify-≈ (idext lifte²-idEnv τ)
                             (σ : SubstitutionₜNF Δ₁ Δ₂) (τ : NormalType (Δ₁ , κ) ★) → 
                     sub (liftsₜNF σ) τ 
                   ≡ 
-                    ⟦ (⇑ τ [ liftsₜ (⇑ ∘ σ) ]σ) ⟧ₜ  (lifte idEnv)
+                    ⟦ (⇑ τ [ liftsₜ (⇑ ∘ σ) ]ₛ) ⟧ₜ  (lifte idEnv)
 ↻-lifted-subₜNF-eval  σ τ = 
   trans 
     (fund-≈ idEnv-≈ (eq-sym (subₜ-liftsₜ-≡ₜ σ (⇑ τ))))
@@ -352,7 +352,7 @@ weaken-⇓² τ = reify-≈ (idext lifte²-idEnv τ)
 ↻-subₜNF-β      : ∀ (σ : SubstitutionₜNF Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ , κ) ★) (τ₂ : NormalType Δ₁ κ) → 
                     sub σ (τ₁ βₜNF[ τ₂ ])
                   ≡ 
-                    ⟦ (⇑ τ₁ [ (liftsₜ (⇑ ∘ σ)) ]σ) ⟧ₜ (lifte idEnv)
+                    ⟦ (⇑ τ₁ [ (liftsₜ (⇑ ∘ σ)) ]ₛ) ⟧ₜ (lifte idEnv)
                     βₜNF[ sub σ τ₂ ]
 ↻-subₜNF-β σ τ₁ τ₂ =  
   trans 
@@ -482,7 +482,7 @@ stability-map-⦅⦆ f xs oxs = cong-⦅  (sym (stability-map f xs)) ⦆nf
   trans 
     (reify-≈
        {V₁ = (↑ (subₜNF σ F)) ⟨$⟩ ((↑ (subₜNF σ ρ)))} 
-       {V₂ = (λ {Δ} → (⟦ ⇑ F [ ⇑ ∘ σ ]σ ⟧ₜ idEnv) {Δ}) ⟨$⟩ (⟦ ⇑ ρ [ ⇑ ∘ σ ]σ ⟧ₜ idEnv)}  
+       {V₂ = (λ {Δ} → (⟦ ⇑ F [ ⇑ ∘ σ ]ₛ ⟧ₜ idEnv) {Δ}) ⟨$⟩ (⟦ ⇑ ρ [ ⇑ ∘ σ ]ₛ ⟧ₜ idEnv)}  
        (cong-$ 
        (fund-≈ idEnv-≈ (↻-sub-⇑ σ F)) 
         ((fund-≈ idEnv-≈ (↻-sub-⇑ σ ρ)))))

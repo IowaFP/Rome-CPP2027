@@ -181,3 +181,24 @@ uip refl refl = refl
 Dec→Irrelevant : ∀ {ℓ} (A : Set ℓ) → (d : Dec A) → Irrelevant (True d)
 Dec→Irrelevant A (yes d) p₁ p₂ = refl
 Dec→Irrelevant A (no  d) p₁ p₂ = refl
+
+
+--------------------------------------------------------------------------------
+-- Witness map: Dealing with witness of squashed evidence
+
+-- When we use squashing to force irrelevance, we often still use that evidence
+-- later. Since D is decidable (via d?), such evidence can be produced via
+-- toWitness.  For example, when renaming the type (⦅ xs ⦆ ω), we have
+--   ω : True (ordered? xs),
+-- but we need evidence that 
+--   True (ordered? (ren r xs)). 
+-- So we have to write 
+--   fromWitness (OrderedRenRowₜ r xs (toWitness ω)), 
+-- which is ugly.  A cleaner way to view this is as a functor. I haven't given
+-- more thought, particularly, on what the base categories are. That's not
+-- terribly important.
+wmap : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {D : A → Set ℓ₂} 
+         {d? : (x : A) → Dec (D x)}
+         {x y : A} → 
+       (D x → D y) → True (d? x) → True (d? y)
+wmap f d = fromWitness (f (toWitness d))

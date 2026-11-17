@@ -33,26 +33,26 @@ module _ where
   open ≡-Reasoning
   subₜ-weaken-over-lift² : (τ : Type (Δ₁ , κ₁) κ₂)  → 
                            (((renₜ (liftₜ S) (renₜ (liftₜ S) τ)) 
-                               [ (liftsₜ (extendₜ ` (` Z))) ]σ)
+                               [ (liftsₜ (extendₜ ` (` Z))) ]ₛ)
                                βₜ[ ` Z ])
                            ≡ τ 
   subₜ-weaken-over-lift² τ = begin
 
     (((renₜ (liftₜ S) (renₜ (liftₜ S) τ)) 
-         [ (liftsₜ (extendₜ ` (` Z))) ]σ)
+         [ (liftsₜ (extendₜ ` (` Z))) ]ₛ)
          βₜ[ ` Z ])
       ≡⟨ subₜ-comp (renₜ (liftₜ S) (renₜ (liftₜ S) τ)) ⁻¹  ⟩ 
     (renₜ (liftₜ S) (renₜ (liftₜ S) τ)) 
       [   sub (extendₜ ` (` Z)) 
-        ∘ liftsₜ (extendₜ ` (` Z)) ]σ
+        ∘ liftsₜ (extendₜ ` (` Z)) ]ₛ
       ≡⟨ ↻-subₜ-renₜ (renₜ (liftₜ S) τ) ⁻¹ ⟩ 
     ((ren (liftₜ S) τ)
       [   (sub (extendₜ ` (` Z)) 
-        ∘ (liftsₜ (extendₜ ` (` Z)) ∘ (liftₜ S))) ]σ)
+        ∘ (liftsₜ (extendₜ ` (` Z)) ∘ (liftₜ S))) ]ₛ)
       ≡⟨ ↻-subₜ-renₜ τ ⁻¹  ⟩ 
     τ [ (sub (extendₜ ` (` Z)) 
         ∘ (liftsₜ (extendₜ ` (` Z)) ∘ (liftₜ S))) 
-        ∘ liftₜ S ]σ 
+        ∘ liftₜ S ]ₛ 
       ≡⟨ subₜ-cong (λ { Z → refl ; (S x) → refl }) τ ⟩ 
     sub ` τ 
       ≡⟨ sub-id τ ⟩ 

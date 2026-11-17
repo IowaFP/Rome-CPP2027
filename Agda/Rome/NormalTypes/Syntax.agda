@@ -308,8 +308,8 @@ cong-ne {κ = κ} {g₁ = g₁} {g₂} refl rewrite GroundIrrelevant κ g₁ g�
 ⇑ᵣ     : RowLiteral (NormalType Δ κ) → RowLiteral (Type Δ κ)
 ⇑ₙₑ      : NeutralType Δ κ → Type Δ κ
 ⇑ₚ    : Pred (NormalType Δ κ) → Pred (Type Δ κ)
-⇑ₒ : ∀ (ρ : RowLiteral (NormalType Δ κ)) → Ordered ρ → 
-             Ordered (⇑ᵣ ρ)
+⇑ₒ : {ρ : RowLiteral (NormalType Δ κ)} → 
+      Ordered ρ → Ordered (⇑ᵣ ρ)
              
 
 ⇑ₜ (ne x)        = ⇑ₙₑ x
@@ -321,7 +321,7 @@ cong-ne {κ = κ} {g₁ = g₁} {g₂} refl rewrite GroundIrrelevant κ g₁ g�
 ⇑ₜ  (Π x)        = Π · ⇑ₜ x
 ⇑ₜ  (Σ x)        = Σ · ⇑ₜ x
 ⇑ₜ  (π ⇒ τ)      = (⇑ₚ π) ⇒ (⇑ₜ τ)
-⇑ₜ  (⦅ ρ ⦆ ω)   = ⦅ ⇑ᵣ ρ ⦆ (fromWitness (⇑ₒ ρ (toWitness ω)))
+⇑ₜ  (⦅ ρ ⦆ ω)   = ⦅ ⇑ᵣ ρ ⦆ (fromWitness (⇑ₒ (toWitness ω)))
 ⇑ₜ  (ρ₂ ∖ ρ₁)    = ⇑ₜ ρ₂ ∖ ⇑ₜ ρ₁
 ⇑ₜ  (l ▹ₙ τ)     = (⇑ₙₑ l) ▹ (⇑ₜ τ)
 ⇑ₜ  ((F $ τ))  = (⇑ₜ F) $ (⇑ₙₑ τ)
@@ -329,9 +329,9 @@ cong-ne {κ = κ} {g₁ = g₁} {g₂} refl rewrite GroundIrrelevant κ g₁ g�
 ⇑ᵣ []            = []
 ⇑ᵣ ((l , τ) ∷ ρ) = ((l , ⇑ₜ τ) ∷ ⇑ᵣ ρ)
 
-⇑ₒ [] ω                                  = tt
-⇑ₒ (x ∷ []) ω                            = tt
-⇑ₒ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) (l₁<l₂ , ω) = l₁<l₂ , ⇑ₒ ((l₂ , _) ∷ ρ) ω
+⇑ₒ {ρ = []} ω                                  = tt
+⇑ₒ {ρ = x ∷ []} ω                            = tt
+⇑ₒ {ρ = (l₁ , _) ∷ (l₂ , _) ∷ ρ} (l₁<l₂ , ω) = l₁<l₂ , ⇑ₒ {ρ = (l₂ , _) ∷ ρ} ω
 
 ⇑ᵣ-isMap : ∀ (xs : RowLiteral (NormalType Δ₁ κ)) →
                ⇑ᵣ xs ≡ map (λ { (l , τ) → l , ⇑ₜ τ }) xs

@@ -103,7 +103,7 @@ open import Rome.Prelude.Equivalence
 % Abstract
 
 \section*{Abstract}
-Row types map labels to types, and are used to \emph{structurally} type records and variants. The presence of higher-order rows, in which labels map to types of higher kind, introduces nontrivial forms of type computation. This paper presents a sound and complete equational theory for types in \Rome (pronounced ``Rome''), a higher-order row type theory. We normalize \Rome types by evaluation in the interactive proof assistant Agda. Moreover, we contribute extensions to logical relation techniques for intrinsic mechanization to prove this procedure is stable, sound, and consistent. As a result, we obtain the first decidable type-conversion algorithm for a higher-order row type theory.
+Row types map labels to types, and are used to \emph{structurally} type records and variants. The presence of higher-order rows, in which labels map to types of higher kind, introduces nontrivial forms of type computation. This paper presents a sound and complete equational theory for types in \Rome{} (pronounced ``Rome''), a higher-order row type theory. We normalize \Rome{} types by evaluation in the interactive proof assistant Agda. Moreover, we contribute extensions to logical relation techniques for intrinsic mechanization to prove this procedure is stable, sound, and consistent. As a result, we obtain the first decidable type-conversion algorithm for a higher-order row type theory.
 
 % -----------------------------------------------------------------------------
 % Introduction
@@ -117,7 +117,7 @@ Type conversion is typically decided by reducing types to normal forms and perfo
 
 Type normalization is necessary for important metatheoretic claims, but can be nontrivial. An equational theory for System \FO involves only one nontrivial equation: $\beta$-reduction. The presence of higher-order row types and type operators introduces an abundance of nontrivial type equalities, e.g., the reduction of a map over a row. Likewise, subtle boundary cases arise when constructing record and variant types from nested rows. Consequently, an equational theory with higher-order rows cannot defer to its parent system to inherit a proof of type normalization, nor claim such a proof is an orthogonal triviality. 
 
-This paper closes this metatheoretic gap. We introduce \Rome (pronounced ``Rome''), a novel row calculus extending System \RO~\citep{HubersM23} with row mapping, iso-recursive types, and a novel complement operator on rows. We provide a sound and complete equational theory of types in \Rome and prove that this theory, when viewed as a reduction sequence, is normalizing.
+This paper closes this metatheoretic gap. We introduce \Rome{} (pronounced ``Rome''), a novel row calculus extending System \RO~\citep{HubersM23} with row mapping, iso-recursive types, and a novel complement operator on rows. We provide a sound and complete equational theory of types in \Rome{} and prove that this theory, when viewed as a reduction sequence, is normalizing.
 
 This involves two key contributions. First, we implement a \emph{normalization by evaluation} (NbE) procedure that maps types to normal forms. This procedure is not only responsible for reducing along nontrivial row type equalities, but also for identifying the precise normal and neutral forms of rows and row operations. Second, we prove the equational theory is sound and complete with respect to this normalization function via two Kripke-style logical relations. Our contributions are mechanized in the interactive theorem prover Agda. \Citet{AbelAHPMSS19} highlight the challenge of \emph{Kripke-style logical relations} on \emph{intrinsically well-typed terms}, for which ``developing [logical relation] proofs for realistic languages can require an almost heroic mechanization effort in existing general-purpose proof assistants.'' Our development follows \citet{AllaisBM13} and \citet{ChapmanKNW19} in contributing additional tooling for this known challenge. Our artifact serves as a reference for future NbE and logical-relation proofs of normalization for systems with computation beyond $\beta$-reduction.
 
@@ -132,7 +132,7 @@ In summary, this paper contributes:
   \item \Rome{}'s types, kinds, and equational theory \cref{sec:Rome};
   \item a classification of the normal and neutral forms required for higher-order rows, including inert maps, neutral-label rows, and residual row complements \cref{sec:normal-forms};
   \item an NbE algorithm whose semantic operations implement $\beta$-reduction, row mapping and complements, and nested $\Pi$ and $\Sigma$ computation \cref{sec:NbE};  
-  \item mechanized proofs of stability, soundness, and completeness in Agda, yielding a decision procedure for \Rome type equivalence \cref{sec:metatheory}; and
+  \item mechanized proofs of stability, soundness, and completeness in Agda, yielding a decision procedure for \Rome{} type equivalence \cref{sec:metatheory}; and
   \item a \emph{fully safe} Agda artifact witnessing the computability of normal forms and type equivalence.
 \end{enumerate}
 
@@ -145,7 +145,7 @@ In summary, this paper contributes:
 We begin by illustrating some of the novel type computation features in \Rome.
 
 
-\paragraph{Row types} Rows in \Rome are a type-level representation of record fields and variant constructors.  A \emph{row} is an association of labels to types. The operator $\Pi$ constructs a record from a row, while $\Sigma$ constructs a variant. In the former case, labels describe fields and types describe outputs; in the latter, labels describe constructor names and types describe constructor inputs. To demonstrate, a two dimensional point can be specified as a record type, with \R{{'x ▹ Int , 'y ▹ Int}} as its underlying row:
+\paragraph{Row types} Rows in \Rome{} are a type-level representation of record fields and variant constructors.  A \emph{row} is an association of labels to types. The operator $\Pi$ constructs a record from a row, while $\Sigma$ constructs a variant. In the former case, labels describe fields and types describe outputs; in the latter, labels describe constructor names and types describe constructor inputs. To demonstrate, a two dimensional point can be specified as a record type, with \R{{'x ▹ Int , 'y ▹ Int}} as its underlying row:
 
 \begin{rosi} 
 Point : Π {'x ▹ Int , 'y ▹ Int}
@@ -284,7 +284,7 @@ While this example demonstrates no new forms of \emph{row computation}, it highl
 
 \section{The \Rome{} Type System}
 \label{sec:Rome}
- This section defines the \Rome type system. \Cref{fig:kinding} gives the kinding rules for the highlighted \Rome types. We omit the syntax of terms and typing rules, as we are focused purely on type-level computation.
+ This section defines the \Rome{} type system. \Cref{fig:kinding} gives the kinding rules for the highlighted \Rome{} types. We omit the syntax of terms and typing rules, as we are focused purely on type-level computation.
 
 \subsection{Kind Syntax}
 \input{figures/syntax-types}
@@ -480,8 +480,8 @@ We distinguish singleton rows $\{\LabTy n \Normal \tau\}$ with neutral labels fr
 
 Just as with the !Type! syntax, some constructors require predicate constraints. Promotion of a neutral type $n$ to a normal type via the constructor !ne! is guarded by the predicate !Ground! !kappa!, which computes to $\top$ when $\kappa \in \{ \TypeK , \LabK \}$ and $\bot$ otherwise. Likewise, the construction of the row complement $\rho_{2} \Compl \rho_{1}$ is guarded by a predicate !True! !(! !notRowLiterals?! $\rho_{2}$ $\rho_{1}$ !)! asserting that at most one of the applicands is a row literal. This predicate is designed to avoid the explicit negation $\neg$ (!RowLiteral! $\rho_{2}$ $\wedge$ !RowLiteral! $\rho_{1}$), which does not compute on closed terms to the empty or unit type.
 
-\AH{Clean up squashed evidence logic into a map; add a sentence on typeclasses e.g. "We use a typeclass so that the symbol uparrow embeds types, normaltypes, predicates, and rows alike."}
-\Cref{fig:embedding} defines an embedding of the !Normal!\-!Type! syntax back to !Type! syntax, which can be used as a reference for the mechanized constructor names for !Type!s, !NeutralType!s, and !NormalType!s. The definitions !UpPred! and !UpRow! map embedding over the types contained in predicates and row literals. We have an obligation to prove, via !OrderedUp!, that embedding preserves ordering. Some bookkeeping is necessary to convert from squashed evidence to evidence, and vice versa: The function !toWitness! converts !q! !:! !True! !(ordered?! !xs)! into evidence of type !Ordered! !xs!, with !fromWitness! its inverse.
+\AH{Clean up squashed evidence logic into a map.}
+\Cref{fig:embedding} defines an embedding of the !Normal!\-!Type! syntax back to !Type! syntax, which can be used as a reference for the mechanized constructor names for !Type!s, !NeutralType!s, and !NormalType!s. The definitions $\Embed_{\pi}$ and !\Embed_{\rho}! map embedding over the types contained in predicates and row literals. We must also prove, via $\Embed_{\omega}$, that embedding preserves ordering. Some bookkeeping is necessary to convert from squashed evidence to evidence, and vice versa: The function !toWitness! converts $\omega$ !:! !True! !(ordered?! !xs)! into evidence of type !Ordered! !xs!, with !fromWitness! its inverse.
 
 
 \begin{figure}
@@ -504,8 +504,8 @@ module Embedding where
   ⇑  (Π x)      = Π · ⇑ x
   ⇑  (Σ x)      = Σ · ⇑ x
   ⇑  (π ⇒ τ)   = ⇑ₚ π ⇒ ⇑ τ
-  ⇑  (⦅ xs ⦆ q)  = ⦅ ⇑ᵣ xs ⦆ 
-    (fromWitness (⇑ₒ xs (toWitness q)))
+  ⇑  (⦅ xs ⦆ ω)  = ⦅ ⇑ᵣ xs ⦆ 
+    (fromWitness (⇑ₒ (toWitness ω)))
   ⇑  (ρ₂ ∖ ρ₁)  = ⇑ ρ₂ ∖ ⇑ ρ₁
   ⇑  (l ▹ₙ τ)   = ⇑ₙₑ l ▹ ⇑ τ
   ⇑  (F $ ν)  = ⇑ F $ ⇑ₙₑ ν
@@ -517,6 +517,8 @@ module Embedding where
 \label{fig:embedding}
 \end{figure}
 
+\Ni We use a typeclass so that the symbol $\Infix{\Embed}$ embeds neutral and normal types, predicates, and rows alike.
+
 % -----------------------------------------------------------------------------
 % Design choices, renaming, substitution
 
@@ -524,11 +526,11 @@ module Embedding where
 
 Our development occupies a sweet-spot in intrinsically well-typed syntax. Because variables are well-scoped and types are well-kinded, relations and functions defined on types preserve kind and context definitionally. This reduces the overhead of tedious well-formedness predicates and preservation lemmas. 
 
-Reaping the benefits of intrinsic syntax while dodging the downfalls is largely thanks to the \Rome calculus's stratification of types from kinds. Intrinsic syntax is notoriously prone to "transport hell" \citep{SaffrichTM24, ChenNFT26}, in which effectively equivalent terms are indexed by unfortunately unequal indices. Notably absent from our mechanized representations are inductively-defined renamings and substitutions, which in turn prevents constructors for \emph{explicit substitution} in the syntax of types. Because \Rome enjoys a stratification of types from kinds, no substitution calculus is necessary, as substitution and renaming may be defined functionally without unpleasant circularity. Instead, following \citet{ChapmanKNW19}, we use a higher-order representation of renamings and substitutions. Hence we inherit the benefits of functions (e.g., associativity of composition) without encumbering definitions with the painful transports on indices that comes from explicit substitutions.
+Reaping the benefits of intrinsic syntax while dodging the downfalls is largely thanks to the \Rome{} calculus's stratification of types from kinds. Intrinsic syntax is notoriously prone to "transport hell" \citep{SaffrichTM24, ChenNFT26}, in which effectively equivalent terms are indexed by unfortunately unequal indices. Notably absent from our mechanized representations are inductively-defined renamings and substitutions, which in turn prevents constructors for \emph{explicit substitution} in the syntax of types. Because \Rome{} enjoys a stratification of types from kinds, no substitution calculus is necessary, as substitution and renaming may be defined functionally without unpleasant circularity. Instead, following \citet{ChapmanKNW19}, we use a higher-order representation of renamings and substitutions. Hence we inherit the benefits of functions (e.g., associativity of composition) without encumbering definitions with the painful transports on indices that comes from explicit substitutions.
 
 \subsection{Renamings}
 
-A !Renaming! is a function mapping type variables in environment !Delta_1! to environment !Delta_2!. The function !ren!$_{k}$ renames an input !Type! !tau! according to an input !Renaming!.
+A !Renaming! is a function mapping type variables in environment !Delta_1! to environment !Delta_2!. The function !ren! renames an input !Type! !tau! according to an input !Renaming!.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -541,21 +543,19 @@ module Renaming where
 \begin{code}
   Renaming : KEnv → KEnv → Set
   Renaming Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → TVar Δ₂ κ
-  renₜ : Renaming Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
+  ren : Renaming Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 \end{code}
 \begin{code}[hide]
   import Rome.Types.Renaming as Renaming
-  renₜ = Renaming.renₜ
+  ren = Renaming.renₜ
 \end{code}
 \end{AgdaAlign}
 
-Renaming is defined for row literals, predicates, normal types, and neutral types; we use a typeclass to permit the name !ren! to operate over each.
+Renaming is defined as one would expect also normal and neutral types, row literals, and predicates; we use a typeclass to permit the name !ren! to operate over each.
 
 \subsection{Substitutions} 
 
-A !Substitution! renames in parallel and maps type variables in environment !Delta_1! to types in !Delta_2!. The function !sub!$_{k}$ substitutes all type variables in input !Type! !tau! according to an input !Substitution!. Like with renaming, we introduce a typeclass so that the name !sub! operates over types, rows, predicates, neutral and normal types.
-
-\AH{Also comment on infix syntax for substitution... Or, actually, don't even talk about the sub$_t$ syntax, just discuss the infix notation.}
+A !Substitution! both renames and substitutes in parallel by mapping type variables in environment !Delta_1! to types in !Delta_2!. The function $\Infix{\Sub{\Dash}{\Dash}}$ substitutes all type variables in input !Type! !tau! according to an input !Substitution!. Like with renaming, we introduce a typeclass so that this syntax operates over types, neutral and normal types, rows, and predicates.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -568,11 +568,11 @@ module Substitution where
 \begin{code}
   Substitution : KEnv → KEnv → Set
   Substitution Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → Type Δ₂ κ
-  subₜ : Substitution Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
+  _[_]ₛ : Type Δ₁ κ → Substitution Δ₁ Δ₂ → Type Δ₂ κ
 \end{code}
 \begin{code}[hide]
   import Rome.Types.Substitution as Substitution 
-  subₜ = Substitution.subₜ
+  τ [ σ ]ₛ = Substitution.subₜ σ τ
 \end{code}
 \end{AgdaAlign}
 
@@ -583,7 +583,7 @@ module SubId where
   open import Rome.Kinds ; open import Rome.Types ; open import Rome.NormalTypes
 \end{code} 
 \begin{code}
-  sub-id : ∀ (τ : Type Δ κ) → sub ` τ ≡ τ
+  sub-id : ∀ (τ : Type Δ κ) → τ [ ` ]ₛ ≡ τ
 \end{code}
 \begin{code}[hide]
   import Rome.Types.Properties.Substitution as Substitution
@@ -795,7 +795,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
   reifyRowOrdered⃗  : (n : ℕ) → (P : Fin n → Label × SemType Δ κ) → 
                       OrderedRow (n , P) → 
                       Ordered (reifyRow⃗ n P)
-  reifyRowOrdered : ∀ {Δ : KEnv} {κ : Kind} (ρ : Row (SemType Δ κ)) → OrderedRow ρ →  Ordered (reifyRow ρ)
+  reifyRowOrdered : ∀ {Δ : KEnv} {κ : Kind} {ρ : Row (SemType Δ κ)} → OrderedRow ρ →  Ordered (reifyRow ρ)
 \end{code}
 \begin{code}
   reify {κ = ★} τ = τ
@@ -805,8 +805,8 @@ Reflection asserts that neutral forms have semantic representations. We define r
   reify {κ = R[ κ ]} (φ $ τ) =  (`λ (reify (φ S (` Z))) $ τ)
   reify {κ = R[ κ ]} ((ρ₂ ∖ ρ₁) {q}) = 
     (reify ρ₂ ∖ reify ρ₁) {fromWitness (reifyNRL ρ₂ ρ₁ q)}
-  reify {κ = R[ κ ]} (row ρ q) = 
-    ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
+  reify {κ = R[ κ ]} (row ρ ω) = 
+    ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ω))
 
   reifyRow⃗ zero _     = []
   reifyRow⃗ (suc n) P with P fzero
@@ -818,7 +818,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
   reifyRowOrdered⃗ (suc zero) P ω = tt
   reifyRowOrdered⃗ (suc (suc n)) P (l₁<l₂ , ih) = 
     l₁<l₂ , (reifyRowOrdered⃗ (suc n) (P ∘ fsuc) ih)
-  reifyRowOrdered (n , P) q = reifyRowOrdered⃗ n P q
+  reifyRowOrdered {ρ = n , P} q = reifyRowOrdered⃗ n P q
 
   reifyNRL (x₁ ▹ x₂) ρ₂ (left x) = left tt
   reifyNRL ((ρ₁ ∖ ρ₃) {nr}) ρ₂ (left x) = left (reifyNRL′ ρ₁ ρ₃ nr)
@@ -842,7 +842,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
 \end{figure}
 \end{AgdaAlign}
 
-Reification asserts that semantic values have syntactic representations. The definition of reification is a little more involved (\cref{fig:reification}). The first two equations are expected (!tau! is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion. Here we see why we choose to interpret functions with a Kripke flavor, as the weakening renaming !S! is crucial to permitting !phi! to operate over the just-introduced type variable !` Z!. The remaining equations describe the reification of the four row cases. In the $\Mapp \phi \tau$ case, we must reify the neutral Kripke function $\phi$ analogously to the reification of type operators. We reify row literals effectively by mapping reification over the contents of each semantic row, reconstructing a list as we go along. A straightforward definition of !reifyRow! migh attempt to induct over the !Row! argument's length (its first component), which Agda's termination checker rejects. This is because the recursive call in the successor case will be over $(n , P \circ \text{fsuc})$, where the second component is not structurally smaller. We bypass this restriction by instead recursing over the curried form !reify!!Row!$^{\to}$. In both the row literal and row complement case, some bookkeeping is necessary to ensure that (respectively) reification respects row orderedness and reification does not produce row literals from inert rows.
+Reification asserts that semantic values have syntactic representations. The definition of reification is a little more involved (\cref{fig:reification}). The first two equations are expected (!tau! is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion. Here we see why we choose to interpret functions with a Kripke flavor, as the weakening renaming !S! is crucial to permitting !phi! to operate over the just-introduced type variable !` Z!. The remaining equations describe the reification of the four row cases. In the $\Mapp \phi \tau$ case, we must reify the neutral Kripke function $\phi$ analogously to the reification of type operators. We reify row literals effectively by mapping reification over the contents of each semantic row, reconstructing a list as we go along. A straightforward definition of !reifyRow! might attempt to induct over the !Row! argument's length (its first component), which Agda's termination checker rejects. This is because the recursive call in the successor case will be over $(n , P \circ \text{fsuc})$, where the second component is not structurally smaller. We bypass this restriction by instead recursing over the curried form !reify!!Row!$^{\to}$. In both the row literal and row complement case, some bookkeeping is necessary to ensure that (respectively) reification respects row orderedness and reification does not produce row literals from inert rows.
 
 Finally, The !NormalType! constructor !ne! stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence the composition of reflection and reification effectively $\eta$-expands neutral types.
 
@@ -860,7 +860,7 @@ module ηNorm where
 \Ni This function forms the \emph{identity substitution} on normal types:
 
 \begin{code}
-  subNF-id : ∀ (τ : NormalType Δ κ) → sub (η-norm ∘ `) τ ≡ τ 
+  subNF-id : ∀ (τ : NormalType Δ κ) → τ [ η-norm ∘ ` ]ₛ ≡ τ 
 \end{code}
 \begin{code}[hide]
   import Rome.NormalTypes.Properties.Substitution as Substitution
@@ -1013,24 +1013,24 @@ A semantic environment maps type variables to semantic types. The identity envir
   {-# TERMINATING #-}
 \end{code}
 \begin{code}
-  ⟦_⟧ₜ : Type Δ₁ κ → SemEnv Δ₁ Δ₂ → SemType Δ₂ κ
+  ⟦_⟧ : Type Δ₁ κ → SemEnv Δ₁ Δ₂ → SemType Δ₂ κ
 \end{code}
 \begin{code}[hide]
   ⟦_⟧ₚ : Pred (Type Δ₁ R[ κ ]) → SemEnv Δ₁ Δ₂ → Pred (NormalType Δ₂ R[ κ ])
-  ⟦_⟧ₚ (ρ₁ · ρ₂ ~ ρ₃) η = reify (⟦ ρ₁ ⟧ₜ η) · reify (⟦ ρ₂ ⟧ₜ η) ~ reify (⟦ ρ₃ ⟧ₜ η)
-  ⟦_⟧ₚ (ρ₁ ≲ ρ₂) η = reify (⟦ ρ₁ ⟧ₜ η) ≲ reify (⟦ ρ₂ ⟧ₜ η)
+  ⟦_⟧ₚ (ρ₁ · ρ₂ ~ ρ₃) η = reify (⟦ ρ₁ ⟧ η) · reify (⟦ ρ₂ ⟧ η) ~ reify (⟦ ρ₃ ⟧ η)
+  ⟦_⟧ₚ (ρ₁ ≲ ρ₂) η = reify (⟦ ρ₁ ⟧ η) ≲ reify (⟦ ρ₂ ⟧ η)
 \end{code}
 \begin{code}
-  ⟦ ` v ⟧ₜ η       = η v
-  ⟦ τ₁ · τ₂ ⟧ₜ η   = (⟦ τ₁ ⟧ₜ η) ⟨·⟩ (⟦ τ₂ ⟧ₜ η)
-  ⟦ ρ₂ ∖ ρ₁ ⟧ₜ η = ⟦ ρ₂ ⟧ₜ η ⟨∖⟩′ ⟦ ρ₁ ⟧ₜ η
-  ⟦ Π ⟧ₜ η         = λ _ v → ⟨Π⟩ v
-  ⟦ Σ ⟧ₜ η         = λ _ v → ⟨Σ⟩ v
-  ⟦ f $ a ⟧ₜ η     = ⟦ f ⟧ₜ η ⟨$⟩ ⟦ a ⟧ₜ η
-  ⟦ ξ ▹ τ ⟧ₜ η with ⟦ ξ ⟧ₜ η 
-  ... | ne ν       = (ν ▹ ⟦ τ ⟧ₜ η)
-  ... | lab l      = row (1 , λ { fzero → (l , ⟦ τ ⟧ₜ η) }) tt
-  ⟦ ⦅ ρ ⦆ ω ⟧ₜ η   = row 
+  ⟦ ` v ⟧ η       = η v
+  ⟦ τ₁ · τ₂ ⟧ η   = (⟦ τ₁ ⟧ η) ⟨·⟩ (⟦ τ₂ ⟧ η)
+  ⟦ ρ₂ ∖ ρ₁ ⟧ η = ⟦ ρ₂ ⟧ η ⟨∖⟩′ ⟦ ρ₁ ⟧ η
+  ⟦ Π ⟧ η         = λ _ v → ⟨Π⟩ v
+  ⟦ Σ ⟧ η         = λ _ v → ⟨Σ⟩ v
+  ⟦ f $ a ⟧ η     = ⟦ f ⟧ η ⟨$⟩ ⟦ a ⟧ η
+  ⟦ ξ ▹ τ ⟧ η with ⟦ ξ ⟧ η 
+  ... | ne ν       = (ν ▹ ⟦ τ ⟧ η)
+  ... | lab l      = row (1 , λ { fzero → (l , ⟦ τ ⟧ η) }) tt
+  ⟦ ⦅ ρ ⦆ ω ⟧ η   = row 
     (⟦ ρ ⟧ᵣ η) 
     (⟦ toWitness ω ⟧ₒ η)
     where
@@ -1038,7 +1038,7 @@ A semantic environment maps type variables to semantic types. The identity envir
             SemEnv Δ₁ Δ₂ → 
             Row (SemType Δ₂ κ)
       ⟦ [] ⟧ᵣ η          = ε
-      ⟦ (l , τ) ∷ ρ ⟧ᵣ η = (l , ⟦ τ ⟧ₜ η) ⨾⨾ ⟦ ρ ⟧ᵣ η
+      ⟦ (l , τ) ∷ ρ ⟧ᵣ η = (l , ⟦ τ ⟧ η) ⨾⨾ ⟦ ρ ⟧ᵣ η
       ⟦_⟧ₒ : {ρ : RowLiteral (Type Δ₁ κ)} → 
              Ordered ρ → 
              (η : SemEnv Δ₁ Δ₂) → 
@@ -1053,12 +1053,12 @@ A semantic environment maps type variables to semantic types. The identity envir
       ... | zero , P  | ih = l₁<l₂ , tt
       ... | suc n , P | ih₁ , ih₂ =  l₁<l₂ , ih₁ , ih₂
 
-  ⟦ (π ⇒ τ) ⟧ₜ η = ⟦ π ⟧ₚ η ⇒ ⟦ τ ⟧ₜ η
-  ⟦ (`∀ τ) ⟧ₜ η = `∀ (⟦ τ ⟧ₜ (lifte η)) 
-  ⟦ (μ τ) ⟧ₜ η = μ (reify (⟦ τ ⟧ₜ η))
-  ⟦ (lab l) ⟧ₜ η = lab l
-  ⟦ (τ₁ `→ τ₂) ⟧ₜ η = (⟦ τ₁ ⟧ₜ η) `→ (⟦ τ₂ ⟧ₜ η)
-  ⟦ (`λ τ) ⟧ₜ η = λ ρ v → ⟦ τ ⟧ₜ (extende (renSem ρ ∘ η) v)
+  ⟦ (π ⇒ τ) ⟧ η = ⟦ π ⟧ₚ η ⇒ ⟦ τ ⟧ η
+  ⟦ (`∀ τ) ⟧ η = `∀ (⟦ τ ⟧ (lifte η)) 
+  ⟦ (μ τ) ⟧ η = μ (reify (⟦ τ ⟧ η))
+  ⟦ (lab l) ⟧ η = lab l
+  ⟦ (τ₁ `→ τ₂) ⟧ η = (⟦ τ₁ ⟧ η) `→ (⟦ τ₂ ⟧ η)
+  ⟦ (`λ τ) ⟧ η = λ ρ v → ⟦ τ ⟧ (extende (renSem ρ ∘ η) v)
 \end{code}
 \end{AgdaAlign}
 \caption{Evaluation}
@@ -1066,14 +1066,13 @@ A semantic environment maps type variables to semantic types. The identity envir
 \end{figure}
 
 
-We describe only the interesting cases of evaluation. The first equation states that variables evaluate to their meaning in environment !eta!. As desired, the equations for application !_cdot_!, row complement !_COMPL_!, record and variant operators !Pi! and !Sigma!, and mapping !_.map._! defer to the semantic helpers defined in this section. (The operation $\setminus\text{V}'$ is the semantic complement operator for row literals lifted to !SemRow!s.) Evaluation of labeled singletons must check if the label is a neutral variable !n! or label literal !ell!, making sure to only construct row literals with literal labels. The function !evalRow! is effectively inverse to !reifyRow! (\cref{fig:reification}). In each case, we employ our smart constructors for semantic row literals. We have an obligation to prove that evaluation preserves the ordering evidence !q!, which is performed by the auxiliary lemma !evalRowOrdered!.
+We describe only the interesting cases of evaluation. The first equation states that variables evaluate to their meaning in environment !eta!. As desired, the equations for application !_cdot_!, row complement !_COMPL_!, record and variant operators !Pi! and !Sigma!, and mapping !_.map._! defer to the semantic helpers defined in this section. (The operation $\setminus\text{V}'$ is the semantic complement operator for row literals lifted to !SemRow!s.) Evaluation of labeled singletons must check if the label is a neutral variable !n! or label literal !ell!, making sure to only construct row literals with literal labels. The evaluation of row literals $\Infix{\Sem{\Dash}_{\rho}}$ is effectively inverse to !reifyRow! (\cref{fig:reification}). In each case, we employ our smart constructors for semantic row literals. We have an obligation to prove that evaluation preserves the ordering evidence $\omega$, which is performed by the auxiliary lemma $\Infix{\SemO{\Dash}}$ denoting ordered row literal evidence to ordered semantic row evidence.
 
-
-\paragraph{Normalization} Finally, normalization in the NbE approach is simply the composition of reification after evaluation. 
+\paragraph{Normalization} Finally, normalization in the NbE approach is simply the composition of reification after evaluation.  
 
 \begin{code}
   ⇓ : Type Δ κ → NormalType Δ κ 
-  ⇓ τ = reify (⟦ τ ⟧ₜ idEnv)
+  ⇓ τ = reify (⟦ τ ⟧ idEnv)
 \end{code}
 
 % -----------------------------------------------------------------------------
@@ -1082,7 +1081,7 @@ We describe only the interesting cases of evaluation. The first equation states 
 \section{Metatheory}
 \label{sec:metatheory}
 
-This section describes the metatheory of \Rome. For historical reasons \citep{Friedman75,Statman82,BergerS91}, \emph{soundness} and \emph{consistency} are elsewhere in the NbE literature referred to as \emph{completeness} and \emph{soundness}, respectively. Our nomenclature is instead borrowed from \citet{Lindley05} as a matter of preference.
+This section describes the metatheory of \Rome. A note on nomenclature: what we and some others~\citep{Lindley05, Friedman75, KellerA10} refer to as \emph{soundness} and \emph{consistency} is in some NbE literature~\citep{Statman82, BergerS91, ChapmanKNW19, Abel13} referred to as \emph{completeness} and \emph{soundness}, respectively. The difference amounts to perspective: is the \emph{normalization} procedure sound and complete, or the \emph{equational theory}? Because our motivation is to show that, in contrast to System \RO~\citep{HubersM23}, the equational theory of \Rome{} is complete, we commit to the latter perspective.
 
 \subsection{Canonicity of Normal Types}
 \begin{AgdaAlign}
@@ -1161,34 +1160,6 @@ module Metatheory where
   surjectivity τ = ⇑ τ , stability τ
 \end{code}
 \end{AgdaAlign}
-
-\paragraph{Normal Forms}
-A \emph{normal form} is typically defined with respect to a step relation, stating that each type cannot take a \emph{single} step:
-
-\begin{code}[hide]
-  module _ {Δ : KEnv} {κ : Kind} where 
-    _—→ₜ_ : (_ _ : Type Δ κ) → Set
-    _ —→ₜ _  = ⊤ 
-\end{code}
-\begin{code}
-    _↛ₜ : (τ : Type Δ κ) → Set 
-    τ ↛ₜ = ¬ (Σ[ υ ∈ (Type Δ κ) ] (τ —→ₜ υ))
-\end{code}
-
-\Ni However, we haven't such a relation, viewing any derivation of $\tau \TEqv \upsilon$ instead as a \emph{sequence} of steps. In turn, we instead define normal forms as fixed points of normalization:
-
-\begin{code}
-  NormalForm  : Type Δ κ → Set
-  NormalForm τ = (⇑ ∘ ⇓) τ ≡ τ
-\end{code}
-
-\Ni In other words, normalization has no effect on a type in normal form. Stability implies this property for all normal types.
-
-\begin{code}
-  allNormal : (τ : NormalType Δ κ) → NormalForm (⇑ τ)
-  allNormal τ = cong ⇑ (stability τ)
-\end{code}
-
 
 \subsection{Soundness}
 \label{sec:soundness} 
@@ -1366,13 +1337,13 @@ The fundamental lemma for the soundness relation states that equivalent types ev
            {τ₁ τ₂ : Type Δ₁ κ} → 
            η₁ ≈e η₂ → 
            τ₁ ≡ₜ τ₂ → 
-          ⟦ τ₁ ⟧ₜ η₁ ≈ ⟦ τ₂ ⟧ₜ η₂
+          ⟦ τ₁ ⟧ η₁ ≈ ⟦ τ₂ ⟧ η₂
 \end{code}
 \begin{code}[hide]
   fund-≈ = Soundness.fund-≈
 \end{code}
 
-Soundness follows from the fundamental lemma in the identity semantic environment. Explicitly, the fundamental lemma tells us that $\text{eval}\, \tau_1 \, \text{idEnv} \approx \text{eval}\, \tau_2 \, \text{idEnv}$. After reification, we have that $\text{reify (eval}\, \tau_1 \, \text{idEnv)} \equiv \text{reify (eval}\, \tau_2 \, \text{idEnv)}$, which is precisely the elaboration of $\Norm \, \tau_1 \equiv \, \Norm \, \tau_2$.
+Soundness follows from the fundamental lemma in the identity semantic environment. Explicitly, the fundamental lemma tells us that $\Sem{\tau_1}\, \text{idEnv} \approx \Sem{\tau_2}\, \text{idEnv}$. After reification, we have that $\text{reify (}\, \Sem{\tau_1}\, \text{idEnv)} \equiv \text{reify (}\, \Sem{\tau_2}\, \text{idEnv)}$, which is precisely the elaboration of $\Norm \, \tau_1 \equiv \, \Norm \, \tau_2$.
 
 \begin{code}
   soundness : ∀ {τ₁ τ₂ : Type Δ κ} → 
@@ -1384,7 +1355,7 @@ Soundness follows from the fundamental lemma in the identity semantic environmen
 \subsection{Consistency}
 \label{sec:consistency}
 
-\emph{Consistency} states that every type is equivalent to its normalization.
+\emph{Consistency} states that every type is equivalent to its normalization. Viewing $\Infix{\TEqv}$ as a reduction relation, this is equivalently a claim of \emph{(weak) normalization}: each type has \emph{some} reduction sequence to a normal form.
 
 \begin{AgdaAlign} 
 \begin{code}[hide]
@@ -1402,7 +1373,7 @@ module ConsistencyStatement where
 \end{code}
 \end{AgdaAlign}
 
-We define a logical relation for consistency $\llbracket \tau \rrbracket{\approx}\, V$ by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ is equivalent to the embedding of $V$. In other words, $\tau$ and $V$ are identified up to type equivalence.
+We define a logical relation for consistency $\LRC{\Dash}{\Dash}$ by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ is equivalent to the embedding of $V$. In other words, $\tau$ and $V$ are identified up to type equivalence.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -1434,19 +1405,19 @@ module ConsistencyRelation where
       ⟦ ren r f · τ ⟧≈ (renKripke r φ ⟨·⟩ V)
 \end{code}
 
-That a type $\tau$ is equivalent to an inert map requires the identification of some equivalent type $\Mapp f {\EmbedNE\, n}$ such that $f$ is related to $\phi$. Of course, $\phi$ is not a !SemType! (its domain is a neutral type), and so the definition !SoundKripkeNE! mirrors the logic above for relating functional types modulo a neutral domain argument.
+That a type $\tau$ is equivalent to an inert map requires the identification of some equivalent type $\Mapp f {\Embed\, n}$ such that $f$ is related to $\phi$. Of course, $\phi$ is not a !SemType! (its domain is a neutral type), and so the definition !SoundKripkeNE! mirrors the logic above for relating functional types modulo a neutral domain argument.
 
 \begin{code}
   ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (φ $ n) = 
     Σ[ f ∈ (Type Δ (_ `→ κ)) ] 
-      ((τ ≡ₜ f $ ⇑ₙₑ n) × SoundKripkeNE f φ)
+      ((τ ≡ₜ f $ ⇑ n) × SoundKripkeNE f φ)
 \end{code}
 
 \Ni The cases for row singletons and row complements follow the same pattern: we identify a type equivalent to the desired semantic form, then assert that form coheres with the relation.
 
 \begin{code}
   ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (l ▹ V) = 
-    (τ ≡ₜ (⇑ₙₑ l ▹ ⇑ (reify V))) 
+    (τ ≡ₜ (⇑ l ▹ ⇑ (reify V))) 
     × ⟦ ⇑ (reify V) ⟧≈ V
   ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ ((ρ₂ ∖ ρ₁) {nr}) = 
     (τ ≡ₜ (⇑ (reify ((ρ₂ ∖ ρ₁) {nr})))) 
@@ -1457,11 +1428,9 @@ That a type $\tau$ is equivalent to an inert map requires the identification of 
 For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with suitable orderedness evidence) and assert, via ![[_]]r~~!, that the contents of the row literal (a list of label-type pairs) is related to the contents of the semantic row (a finite map to semantic types). The helper ![[_]]~~!$_2$ asserts that the first components of each pair are equal and the second components are related under ![[_]]~~!.
 
 \begin{code}
-  ⟦_⟧≈_ {κ = R[ κ ]} τ (row ρ q) =
+  ⟦_⟧≈_ {κ = R[ κ ]} τ (row ρ ω) =
     let xs = ⇑ᵣ (reifyRow ρ) in 
-    (τ ≡ₜ ⦅ xs ⦆ 
-      (fromWitness 
-        (⇑ₒ (reifyRow ρ) (reifyRowOrdered ρ q)))) 
+    (τ ≡ₜ ⦅ xs ⦆ (fromWitness (⇑ₒ (reifyRowOrdered ω)))) 
     × ⟦ xs ⟧≈ᵣ ρ
     where 
       ⟦_⟧≈ᵣ_ : RowLiteral (Type Δ κ) → 
@@ -1497,7 +1466,7 @@ The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is
             {σ : Substitution Δ₁ Δ₂}
             {η : SemEnv Δ₁ Δ₂} → 
             ⟦ σ ⟧≈e η  → 
-            ⟦ sub σ τ ⟧≈ (⟦ τ ⟧ₜ η)
+            ⟦ τ [ σ ]ₛ ⟧≈ (⟦ τ ⟧ η)
 \end{code}
 \begin{code}[hide]
   fund-⟦⟧≈ = Consistency.fund-⟦⟧≈
@@ -1524,10 +1493,10 @@ module FundConsistency where
 A natural corollary of the fundamental lemma is that each type $\tau$, propositionally equal to itself under the identity substitution, is related to its evaluation in the identity environment.
 
 \begin{code}
-  ⊢⟦_⟧≈ : ∀ (τ : Type Δ κ) → ⟦ τ ⟧≈ ⟦ τ ⟧ₜ idEnv
+  ⊢⟦_⟧≈ : ∀ (τ : Type Δ κ) → ⟦ τ ⟧≈ ⟦ τ ⟧ idEnv
 \end{code}
 \begin{code}[hide]
-  ⊢⟦ τ ⟧≈ = tr (⟦_⟧≈ ⟦ τ ⟧ₜ idEnv) 
+  ⊢⟦ τ ⟧≈ = tr (⟦_⟧≈ ⟦ τ ⟧ idEnv) 
     (sub-id τ) (fund-⟦⟧≈ τ idEnv-⟦⟧≈)
 \end{code}
 
@@ -1539,18 +1508,6 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
 \end{code}
 \end{AgdaAlign}
 
-\paragraph{(Weak) Normalization}
-\emph{Weak normalization} states that each type $\tau$ has \emph{some} reduction sequence to a normal form. Of course, consistency tells us this fact \emph{constructively}:
-
-\begin{code}[hide]
-  module _ where 
-    open import Rome.Metatheory.NBE.Normalization using (NormalForm ; allNormal)
-\end{code}
-\begin{code}
-    normalization : ∀ (τ : Type Δ κ) → 
-                      Σ[ υ ∈ Type Δ κ ] (τ ≡ₜ υ × NormalForm υ)
-    normalization τ = ⇑ (⇓ τ) , consistency τ , allNormal (⇓ τ)
-\end{code}
 
 \paragraph{Completeness}
 

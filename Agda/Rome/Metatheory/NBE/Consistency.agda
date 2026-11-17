@@ -732,7 +732,7 @@ fund-⟦⟧≈ (ρ₂ ∖ ρ₁) {σ} {η} e | row (n , P) oP | ih with ⟦ ρ�
     (eq-∖ (ih .fst) (ih' .fst)) 
     (eq-trans 
       (eq-compl {ozs = fromWitness (ordered-∖s {xs = ⇑ᵣ (reifyRow (n , P))}
-                {ys = ⇑ᵣ (reifyRow (m , Q))} (⇑ₒ (reifyRow' n P) (reifyRowOrdered (n , P) oP)))}) 
+                {ys = ⇑ᵣ (reifyRow (m , Q))} (⇑ₒ {ρ = reifyRow' n P} (reifyRowOrdered {ρ = n , P} oP)))}) 
       (eq-row (reify-⟦⟧≈ᵣ (cong-compl⟦⟧≈ (ih .snd) (ih' .snd))))) , 
   refl-⟦⟧≈ᵣ (cong-compl⟦⟧≈ (ih .snd) (ih' .snd))
 ... | c ∖ c₁   | ih' = eq-∖ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))

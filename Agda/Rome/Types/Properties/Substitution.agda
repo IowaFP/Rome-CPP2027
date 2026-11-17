@@ -300,7 +300,7 @@ realEmptySub τ = trans (subₜ-cong {σ₁ = λ ()} {σ₂ = `} (λ { () }) τ)
 -- Extension of a weakening over a lifting is just the renaming
 
 subₜ-weaken-over-lift : ∀ (r : Renaming Δ₁ Δ₂) (τ : Type Δ₁ κ₁) (v : Type Δ₂ κ₂) → 
-                        renₜ r τ ≡ (renₜ (liftₜ r) (weakenₜ τ)) [ (extendₜ ` v) ]σ 
+                        renₜ r τ ≡ (renₜ (liftₜ r) (weakenₜ τ)) [ (extendₜ ` v) ]ₛ 
 subₜ-weaken-over-lift r τ v = 
   (trans 
     (trans 

@@ -73,11 +73,11 @@ record SubstitutionTC (T₁ T₂ T₃ : KEnv → Kind → Set) : Set where
   constructor Sub
   field
     sub : (∀ {κ : Kind} → TVar Δ₁ κ → T₁ Δ₂ κ) → T₂ Δ₁ κ → T₃ Δ₂ κ
-  _[_]σ : T₂ Δ₁ κ → (∀ {κ : Kind} → TVar Δ₁ κ → T₁ Δ₂ κ) → T₃ Δ₂ κ
-  τ [ σ ]σ = sub σ τ
+  _[_]ₛ : T₂ Δ₁ κ → (∀ {κ : Kind} → TVar Δ₁ κ → T₁ Δ₂ κ) → T₃ Δ₂ κ
+  τ [ σ ]ₛ = sub σ τ
 
 open SubstitutionTC {{...}} public
-{-# DISPLAY sub σ τ = τ [ σ ]σ #-}
+{-# DISPLAY sub σ τ = τ [ σ ]ₛ #-}
 
 instance
   TypeSubstitution : SubstitutionTC Type Type Type
