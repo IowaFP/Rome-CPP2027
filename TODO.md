@@ -24,7 +24,12 @@
     - Labels to Agda's green
 - [ ] Change in-lined code with $math$, e.g., !Pi! to $\Pi$
 - [ ] See if we can get inline-agda to work
-  - see [documentation](https://agda.readthedocs.io/en/latest/tools/generating-latex.html#latex-inline-references)
+  - Since my use-cases are minimal, I can just check what's in NBE.tex and copy the styling directly.
+    That is probably less painful than Agda's automatic machinery, since that requires in-lined code to be well-typed.
+  - ~~see [documentation](https://agda.readthedocs.io/en/latest/tools/generating-latex.html#latex-inline-references)~~
+  - ~~Or, just use rosi-agda Minted and make the two agree...~~
+    - No! Agda uses a different font and slightly different coloring. Not quite the same.
+    
 
 # Writing
 - [x] Change example in paper to be over row singletons Π (l ▹ λ x. τ) ≡ₜ λ x. Π (l ▹ τ); 

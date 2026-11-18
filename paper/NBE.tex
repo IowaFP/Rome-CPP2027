@@ -167,7 +167,7 @@ We begin by illustrating some of the novel type computation features in \Rome.
 point : Π {'x ▹ Int , 'y ▹ Int}
 \end{rosi}
 
-\Ni Dually, a binary tree type can be specified as a recursive variant: 
+\Ni (Dually, a binary tree type can be specified as a recursive variant: 
 
 \begin{rosi}
 tree : μ (Σ {'Node   ▹ const Int, 
@@ -285,7 +285,7 @@ desugar : ∀ z : R[⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
           μ (Σ z) → μ (Σ (z ∖ BoolF))  
 \end{rosi}
 
-While this example demonstrates no new forms of \emph{row computation}, it highlights that with each additional row operator comes (possibly many) new \emph{neutral} forms: the types !z! \R{∖ BoolF} and \R{BoolF ∖ z} each may not reduce with a value for !z!.
+While this example demonstrates no new forms of \emph{row computation}, it highlights that with each additional row operator comes (possibly many) new \emph{neutral} forms: the types !z! \R{∖ BoolF} and \R{BoolF ∖ z} each may not reduce without a row literal value for !z!.
 
 % \paragraph{Label-generic extension}
 % While they incur no forms of type computation, it is nevertheless helpful to highlight that System \RO (and hence \Rome) permits first-class labels~\citep{Leijen04} in the kind, type, and term calculus. For example, with first-class labels we can specify the addition of an arbitrary constructor !l! with type !tau! to \emph{any} variant lacking !{l ▹ tau}!:
@@ -311,7 +311,7 @@ While this example demonstrates no new forms of \emph{row computation}, it highl
 \Cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. We have highlighted the syntax that extends System \Fome in \cref{fig:syntax-types}. Labels (i.e., record field and variant constructor names) live at the type level, and are classified by kind $\LabK$. Rows of kind $\kappa$ are classified by $\RowK \kappa$. When possible, we use $\phi$ for type functions, $\rho$ for types of row kind, and $\xi$ for types of label kind. 
 
 
-\paragraph{Mechanized representations} The types !Kind! and !KEnv! represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
+\paragraph{Mechanized representations} The types \R{Kind} and \R{KEnv} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -467,7 +467,8 @@ Our mechanization is \emph{intrinsic}, meaning types are indexed by context and 
 \AgdaPrimitive{Set}\<%
 \end{code}
 
-Row literals are defined as lists of label-type associations; like with !Pred!, this definition may be reused for normal forms, and so is parameterized by !Ty!. The predicate !Ordered! !xs! asserts that the row literal !xs! is well-ordered on labels. The function !ordered?! witnesses that this predicate is decidable.
+% TODO[Agda-inline][The Ordered stuff... agda uses a different font]
+Row literals are defined as lists of label-type associations; like with \R{Pred}, this definition may be reused for normal forms, and so is parameterized by \R{Ty}. The predicate \R{Ordered} !xs! asserts that the row literal !xs! is well-ordered on labels. The function \R{ordered?} witnesses that this predicate is decidable.
 
 \begin{code}%
 %
