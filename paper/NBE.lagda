@@ -11,7 +11,7 @@
 \usepackage{enumitem}       % customize list layouts
 \usepackage{ifthen}         % conditional logic in macros
 \usepackage{listings}       % source code formatting
-\usepackage{minted}         % Pygments syntax highlighting
+\usepackage[cache=false]{minted}         % Pygments syntax highlighting
 \usepackage{newunicodechar} % define Unicode chars in TeX
 \usepackage{stmaryrd}       % extra math/logic symbols
 \usepackage{subcaption}     % subfigures and subcaptions
@@ -31,6 +31,9 @@
 
 % -----------------------------------------------------------------------------
 % My packages
+
+% Style minted code using rosi-pygments custom style
+\usemintedstyle{rosi-agda}
 
 \usepackage{./sty/mathwidth}
 \usepackage{./sty/infer}
@@ -148,14 +151,14 @@ We begin by illustrating some of the novel type computation features in \Rome.
 \paragraph{Row types} Rows in \Rome{} are a type-level representation of record fields and variant constructors.  A \emph{row} is an association of labels to types. The operator $\Pi$ constructs a record from a row, while $\Sigma$ constructs a variant. In the former case, labels describe fields and types describe outputs; in the latter, labels describe constructor names and types describe constructor inputs. To demonstrate, a two dimensional point can be specified as a record type, with \R{{'x ▹ Int , 'y ▹ Int}} as its underlying row:
 
 \begin{rosi} 
-Point : Π {'x ▹ Int , 'y ▹ Int}
+point : Π {'x ▹ Int , 'y ▹ Int}
 \end{rosi}
 
 \Ni Dually, a binary tree type can be specified as a recursive variant: 
 
 \begin{rosi}
 tree : μ (Σ {'Node   ▹ const Int, 
-             'Branch ▹ λ tree → tree × tree})
+             'Branch ▹ λ tree. tree × tree})
 \end{rosi}
 
 \Ni The row underlying the \R{tree} type is a row of type operators, permitted by \Rome's higher-order capabilities. We can abstract over such rows to do powerful metaprogramming. For example, we can simulate the deriving of a functor typeclass instance: 
@@ -171,7 +174,7 @@ The syntax $\forall z : \RowK {\TypeK \to \TypeK}$ quantifies a \emph{row variab
 \paragraph{Reducing rows}
 \label{sec:reducing-rows2}
 
-The type of \R{fmapΣ} is \emph{not} in normal form. Expanding the \R{Functor} type synonym and reducing the application \R{Functor} \R{(Sigma z)} yields:
+The type of \R{fmapΣ} is \emph{not} in normal form. Expanding the \R{Functor} type synonym and reducing the application \R{Functor} \R{(Σ z)} yields:
 
 
 \begin{rosi}
@@ -1620,5 +1623,5 @@ Normalization by evaluation has also been mechanized in Agda for substantially r
 %  LocalWords:  XueOX GasterJ Sipser SaffrichTM Env Expr Agda's Leivant ChanW
 %  LocalWords:  ThiemannW ImpredicativeSet ImpredicativeSetSucks AbelP chapman
 %  LocalWords:  AltenkirchK KaposiKK Gaster XieOBS BiXOS Chlipala objTypes Bahr
-%  LocalWords:  Garrigue KEnv PEnv
+%  LocalWords:  Garrigue KEnv PEnv Commutativity pygments hyperref
  
