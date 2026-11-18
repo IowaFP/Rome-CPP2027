@@ -11,7 +11,7 @@
 \usepackage{enumitem}       % customize list layouts
 \usepackage{ifthen}         % conditional logic in macros
 \usepackage{listings}       % source code formatting
-\usepackage[cache=false]{minted}         % Pygments syntax highlighting
+\usepackage{minted}         % Pygments syntax highlighting
 \usepackage{newunicodechar} % define Unicode chars in TeX
 \usepackage{stmaryrd}       % extra math/logic symbols
 \usepackage{subcaption}     % subfigures and subcaptions

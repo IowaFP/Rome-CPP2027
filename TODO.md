@@ -16,13 +16,13 @@
 - [x] Format Rosi code segments with minted using dissertation styling
 - [x] Change all ' to ′
 - [x] Replace `sub` with `_[_]_{\sigma}`
-- [ ] Change in-lined code with $math$, e.g., !Pi! to $\Pi$
-- [ ] Can I make the Agda and Rosi colors match? Would probably need to implement my own Minted color theme.
+- [x] Can I make the Agda and Rosi colors match? Would probably need to implement my own Minted color theme.
   - Will probably need to build a different Pygments component, so add to iowaFP/rosi-pygments
   - Mainly, change:
     - reserved keywords to Agda's orange
     - Capitalized Type names to Agda's blue
     - Labels to Agda's green
+- [ ] Change in-lined code with $math$, e.g., !Pi! to $\Pi$
 - [ ] See if we can get inline-agda to work
   - see [documentation](https://agda.readthedocs.io/en/latest/tools/generating-latex.html#latex-inline-references)
 
