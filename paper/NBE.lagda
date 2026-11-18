@@ -232,10 +232,12 @@ eval : μ (Σ BoolF) → Σ {'T ▹ ⊤ , 'F ▹ ⊤}
 Observe first that $\mu$, the least fixed-point type operator in \Rome, expects its input to be canonically $\lambda$-bound, otherwise the types of term constants such as \R{out} \R{:} \R{μ BoolF} \R{→} \R{BoolF (μ BoolF)} cannot compute. As \R{Σ BoolF} has kind $\TypeK \to \TypeK$ in an empty context, this should be the case. But this means that the expression \R{Σ BoolF} must (in-line and) normalize to: 
 
 \begin{rosi}
-λ b. \Sigma {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
+λ b. Σ {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
 \end{rosi}
 
-Now consider a desugaring pass to replace the \R{Or} constructor with \R{If} statements. Such a pass is typed as follows:
+\Ni Hence record $(\Pi)$ and variant formation $(\Sigma)$ over rows incurs a sort of commutativity with binders necessary for canonicalization.
+
+Next consider a desugaring pass to replace the \R{Or} constructor with \R{If} statements. Such a pass is typed as follows:
 
 \begin{rosi}
 type Or = {'Or ▹ λ b. b × b}
@@ -480,21 +482,32 @@ We distinguish singleton rows $\{\LabTy n \Normal \tau\}$ with neutral labels fr
 
 Just as with the !Type! syntax, some constructors require predicate constraints. Promotion of a neutral type $n$ to a normal type via the constructor !ne! is guarded by the predicate !Ground! !kappa!, which computes to $\top$ when $\kappa \in \{ \TypeK , \LabK \}$ and $\bot$ otherwise. Likewise, the construction of the row complement $\rho_{2} \Compl \rho_{1}$ is guarded by a predicate !True! !(! !notRowLiterals?! $\rho_{2}$ $\rho_{1}$ !)! asserting that at most one of the applicands is a row literal. This predicate is designed to avoid the explicit negation $\neg$ (!RowLiteral! $\rho_{2}$ $\wedge$ !RowLiteral! $\rho_{1}$), which does not compute on closed terms to the empty or unit type.
 
-\AH{Clean up squashed evidence logic into a map.}
-\Cref{fig:embedding} defines an embedding of the !Normal!\-!Type! syntax back to !Type! syntax, which can be used as a reference for the mechanized constructor names for !Type!s, !NeutralType!s, and !NormalType!s. The definitions $\Embed_{\pi}$ and !\Embed_{\rho}! map embedding over the types contained in predicates and row literals. We must also prove, via $\Embed_{\omega}$, that embedding preserves ordering. Some bookkeeping is necessary to convert from squashed evidence to evidence, and vice versa: The function !toWitness! converts $\omega$ !:! !True! !(ordered?! !xs)! into evidence of type !Ordered! !xs!, with !fromWitness! its inverse.
+% #[LINK][to embedding def, embed_omega]
+% #[LINK][to typeclass]
+\Cref{fig:embedding} defines an embedding of normal $\Infix{\Embed}$ and neutral types $\Infix{\Embed_{ne}}$  back to type syntax, which can be used as a reference for the mechanized constructor names for !Type!s, !NeutralType!s, and !NormalType!s. The definitions $\Embed_{\pi}$ and $\Embed_{\rho}$ map embedding over the types contained in predicates and row literals; we use a typeclass so that the symbol $\Infix{\Embed}$ hereafter applies to rows, predicates, and neutral types alike.
 
+% #[LINK][to ωmap]
+We must also prove, via $\Embed_{\omega}$, that embedding preserves ordering. Some bookkeeping is necessary, as the evidence of the row's well-ordering ($\omega$) is squashed. However, since the !Ordered! predicate is decidable (via !ordered?!), we can reproduce evidence, and vice versa: The function !toWitness! converts $\omega$ !:! !True! !(ordered?! !xs)! into evidence of type !Ordered! !xs!, with !fromWitness! its inverse. This operation is packaged into $\omega$!map! for convenience.
 
 \begin{figure}
 \begin{AgdaAlign}
 \begin{code}[hide]
 module Embedding where
-  open import Rome.Types.Syntax 
-  open import Rome.NormalTypes.Syntax hiding (⇑ ; ⇑ₙₑ)
+  open import Rome.Types.Syntax hiding (ωmap)
+  import Rome.NormalTypes.Syntax as Rωμ
+  open import Rome.NormalTypes.Syntax hiding (⇑ ; ⇑ₙₑ ; ⇑ₒ)
   open import Rome.Kinds.GVars
+  private 
+    variable 
+      A : Set
+      xs ys : RowLiteral A
 \end{code}
 \begin{code}
   ⇑   : NormalType Δ κ  → Type Δ κ
   ⇑ₙₑ : NeutralType Δ κ → Type Δ κ
+  ⇑ₒ : Ordered xs → Ordered (⇑ᵣ xs)
+  ⇑ₙₑ (` x)     = ` x
+  ⇑ₙₑ (τ₁ · τ₂) = ⇑ₙₑ τ₁ · ⇑ τ₂
   ⇑ (ne x)      = ⇑ₙₑ x
   ⇑ (`λ τ)      = `λ (⇑ τ)
   ⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
@@ -504,20 +517,22 @@ module Embedding where
   ⇑  (Π x)      = Π · ⇑ x
   ⇑  (Σ x)      = Σ · ⇑ x
   ⇑  (π ⇒ τ)   = ⇑ₚ π ⇒ ⇑ τ
-  ⇑  (⦅ xs ⦆ ω)  = ⦅ ⇑ᵣ xs ⦆ 
-    (fromWitness (⇑ₒ (toWitness ω)))
   ⇑  (ρ₂ ∖ ρ₁)  = ⇑ ρ₂ ∖ ⇑ ρ₁
   ⇑  (l ▹ₙ τ)   = ⇑ₙₑ l ▹ ⇑ τ
   ⇑  (F $ ν)  = ⇑ F $ ⇑ₙₑ ν
-  ⇑ₙₑ (` x)     = ` x
-  ⇑ₙₑ (τ₁ · τ₂) = ⇑ₙₑ τ₁ · ⇑ τ₂
+  ⇑  (⦅ xs ⦆ ω)  = ⦅ ⇑ᵣ xs ⦆ (ωmap ⇑ₒ ω)
+    where
+      ωmap : (Ordered xs → Ordered ys) → 
+             True (ordered? xs) → True (ordered? ys)
+      ωmap f d = fromWitness (f (toWitness d))
+\end{code}
+\begin{code}[hide]
+  ⇑ₒ = Rωμ.⇑ₒ
 \end{code}
 \end{AgdaAlign}
 \caption{Embedding}
 \label{fig:embedding}
 \end{figure}
-
-\Ni We use a typeclass so that the symbol $\Infix{\Embed}$ embeds neutral and normal types, predicates, and rows alike.
 
 % -----------------------------------------------------------------------------
 % Design choices, renaming, substitution

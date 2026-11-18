@@ -113,7 +113,7 @@ cong₃ f refl refl refl = refl
 private variable 
   ℓ : Level 
   A B : Set ℓ 
-  P : A → Set ℓ 
+  P Q : A → Set ℓ 
 
 --------------------------------------------------------------------------------
 -- The action on paths (or, cong)
@@ -187,18 +187,21 @@ Dec→Irrelevant A (no  d) p₁ p₂ = refl
 -- Witness map: Dealing with witness of squashed evidence
 
 -- When we use squashing to force irrelevance, we often still use that evidence
--- later. Since D is decidable (via d?), such evidence can be produced via
--- toWitness.  For example, when renaming the type (⦅ xs ⦆ ω), we have
+-- later. Since P is decidable (via p?), such evidence can be produced via
+-- toWitness. For example, when renaming the type (⦅ xs ⦆ ω), we have
 --   ω : True (ordered? xs),
 -- but we need evidence that 
 --   True (ordered? (ren r xs)). 
 -- So we have to write 
---   fromWitness (OrderedRenRowₜ r xs (toWitness ω)), 
--- which is ugly.  A cleaner way to view this is as a functor. I haven't given
--- more thought, particularly, on what the base categories are. That's not
--- terribly important.
-wmap : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {D : A → Set ℓ₂} 
-         {d? : (x : A) → Dec (D x)}
-         {x y : A} → 
-       (D x → D y) → True (d? x) → True (d? y)
+--   fromWitness (orderedRenRowₜ r xs (toWitness ω)), 
+-- which is ugly.  A cleaner way to view this is functorially.
+-- For example, wmap (orderedRenRowₜ r) xs maps the arrow:
+--   orderedRenRowₜ r : Ordered xs → Ordered (renRowₜ r xs)
+-- to an arrow of type
+--   True (ordered? xs) → True (ordered? (renRowₜ r xs))
+wmap : {p? : (x : A) → Dec (P x)}
+       {q? : (x : B) → Dec (Q x)}
+       {x : A} {y : B} → 
+       (P x → Q y) → 
+       True (p? x) → True (q? y)
 wmap f d = fromWitness (f (toWitness d))

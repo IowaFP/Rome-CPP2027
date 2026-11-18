@@ -159,6 +159,15 @@ cong-⦅_⦆ : {ρ₁ ρ₂ : RowLiteral (Type Δ κ)}
            ⦅ ρ₁ ⦆ ω₁ ≡ ⦅ ρ₂ ⦆ ω₂
 cong-⦅_⦆ {ρ₁ = ρ₁} {_} {ω₁} {ω₂} refl rewrite OrderedIrrelevant ρ₁ ω₁ ω₂ = refl
 
+-- In practice, the implicits are difficult to infer for wmap. 
+-- So we'll specialize to the ordered predicate. 
+ωmap : {A B : Set}
+       {xs : RowLiteral A} {ys : RowLiteral B} → 
+       (Ordered xs → Ordered ys) → 
+       True (ordered? xs) → True (ordered? ys)
+ωmap f d = fromWitness (f (toWitness d))
+
+
 --------------------------------------------------------------------------------
 -- Syntactic row complement
 
