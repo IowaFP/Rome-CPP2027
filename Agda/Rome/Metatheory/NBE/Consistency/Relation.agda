@@ -144,7 +144,7 @@ reify-⟦⟧≈ {κ = R[ κ ]} {τ} {V₂ ∖ V₁} eq = eq .fst
 reify-⟦⟧≈ {κ = R[ κ ]} {τ} {φ $ ρ} (f , eq , rel) = 
   eq-trans 
     eq 
-    (eq-$ 
+    (eq-$  
       (eq-trans 
         eq-η
         (eq-λ (reify-⟦⟧≈ (rel S (eq-sym (η-norm-≡ₜ (` Z))))))) 
@@ -360,3 +360,20 @@ reifySoundKripkeNE-≡ₜ eq rel-f =
       (eq-$ 
         (eq-trans eq-η (eq-λ (reify-⟦⟧≈ (rel-f S {` Z} (eq-sym (η-norm-≡ₜ (` Z))))))) 
         eq-refl))
+
+
+--------------------------------------------------------------------------------
+-- The property implied by the notation holds:
+-- if τ is related to V under the consistency LR, then ⟦ τ ⟧ ≈ V under the soundness LR.
+
+-- ⇑-reify-≈ : ∀ {V : SemType Δ κ} → ⟦ ⇑ (reify V) ⟧ idEnv ≈ V 
+-- ⇑-reify-≈ {V = V} = {! fund-≈ {τ₁ = ⇑ (reify V)}  !} 
+
+-- ⟦⟧≈-to-≈ : ∀ {τ : Type Δ κ} {V : SemType Δ κ} → 
+--            ⟦ τ ⟧≈ V →  ⟦ τ ⟧ idEnv ≈ V
+-- ⟦⟧≈-to-≈ {κ = κ} {τ = τ} {V} e = 
+--   trans-≈ (fund-≈ idEnv-≈ (reify-⟦⟧≈ e)) ⇑-reify-≈
+-- -- ⟦⟧≈-to-≈ {κ = ★} {τ = τ} {V} e = soundness e ○ stability V
+-- -- ⟦⟧≈-to-≈ {κ = L} {τ = τ} {V} e = soundness e ○ stability V
+-- -- ⟦⟧≈-to-≈ {κ = κ₁ `→ κ₂} {τ = τ} {V} e = (λ r₁ r₂ V₁ V₂ x → {! e r₁ {⇑ (reify V₁)} {V₂}  !}) , ({!   !} , {!   !})
+-- -- ⟦⟧≈-to-≈ {κ = R[ κ ]} {τ = τ} {V} e = {! soundness (reify-⟦⟧≈ e)  !}            

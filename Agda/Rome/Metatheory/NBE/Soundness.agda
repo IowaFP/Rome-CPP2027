@@ -135,7 +135,7 @@ fund-≈-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite
 
 fund-≈ {τ₁ = τ} e eq-refl = idext e τ
 fund-≈ e (eq-sym eq) = sym-≈ (fund-≈ (sym-≈ ∘ e) eq)
-fund-≈ e (eq-trans eq₁ eq₂) = trans-≈ (fund-≈ (refl-≈ₗ ∘ e) eq₁) (fund-≈ e eq₂)
+fund-≈ e (eq-trans eq₁ eq₂) = trans-≈ (fund-≈ (refl-≈ˡ ∘ e) eq₁) (fund-≈ e eq₂)
 fund-≈ e (eq-→ eq-τ eq-υ) = ap₂ _`→_ (fund-≈ e eq-τ) (fund-≈ e eq-υ)
 fund-≈ {κ = κ} e (eq-· eq₁ eq₂) = cong-App (fund-≈ e eq₁) (fund-≈ e eq₂)
 fund-≈ e (eq-∀ eq) = ap `∀ (fund-≈ (extend-≈ (ren-≈ S ∘ e) (reflect-≈ refl)) eq)
@@ -146,29 +146,29 @@ fund-≈ {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq)
 fund-≈ e (eq-λ {τ = τ} {υ = υ} eq) = 
     (λ ρ₁ ρ₂ V₁ V₂ q → trans-≈ 
       (↻-renSem-eval ρ₂ τ (extend-≈ (λ x → ren-≈ ρ₁ (e x)) q)) 
-      (idext (λ { Z → ren-≈ ρ₂ (refl-≈ᵣ q)
+      (idext (λ { Z → ren-≈ ρ₂ (refl-≈ʳ q)
                 ; (S x) → sym-≈ (renSem-comp-≈ ρ₁ ρ₂ (e x)) }) τ))  , 
     (λ ρ₁ ρ₂ V₁ V₂ q → trans-≈ 
       (↻-renSem-eval ρ₂ υ (extend-≈ (λ x → ren-≈ ρ₁ (sym-≈ (e x))) q)) 
-      (idext (λ { Z → ren-≈ ρ₂ (refl-≈ᵣ q)
+      (idext (λ { Z → ren-≈ ρ₂ (refl-≈ʳ q)
                 ; (S x) → sym-≈ (renSem-comp-≈ ρ₁ ρ₂ (sym-≈ (e x))) }) υ)), 
     λ ρ q → fund-≈ (extend-≈ (λ x → ren-≈ ρ (e x)) q) eq
 fund-≈ {η₁ = η₁} {η₂ = η₂} e (eq-η {f = f}) = 
   fst (idext e f) , 
   fst (snd (idext {η₁ = η₁} {η₂ = η₂} e (`λ (weakenₜ f · (` Z))))) , 
-  λ r {V₁} {V₂} v → weaken-η-≈ f e r v V₂ (refl-≈ᵣ v)
+  λ r {V₁} {V₂} v → weaken-η-≈ f e r v V₂ (refl-≈ʳ v)
 
 fund-≈ {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) = 
     trans-≈ 
         (idext 
             {η₂ = extende η₁ (⟦ τ₂ ⟧ₜ η₁)} 
-            (λ { Z → idext {η₂ = η₁}  (refl-≈ₗ ∘ e) τ₂
-           ; (S x) → renSem-id-≈ (refl-≈ₗ  (e x)) }) τ₁) 
+            (λ { Z → idext {η₂ = η₁}  (refl-≈ˡ ∘ e) τ₂
+           ; (S x) → renSem-id-≈ (refl-≈ˡ  (e x)) }) τ₁) 
         (sym-≈ 
             (trans-≈ 
                 ((↻-subₜ-eval τ₁ (sym-≈ ∘ e) (extendₜ ` τ₂))) 
-                (idext (λ { Z → idext (refl-≈ₗ ∘ e) τ₂
-                          ; (S x) → (refl-≈ₗ ∘ e) x }) τ₁)))
+                (idext (λ { Z → idext (refl-≈ˡ ∘ e) τ₂
+                          ; (S x) → (refl-≈ˡ ∘ e) x }) τ₁)))
 fund-≈ {η₁ = η₁} {η₂} e (eq-▹ {l₁ = l₁} {l₂} eq-l eq-τ) with ⟦ l₁ ⟧ₜ η₁ | ⟦ l₂ ⟧ₜ η₂ | fund-≈ e eq-l 
 ... | ne x | ne x | refl = (refl , refl) , fund-≈ e eq-τ
 ... | lab l | lab l | refl = refl , (λ { fzero → refl , fund-≈ e eq-τ } )

@@ -38,6 +38,7 @@
 - [x] Explain that consistency *is* weak normalization.
 - [x] Clarify nomenclature divergence
 - [x] Use and explain ωmap
+- [x] Expand on PER and other properties of consistency/soundness relations
 - [ ] Outline intended changes to draft in response to reviewer feedback
 - [ ] Implement copy changes
 - [ ] Add citations to Zenodo & github

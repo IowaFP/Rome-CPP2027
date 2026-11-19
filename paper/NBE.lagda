@@ -45,10 +45,10 @@
 % Style minted code using rosi-pygments custom style
 \ifmono
 \usemintedstyle{bw}
-\usepackage[bw]{./sty/agda}
+\usepackage[bw, links]{./sty/agda}
 \else
 \usemintedstyle{rosi-agda}
-\usepackage{./sty/agda}
+\usepackage[links]{./sty/agda}
 \fi 
 
 \usepackage{./sty/mathwidth}
@@ -1325,10 +1325,10 @@ Towards proving the fundamental lemma, we observe some crucial properties of the
 module FundSoundness where
   open import Rome.Types ; open import Rome.Kinds 
   open import Rome.NormalTypes
-  open import Rome.NormalTypes.NBE
+  open import Rome.NormalTypes.NBE renaming (idEnv to ie)
   open import Rome.Types.Equivalence
   import Rome.Metatheory.NBE.Soundness as Soundness
-  open Soundness hiding (fund-≈ ; reflect-≈ ; reify-≈ ; idEnv-≈ ; _≈ₑ_ ; soundness)
+  open Soundness hiding (fund-≈ ; reflect-≈ ; reify-≈ ; idEnv-≈ ; _≈ₑ_ ; soundness ; refl-≈ˡ ; refl-≈ʳ ; sym-≈ ; trans-≈)
 \end{code}
 \begin{code}
   reflect-≈  : {ν₁ ν₂ : NeutralType Δ κ} →
@@ -1358,28 +1358,47 @@ We lift the soundness relation to a pointwise equivalence on semantic environmen
 \end{code}
 
 \Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by !idEnv-~~!. 
-
+\begin{code}[hide]
+  module _ {Δ : KEnv} where 
+    idEnv = ie {Δ}
+\end{code}
 \begin{code}
-  idEnv-≈ : ∀ {Δ} → (idEnv {Δ = Δ}) ≈ₑ idEnv
-  idEnv-≈ _ = reflect-≈ refl
+    idEnv-≈ : idEnv ≈ₑ idEnv
+    idEnv-≈ _ = reflect-≈ refl
 \end{code}
 
-\paragraph{Partial Equivalence (PER)}
-The relation is symmetric and transitive, but not reflexive. 
+\paragraph{Partial Equivalence Relation}
+The soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric and transitive: 
 
+\begin{code}[hide]
+  module _ {V₁ V₂ V₃ : SemType Δ κ} where 
+\end{code}
 \begin{code}
--- put refl-≈, sym-≈ here
+    trans-≈ : V₁ ≈ V₂ → V₂ ≈ V₃ → V₁ ≈ V₃
+    sym-≈   : V₁ ≈ V₂ → V₂ ≈ V₁
+\end{code}
+\begin{code}[hide]
+    trans-≈ = Soundness.trans-≈
+    sym-≈   = Soundness.sym-≈
 \end{code}
 
-As with all PER models, we have a quasi-reflexive property: provided $V_1$ relates to \emph{some} $V_2$, then both $V_1$ and $V_2$ relate to themselves:
+\Ni but not reflexive. As with all PERs, however, we have a quasi-reflexive property: provided $V_1$ relates to \emph{some} $V_2$, then both $V_1$ and $V_2$ relate to themselves.
 
+\begin{code}[hide]
+  module _ {V₁ V₂ : SemType Δ κ} where 
+\end{code}
 \begin{code} 
--- put refl-≈ᵣ and refl-≈ₗ here
+    refl-≈ˡ : V₁ ≈ V₂ → V₁ ≈ V₁
+    refl-≈ʳ : V₁ ≈ V₂ → V₂ ≈ V₂
+\end{code}
+\begin{code}[hide]
+    refl-≈ˡ = Soundness.refl-≈ˡ
+    refl-≈ʳ = Soundness.refl-≈ʳ
 \end{code}
 
 \paragraph{The fundamental lemma}
 
-The fundamental lemma for the soundness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental lemma is by induction over the type equivalence witness !tau_1 .=.t tau_2!.
+The fundamental lemma for the soundness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental lemma is by induction over the type equivalence witness $\tau_1 \TEqv \tau_2$.
 \begin{code}
   fund-≈ : ∀ {η₁ η₂ : SemEnv Δ₁ Δ₂}
            {τ₁ τ₂ : Type Δ₁ κ} → 

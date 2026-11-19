@@ -68,8 +68,8 @@ Unif-apply : ∀ {Δ : KEnv} {κ₁ : Kind} {κ₂ : Kind} {V₁ V₂ : SemType 
                Uniform {Δ = Δ} {κ₁ `→ κ₂} {κ₂} (apply V₂)
 Unif-apply {V₁ = V₁} {V₂} v ρ₁ ρ₂ V₃ V₄ x = 
   trans-≈
-    (fst x id ρ₂ (renSem ρ₁ V₂) (renSem ρ₁ V₂) (ren-≈ ρ₁ (refl-≈ᵣ v)))
-    (third x ρ₂ (sym-≈ (renSem-comp-≈ ρ₁ ρ₂ (refl-≈ᵣ v)))) 
+    (fst x id ρ₂ (renSem ρ₁ V₂) (renSem ρ₁ V₂) (ren-≈ ρ₁ (refl-≈ʳ v)))
+    (third x ρ₂ (sym-≈ (renSem-comp-≈ ρ₁ ρ₂ (refl-≈ʳ v)))) 
 
 cong-apply : ∀ {Δ : KEnv} {κ₁ : Kind} {κ₂ : Kind} {V₁ V₂ : SemType Δ κ₁} → 
                V₁ ≈ V₂ → 

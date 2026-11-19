@@ -121,8 +121,8 @@ extend-≈ p q (S v) = p v
 -- - symmetric
 -- - transitive
 
-refl-≈ₗ : ∀ {Δ : KEnv} {κ : Kind} {V₁ V₂ : SemType Δ κ}     → V₁ ≈ V₂ → V₁ ≈ V₁
-refl-≈ᵣ : ∀ {Δ : KEnv} {κ : Kind} {V₁ V₂ : SemType Δ κ}     → V₁ ≈ V₂ → V₂ ≈ V₂
+refl-≈ˡ : ∀ {Δ : KEnv} {κ : Kind} {V₁ V₂ : SemType Δ κ}     → V₁ ≈ V₂ → V₁ ≈ V₁
+refl-≈ʳ : ∀ {Δ : KEnv} {κ : Kind} {V₁ V₂ : SemType Δ κ}     → V₁ ≈ V₂ → V₂ ≈ V₂
 sym-≈ : ∀ {Δ : KEnv} {κ : Kind} {τ₁ τ₂ : SemType Δ κ}      → τ₁ ≈ τ₂ → τ₂ ≈ τ₁
 trans-≈ : ∀ {Δ : KEnv} {κ : Kind} {τ₁ τ₂ τ₃ : SemType Δ κ} → τ₁ ≈ τ₂ → τ₂ ≈ τ₃ → τ₁ ≈ τ₃
 trans-≈ᵣ : ∀ {Δ : KEnv} {κ : Kind} {τ₁ τ₂ τ₃ : Row (SemType Δ κ)} → τ₁ ≈ᵣ τ₂ → τ₂ ≈ᵣ τ₃ → τ₁ ≈ᵣ τ₃
@@ -139,8 +139,8 @@ sym-≈ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} (refl , eq-ρ) =
   (λ i → (sym (eq-ρ i .fst)) , (sym-≈ (eq-ρ i .snd)))
 sym-≈ {κ = R[ κ ]} {ρ₂ ∖ ρ₁} {ρ₄ ∖ ρ₃} (rel₁ , rel₂) = (sym-≈ rel₁) , (sym-≈ rel₂)
 sym-≈ {κ = R[ κ ]} {φ₁ $ n₁} {φ₂ $ n₂} ((refl , Unif-φ₁ , Unif-φ₂ , Ext) , (refl , n-eq)) = (refl , Unif-φ₂ , Unif-φ₁ , (λ r v → sym-≈ (Ext r v)) ) , refl , sym n-eq
-refl-≈ₗ q = trans-≈ q (sym-≈ q)
-refl-≈ᵣ q = refl-≈ₗ (sym-≈ q)
+refl-≈ˡ q = trans-≈ q (sym-≈ q)
+refl-≈ʳ q = refl-≈ˡ (sym-≈ q)
 
 trans-≈ {κ = ★} q₁ q₂ = trans q₁ q₂
 trans-≈ {κ = L} q₁ q₂ = trans q₁ q₂
@@ -148,7 +148,7 @@ trans-≈ {κ = κ₁ `→ κ₂} {F} {G} {H}
   (unif-F , unif-G , Ext-F-G) (unif-G' , unif-H , Ext-G-H) = 
     unif-F , 
     unif-H , 
-    λ ρ q → trans-≈ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≈ₗ (sym-≈ q)))
+    λ ρ q → trans-≈ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≈ˡ (sym-≈ q)))
 trans-≈ {κ = R[ κ ]} {l₁ ▹ τ₁} {l₂ ▹ τ₂} {l₃ ▹ τ₃} ((refl , eq-l₁) , rel-τ₁) ((refl , eq-l₂) , rel-τ₂) = (refl , trans eq-l₁ eq-l₂) , trans-≈ rel-τ₁ rel-τ₂
 trans-≈ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} {row (o , R) _} (refl , rel₁) (refl , rel₂) = 
   refl , λ { i → trans (rel₁ i .fst) (rel₂ i .fst) , trans-≈ (rel₁ i .snd) (rel₂ i .snd) }
@@ -164,11 +164,11 @@ trans-≈ᵣ {τ₁ = (n , P)} {τ₂ = (m , Q)} {τ₃ = (j , K)} (refl , rel�
 
 refl-Extₗ : ∀ {κ₁ : Kind} {κ₂ : Kind} 
             {F G : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≈ F G → PointEqual-≈ F F
-refl-Extₗ Ext ρ q = trans-≈ (Ext ρ q) (sym-≈ (Ext ρ (refl-≈ₗ (sym-≈ q))))
+refl-Extₗ Ext ρ q = trans-≈ (Ext ρ q) (sym-≈ (Ext ρ (refl-≈ˡ (sym-≈ q))))
 
 sym-Ext : ∀ {κ₁ : Kind} {κ₂ : Kind} 
             {F G : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≈ F G → PointEqual-≈ G F
-sym-Ext Ext ρ q = trans-≈ (refl-≈ₗ (sym-≈ (Ext ρ (sym-≈ q)))) (sym-≈ (Ext ρ (sym-≈ q)))
+sym-Ext Ext ρ q = trans-≈ (refl-≈ˡ (sym-≈ (Ext ρ (sym-≈ q)))) (sym-≈ (Ext ρ (sym-≈ q)))
 
 refl-Extᵣ : ∀ {κ₁ : Kind} {κ₂ : Kind} 
               {F G : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≈ F G → PointEqual-≈ G G
@@ -377,7 +377,7 @@ renSem-comp-≈ {κ = R[ κ ]} r₁ r₂ {ρ₂ ∖ ρ₁} {ρ₄ ∖ ρ₃} (re
 ↻-lift-weaken-≈ₜ {κ' = κ'} ρ {V₁} {V₂} v = 
   trans-≈ 
     (sym-≈ (renSem-comp-≈ (S {κ₂ = κ'}) (liftₜ ρ) (sym-≈ v))) 
-    (renSem-comp-≈ ρ S (refl-≈ᵣ v))
+    (renSem-comp-≈ ρ S (refl-≈ʳ v))
 
 --------------------------------------------------------------------------------
 -- Alternative definition for reifying semantic row equivalence
