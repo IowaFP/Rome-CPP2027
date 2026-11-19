@@ -17,18 +17,11 @@
 - [x] Change all ' to ′
 - [x] Replace `sub` with `_[_]_{\sigma}`
 - [x] Can I make the Agda and Rosi colors match? Would probably need to implement my own Minted color theme.
-  - Will probably need to build a different Pygments component, so add to iowaFP/rosi-pygments
-  - Mainly, change:
-    - reserved keywords to Agda's orange
-    - Capitalized Type names to Agda's blue
-    - Labels to Agda's green
-- [ ] Change in-lined code with $math$, e.g., !Pi! to $\Pi$
-- [ ] See if we can get inline-agda to work
-  - Since my use-cases are minimal, I can just check what's in NBE.tex and copy the styling directly.
-    That is probably less painful than Agda's automatic machinery, since that requires in-lined code to be well-typed.
-  - ~~see [documentation](https://agda.readthedocs.io/en/latest/tools/generating-latex.html#latex-inline-references)~~
-  - ~~Or, just use rosi-agda Minted and make the two agree...~~
-    - No! Agda uses a different font and slightly different coloring. Not quite the same.
+  - Update: Yes, I did have to. See Rosi Pygments.
+- [ ] Format in-lined agda using native TeX macros
+  - Rely on Math Mode in **General**, only use in-lining for *references to specific Agda constructs*, e.g., the names "Type, NormalType", etc.
+  - Just check what's in NBE.tex and copy the styling directly.
+  - Less painful than Agda's experimental support for automatica-inlining (see [documentation](https://agda.readthedocs.io/en/latest/tools/generating-latex.html#latex-inline-references))
     
 
 # Writing

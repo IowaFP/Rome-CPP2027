@@ -5383,84 +5383,7 @@ Towards proving the fundamental lemma, we observe some crucial properties of the
 \AgdaFunction{Soundness.reify-≈}\<%
 \end{code}
 
-\paragraph{Logical environments}
-We lift the soundness relation to a pointwise equivalence on semantic environments.
-
-\begin{code}%
-%
-\>[2]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≈ₑ\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{Δ₁}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{KEnv}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{η₁}\AgdaSpace{}%
-\AgdaBound{η₂}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaFunction{SemEnv}\AgdaSpace{}%
-\AgdaBound{Δ₁}\AgdaSpace{}%
-\AgdaGeneralizable{Δ₂}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\<%
-\\
-%
-\>[2]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≈ₑ\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaArgument{Δ₁}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaBound{Δ₁}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaBound{η₁}\AgdaSpace{}%
-\AgdaBound{η₂}\AgdaSpace{}%
-\AgdaSymbol{=}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{∀}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{κ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{TVar}\AgdaSpace{}%
-\AgdaBound{Δ₁}\AgdaSpace{}%
-\AgdaBound{κ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{η₁}\AgdaSpace{}%
-\AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{≈}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{η₂}\AgdaSpace{}%
-\AgdaBound{x}\AgdaSymbol{)}\<%
-\end{code}
-
-\Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by !idEnv-~~!. 
-\begin{code}[hide]%
-%
-\>[2]\AgdaKeyword{module}\AgdaSpace{}%
-\AgdaModule{\AgdaUnderscore{}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{KEnv}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaKeyword{where}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaFunction{idEnv}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{ie}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{Δ}\AgdaSymbol{\}}\<%
-\end{code}
-\begin{code}%
-%
-\>[4]\AgdaFunction{idEnv-≈}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaFunction{idEnv}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{≈ₑ}}\AgdaSpace{}%
-\AgdaFunction{idEnv}\<%
-\\
-%
-\>[4]\AgdaFunction{idEnv-≈}\AgdaSpace{}%
-\AgdaSymbol{\AgdaUnderscore{}}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{reflect-≈}\AgdaSpace{}%
-\AgdaInductiveConstructor{refl}\<%
-\end{code}
-
-\paragraph{Partial Equivalence Relation}
-The soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric and transitive: 
+Crucial to most proofs is that the soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric and transitive: 
 
 \begin{code}[hide]%
 %
@@ -5561,6 +5484,83 @@ The soundness relation forms a \emph{partial equivalence} (PER), meaning it is s
 \>[4]\AgdaFunction{refl-≈ʳ}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{Soundness.refl-≈ʳ}\<%
+\end{code}
+
+
+\paragraph{Logical environments}
+We lift the soundness relation to a pointwise equivalence on semantic environments.
+
+\begin{code}%
+%
+\>[2]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≈ₑ\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Δ₁}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{KEnv}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{η₁}\AgdaSpace{}%
+\AgdaBound{η₂}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaFunction{SemEnv}\AgdaSpace{}%
+\AgdaBound{Δ₁}\AgdaSpace{}%
+\AgdaGeneralizable{Δ₂}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+%
+\>[2]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≈ₑ\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaArgument{Δ₁}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{Δ₁}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaBound{η₁}\AgdaSpace{}%
+\AgdaBound{η₂}\AgdaSpace{}%
+\AgdaSymbol{=}\<%
+\\
+\>[2][@{}l@{\AgdaIndent{0}}]%
+\>[4]\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{κ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{TVar}\AgdaSpace{}%
+\AgdaBound{Δ₁}\AgdaSpace{}%
+\AgdaBound{κ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{η₁}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≈}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{η₂}\AgdaSpace{}%
+\AgdaBound{x}\AgdaSymbol{)}\<%
+\end{code}
+
+\Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by !idEnv-~~!. 
+\begin{code}[hide]%
+%
+\>[2]\AgdaKeyword{module}\AgdaSpace{}%
+\AgdaModule{\AgdaUnderscore{}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{KEnv}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaKeyword{where}\<%
+\\
+\>[2][@{}l@{\AgdaIndent{0}}]%
+\>[4]\AgdaFunction{idEnv}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{ie}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Δ}\AgdaSymbol{\}}\<%
+\end{code}
+\begin{code}%
+%
+\>[4]\AgdaFunction{idEnv-≈}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaFunction{idEnv}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≈ₑ}}\AgdaSpace{}%
+\AgdaFunction{idEnv}\<%
+\\
+%
+\>[4]\AgdaFunction{idEnv-≈}\AgdaSpace{}%
+\AgdaSymbol{\AgdaUnderscore{}}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{reflect-≈}\AgdaSpace{}%
+\AgdaInductiveConstructor{refl}\<%
 \end{code}
 
 \paragraph{The fundamental lemma}
@@ -6258,8 +6258,6 @@ The consistency relation observes properties analogous to the soundness relation
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{Consistency.reify-⟦⟧≈}\<%
 \end{code}
-
-Lastly, the relation exhibits the property implied by its notation: the evaluation of a syntactic type $\tau$ is semantically related, under $\Infix{\approx}$, to the object $V$ if $\LRC{\tau}{V}$.
 
 \paragraph{Logical environments}
 We pointwise relate syntactic substitutions with semantic environments.

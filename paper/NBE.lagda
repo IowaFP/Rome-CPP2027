@@ -1348,34 +1348,14 @@ module FundSoundness where
   reify-≈ = Soundness.reify-≈
 \end{code}
 
-\paragraph{Logical environments}
-We lift the soundness relation to a pointwise equivalence on semantic environments.
-
-\begin{code}
-  _≈ₑ_ : {Δ₁ : KEnv} (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
-  _≈ₑ_ {Δ₁ = Δ₁} η₁ η₂ = 
-    ∀ {κ} (x : TVar Δ₁ κ) → (η₁ x) ≈ (η₂ x)
-\end{code}
-
-\Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by !idEnv-~~!. 
-\begin{code}[hide]
-  module _ {Δ : KEnv} where 
-    idEnv = ie {Δ}
-\end{code}
-\begin{code}
-    idEnv-≈ : idEnv ≈ₑ idEnv
-    idEnv-≈ _ = reflect-≈ refl
-\end{code}
-
-\paragraph{Partial Equivalence Relation}
-The soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric and transitive: 
+Crucial to most proofs is that the soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric and transitive: 
 
 \begin{code}[hide]
   module _ {V₁ V₂ V₃ : SemType Δ κ} where 
 \end{code}
 \begin{code}
     trans-≈ : V₁ ≈ V₂ → V₂ ≈ V₃ → V₁ ≈ V₃
-    sym-≈   : V₁ ≈ V₂ → V₂ ≈ V₁
+  sym-≈   : V₁ ≈ V₂ → V₂ ≈ V₁
 \end{code}
 \begin{code}[hide]
     trans-≈ = Soundness.trans-≈
@@ -1394,6 +1374,26 @@ The soundness relation forms a \emph{partial equivalence} (PER), meaning it is s
 \begin{code}[hide]
     refl-≈ˡ = Soundness.refl-≈ˡ
     refl-≈ʳ = Soundness.refl-≈ʳ
+\end{code}
+
+
+\paragraph{Logical environments}
+We lift the soundness relation to a pointwise equivalence on semantic environments.
+
+\begin{code}
+  _≈ₑ_ : {Δ₁ : KEnv} (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
+  _≈ₑ_ {Δ₁ = Δ₁} η₁ η₂ = 
+    ∀ {κ} (x : TVar Δ₁ κ) → (η₁ x) ≈ (η₂ x)
+\end{code}
+
+\Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by !idEnv-~~!. 
+\begin{code}[hide]
+  module _ {Δ : KEnv} where 
+    idEnv = ie {Δ}
+\end{code}
+\begin{code}
+    idEnv-≈ : idEnv ≈ₑ idEnv
+    idEnv-≈ _ = reflect-≈ refl
 \end{code}
 
 \paragraph{The fundamental lemma}
