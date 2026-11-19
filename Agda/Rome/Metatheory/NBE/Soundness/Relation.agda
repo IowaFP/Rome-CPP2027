@@ -99,18 +99,18 @@ UniformNE {Δ = Δ₁} {κ₁ = κ₁} {κ₂} F =
 --------------------------------------------------------------------------------
 -- Pointwise PER for environments
 
-infixr 4 _≈e_
-_≈e_ : {Δ₁ : KEnv} (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
-_≈e_ {Δ₁ = Δ₁} η₁ η₂ = ∀ {κ : Kind} (x : TVar Δ₁ κ) → (η₁ x) ≈ (η₂ x)
+infixr 4 _≈ₑ_
+_≈ₑ_ : {Δ₁ : KEnv} (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
+_≈ₑ_ {Δ₁ = Δ₁} η₁ η₂ = ∀ {κ : Kind} (x : TVar Δ₁ κ) → (η₁ x) ≈ (η₂ x)
 
 -- extension
 extend-≈ : ∀ {Δ₁ : KEnv} {Δ₂ : KEnv}
              {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-             η₁ ≈e η₂ → 
+             η₁ ≈ₑ η₂ → 
              {κ : Kind} → 
              {V₁ V₂ : SemType Δ₂ κ} → 
              V₁ ≈ V₂ → 
-             (extende η₁ V₁) ≈e (extende η₂ V₂)
+             (extende η₁ V₁) ≈ₑ (extende η₂ V₂)
 extend-≈ p q Z = q
 extend-≈ p q (S v) = p v
 
@@ -412,11 +412,11 @@ ren-≈ {κ = R[ κ ]} {V₁ = φ₁ $ n₁} {φ₂ $ n₂} r ((refl , Unif-φ�
 --------------------------------------------------------------------------------
 -- Lifted environments are related
 
-idEnv-≈ : _≈e_ {Δ₁ = Δ} idEnv idEnv
+idEnv-≈ : _≈ₑ_ {Δ₁ = Δ} idEnv idEnv
 idEnv-≈ _ = reflect-≈ refl
 
 lifte-≈ : ∀ {Δ₁ : KEnv} {Δ₂ : KEnv} {κ : Kind}
              {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-             η₁ ≈e η₂ → 
-             (lifte {κ = κ} η₁) ≈e (lifte η₂)
+             η₁ ≈ₑ η₂ → 
+             (lifte {κ = κ} η₁) ≈ₑ (lifte η₂)
 lifte-≈ e = extend-≈ (ren-≈ S ∘ e) (idEnv-≈ Z) 

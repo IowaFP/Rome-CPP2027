@@ -1,7 +1,6 @@
 \documentclass[sigplan,10pt]{acmart}
 \settopmatter{printfolios=true,printccs=true,printacmref=true}
  
-
 \usepackage{accents}        % accents below math symbols
 \usepackage{amsfonts}       % math fonts and blackboards
 \usepackage{amsthm}         % theorem environments
@@ -11,7 +10,8 @@
 \usepackage{enumitem}       % customize list layouts
 \usepackage{ifthen}         % conditional logic in macros
 \usepackage{listings}       % source code formatting
-\usepackage[cache=false]{minted}         % Pygments syntax highlighting
+%\usepackage[cache=false]{minted}         % Pygments syntax highlighting
+\usepackage{minted}         % Pygments syntax highlighting
 \usepackage{newunicodechar} % define Unicode chars in TeX
 \usepackage{stmaryrd}       % extra math/logic symbols
 \usepackage{subcaption}     % subfigures and subcaptions
@@ -30,14 +30,29 @@
   {unicode,naturalnames}{hyperref}
 
 % -----------------------------------------------------------------------------
+% Conditionals:
+%   - set `comments` to true to render text box comments
+%   - set `mono` to true to render pdf without colored syntax highlighting
+%     (better for printing to black and white, since some colors are 
+%      quite light.)
+
+\newif\ifcomments\commentsfalse
+\newif\ifmono\monofalse
+  
+% -----------------------------------------------------------------------------
 % My packages
 
 % Style minted code using rosi-pygments custom style
+\ifmono
+\usemintedstyle{bw}
+\usepackage[bw]{./sty/agda}
+\else
 \usemintedstyle{rosi-agda}
+\usepackage{./sty/agda}
+\fi 
 
 \usepackage{./sty/mathwidth}
 \usepackage{./sty/infer}
-\usepackage{./sty/agda}
 \usepackage{./sty/NBE}
 \usepackage{./sty/commands}
 \usepackage{./sty/environments}
@@ -214,6 +229,7 @@ fmapΣ : ... → Σ ((λ f. f b) ＠
 \begin{rosi}
 fmapΣ : ... → Σ {'Node ▹ Nat, 'Branch ▹ b × b}
 \end{rosi}
+
 
 \Ni Similar reduction takes places in the input type.
 
@@ -1312,7 +1328,7 @@ module FundSoundness where
   open import Rome.NormalTypes.NBE
   open import Rome.Types.Equivalence
   import Rome.Metatheory.NBE.Soundness as Soundness
-  open Soundness hiding (fund-≈ ; reflect-≈ ; reify-≈ ; idEnv-≈ ; _≈e_ ; soundness)
+  open Soundness hiding (fund-≈ ; reflect-≈ ; reify-≈ ; idEnv-≈ ; _≈ₑ_ ; soundness)
 \end{code}
 \begin{code}
   reflect-≈  : {ν₁ ν₂ : NeutralType Δ κ} →
@@ -1336,16 +1352,29 @@ module FundSoundness where
 We lift the soundness relation to a pointwise equivalence on semantic environments.
 
 \begin{code}
-  _≈e_ : {Δ₁ : KEnv} (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
-  _≈e_ {Δ₁ = Δ₁} η₁ η₂ = 
+  _≈ₑ_ : {Δ₁ : KEnv} (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
+  _≈ₑ_ {Δ₁ = Δ₁} η₁ η₂ = 
     ∀ {κ} (x : TVar Δ₁ κ) → (η₁ x) ≈ (η₂ x)
 \end{code}
 
 \Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by !idEnv-~~!. 
 
 \begin{code}
-  idEnv-≈ : ∀ {Δ} → (idEnv {Δ = Δ}) ≈e idEnv
+  idEnv-≈ : ∀ {Δ} → (idEnv {Δ = Δ}) ≈ₑ idEnv
   idEnv-≈ _ = reflect-≈ refl
+\end{code}
+
+\paragraph{Partial Equivalence (PER)}
+The relation is symmetric and transitive, but not reflexive. 
+
+\begin{code}
+-- put refl-≈, sym-≈ here
+\end{code}
+
+As with all PER models, we have a quasi-reflexive property: provided $V_1$ relates to \emph{some} $V_2$, then both $V_1$ and $V_2$ relate to themselves:
+
+\begin{code} 
+-- put refl-≈ᵣ and refl-≈ₗ here
 \end{code}
 
 \paragraph{The fundamental lemma}
@@ -1354,7 +1383,7 @@ The fundamental lemma for the soundness relation states that equivalent types ev
 \begin{code}
   fund-≈ : ∀ {η₁ η₂ : SemEnv Δ₁ Δ₂}
            {τ₁ τ₂ : Type Δ₁ κ} → 
-           η₁ ≈e η₂ → 
+           η₁ ≈ₑ η₂ → 
            τ₁ ≡ₜ τ₂ → 
           ⟦ τ₁ ⟧ η₁ ≈ ⟦ τ₂ ⟧ η₂
 \end{code}
@@ -1464,49 +1493,76 @@ For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with
 \end{code}
 \end{AgdaAlign}
 
-\paragraph{The fundamental lemma}
+\paragraph{Properties}
+
+The consistency relation observes properties analogous to the soundness relation. First, types equivalent to neutral types are related to their reflection:
 
 \begin{AgdaAlign}
 \begin{code}[hide] 
 module FundConsistencyStatement where
   open import Rome.Types ; open import Rome.Kinds 
   open import Rome.NormalTypes
-  open import Rome.NormalTypes.NBE
+  open import Rome.NormalTypes.NBE hiding (idEnv)
   open import Rome.Types.Equivalence
   open import Rome.Types.Properties
   import Rome.Metatheory.NBE.Consistency as Consistency
-  open Consistency hiding (⊢⟦_⟧≈ ; fund-⟦⟧≈ ; consistency)
+  open Consistency hiding (⊢⟦_⟧≈ ; reflect-⟦⟧≈ ; reify-⟦⟧≈ ; fund-⟦⟧≈ ; ⟦_⟧≈ₑ_ ; idEnv-⟦⟧≈ ; consistency)
+\end{code}
+\begin{code}
+  reflect-⟦⟧≈ : {τ : Type Δ κ} {υ :  NeutralType Δ κ} → 
+               τ ≡ₜ ⇑ υ → ⟦ τ ⟧≈ reflect υ
+\end{code}
+\begin{code}[hide]
+  reflect-⟦⟧≈ = Consistency.reflect-⟦⟧≈
 \end{code}
 
-The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is related to its evaluation in semantic environment $\eta$:
+\Ni Dually, types related to semantic objects are equivalent to their reification. 
+
+\begin{code}
+  reify-⟦⟧≈ : {τ : Type Δ κ} {V :  SemType Δ κ} → 
+              ⟦ τ ⟧≈ V → τ ≡ₜ ⇑ (reify V)
+\end{code}
+\begin{code}[hide]
+  reify-⟦⟧≈ = Consistency.reify-⟦⟧≈
+\end{code}
+
+\paragraph{Logical environments}
+We pointwise relate syntactic substitutions with semantic environments.
+
+\begin{code}
+  ⟦_⟧≈ₑ_ : Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
+  ⟦_⟧≈ₑ_ {Δ₁ = Δ₁} σ η = 
+    ∀ {κ : Kind} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≈ (η α)
+\end{code}
+
+\Ni  As expected, the identity substitution relates to the identity semantic environment. The term !eq-refl! witnesses reflexivity of type equivalence $\Infix{\TEqv}$.
+
+\begin{code}[hide]
+  -- in the def below, either ` or idEnv need to be told what Δ₁ is,
+  -- which is ugly to use an implicit for. This is a small little presentational
+  -- lie---we'll introduce its environment as an implicit of the module.
+  module _ {Δ : KEnv} where
+    open import Rome.NormalTypes.NBE renaming (idEnv to ie)
+    idEnv = ie {Δ = Δ}
+\end{code}
+\begin{code}
+    idEnv-⟦⟧≈ : ⟦ ` ⟧≈ₑ idEnv
+    idEnv-⟦⟧≈ _ = reflect-⟦⟧≈ eq-refl
+\end{code}
+
+\paragraph{The fundamental lemma}
+
+The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is related to its evaluation in semantic environment $\eta$, provided a pointwise relation of $\sigma$ and $\eta$:
 
 \begin{code}
   fund-⟦⟧≈ : ∀ (τ : Type Δ₁ κ)
             {σ : Substitution Δ₁ Δ₂}
             {η : SemEnv Δ₁ Δ₂} → 
-            ⟦ σ ⟧≈e η  → 
+            ⟦ σ ⟧≈ₑ η  → 
             ⟦ τ [ σ ]ₛ ⟧≈ (⟦ τ ⟧ η)
 \end{code}
 \begin{code}[hide]
   fund-⟦⟧≈ = Consistency.fund-⟦⟧≈
-\end{code}
-
-\Ni provided a pointwise relation of $\sigma$ and $\eta$:
-
-\begin{code}[hide] 
-module FundConsistency where
-  open import Rome.Types ; open import Rome.Kinds 
-  open import Rome.NormalTypes
-  open import Rome.NormalTypes.NBE
-  open import Rome.Types.Equivalence
-  open import Rome.Types.Properties
-  import Rome.Metatheory.NBE.Consistency as Consistency
-  open Consistency hiding (⊢⟦_⟧≈ ; ⟦_⟧≈e_ ; consistency)
-\end{code}
-\begin{code}
-  ⟦_⟧≈e_ : Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
-  ⟦_⟧≈e_ {Δ₁ = Δ₁} σ η = 
-    ∀ {κ} (α : TVar Δ₁ κ) → ⟦ σ α ⟧≈ (η α)
 \end{code}
 
 A natural corollary of the fundamental lemma is that each type $\tau$, propositionally equal to itself under the identity substitution, is related to its evaluation in the identity environment.
@@ -1515,11 +1571,11 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
   ⊢⟦_⟧≈ : ∀ (τ : Type Δ κ) → ⟦ τ ⟧≈ ⟦ τ ⟧ idEnv
 \end{code}
 \begin{code}[hide]
-  ⊢⟦ τ ⟧≈ = tr (⟦_⟧≈ ⟦ τ ⟧ idEnv) 
-    (sub-id τ) (fund-⟦⟧≈ τ idEnv-⟦⟧≈)
+  ⊢⟦ τ ⟧≈ = subst (⟦_⟧≈ ⟦ τ ⟧ idEnv) 
+    (sub-id τ) (fund-⟦⟧≈ τ idEnv-⟦⟧≈)    
 \end{code}
 
-\Ni Consistency follows from reification, which asserts that $\tau$ is equivalent to $\Embed (\text{reify} V)$ if $\tau$ is related to $V$.
+\Ni Consistency follows directly from the reification of this property.
 
 \begin{code}
   consistency : (τ : Type Δ₁ κ) → τ ≡ₜ ⇑ (⇓ τ) 
@@ -1530,9 +1586,11 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
 
 \paragraph{Completeness}
 
+% #[LINK][to embedding equational reasoning, inst, and symmetry]
 \AH{Comment on equational reasoning, transitivity, and symmetry.}
-Consistency implies \emph{completeness}, which is dual to soundness. The helper !inst! reflects propositional equality to type equivalence, while !eq-trans! and !eq-sym! construct transitivity and symmetry of the type equivalence relation.
+Consistency implies \emph{completeness}, which is dual to soundness. The derivation is given below using custom support for \emph{equational reasoning} over type equivalence. The helper !inst! reflects propositional equality to type equivalence, and the suffix $\Infix{^{-1}}$ witnesses symmetry of $\Infix{\TEqv}$.
 
+% #[LINK][to completeness proof]
 \begin{AgdaAlign}
 \begin{code}[hide] 
 module Completeness where

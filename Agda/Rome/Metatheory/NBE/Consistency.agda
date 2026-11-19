@@ -607,13 +607,13 @@ map-Σ {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Σ {n
 -- Fundamental lemma  
 
 fund-⟦⟧≈ : ∀ (τ : Type Δ₁ κ){σ : Substitution Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
-          ⟦ σ ⟧≈e η  → ⟦ sub σ τ ⟧≈ (⟦ τ ⟧ₜ η)
+          ⟦ σ ⟧≈ₑ η  → ⟦ sub σ τ ⟧≈ (⟦ τ ⟧ₜ η)
 
 --------------------------------------------------------------------------------
 -- Fundamental lemma for rows
 
 fund-⟦⟧≈ᵣ : ∀ (xs : RowLiteral (Type Δ₁ κ)){σ : Substitution Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
-          ⟦ σ ⟧≈e η  → ⟦ sub σ xs ⟧≈ᵣ (⟦ xs ⟧ᵣ η)
+          ⟦ σ ⟧≈ₑ η  → ⟦ sub σ xs ⟧≈ᵣ (⟦ xs ⟧ᵣ η)
 fund-⟦⟧≈ᵣ [] e = tt
 fund-⟦⟧≈ᵣ ((l , τ) ∷ xs) e = (refl , fund-⟦⟧≈ τ e ) , fund-⟦⟧≈ᵣ xs e
 
@@ -624,7 +624,7 @@ fund-⟦⟧≈-map-app : ∀ {Δ₂ : KEnv} {κ₁ : Kind} (n : ℕ) (P : Fin n 
                 (τ₁ : Type Δ₁ (κ₁ `→ κ₂)) → 
                 (rel : ⟦ ⇑ᵣ (reifyRow' n P) ⟧≈ᵣ (n , P)) → 
                 {σ : Substitution Δ₁ Δ₂} → {η : SemEnv Δ₁ Δ₂} → 
-                ⟦ σ ⟧≈e η → 
+                ⟦ σ ⟧≈ₑ η → 
                 ⟦ map (map₂ (_·_ (sub σ τ₁))) (⇑ᵣ (reifyRow' n P)) ⟧≈ᵣ (n , (λ x → P x .fst , ⟦ τ₁ ⟧ₜ η id (P x .snd)))
 
 fund-⟦⟧≈-map-app zero P _ _ _ = tt
@@ -636,7 +636,7 @@ fund-⟦⟧≈-map-app (suc n) P τ₁ (rel-fzero , rel-fsuc) {σ} e =
 -- Fundamental lemma for predicates
           
 fund-⟦⟧≈Pred : ∀ (π : Pred (Type Δ₁ R[ κ ])){σ : Substitution Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
-          ⟦ σ ⟧≈e η → (sub σ π) ≡ₚ ⇑ₚ (⟦ π ⟧ₚ η)           
+          ⟦ σ ⟧≈ₑ η → (sub σ π) ≡ₚ ⇑ₚ (⟦ π ⟧ₚ η)           
 fund-⟦⟧≈Pred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≈ (fund-⟦⟧≈ ρ₁ e)) eq-· (reify-⟦⟧≈ (fund-⟦⟧≈ ρ₂ e)) ~ (reify-⟦⟧≈ (fund-⟦⟧≈ ρ₃ e))
 fund-⟦⟧≈Pred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≈ (fund-⟦⟧≈ ρ₁ e)) eq-≲ (reify-⟦⟧≈ (fund-⟦⟧≈ ρ₂ e))
 

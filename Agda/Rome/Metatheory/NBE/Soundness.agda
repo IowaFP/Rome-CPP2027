@@ -50,7 +50,7 @@ open import Rome.Types.Equivalence
 
 ↻-syn/sem-compl : ∀ {Δ₂ : KEnv} {κ : Kind} 
                     {η₁ η₂ : SemEnv Δ₁ Δ₂} (xs ys : RowLiteral (Type Δ₁ κ)) → 
-                  η₁ ≈e η₂ → 
+                  η₁ ≈ₑ η₂ → 
                   (⟦ xs ⟧ᵣ η₁ ∖v ⟦ ys ⟧ᵣ η₁) ≈ᵣ ⟦ (xs ∖s ys) ⟧ᵣ η₂
 ↻-syn/sem-compl [] ys e = refl , (λ ())
 ↻-syn/sem-compl {η₁ = η₁} {η₂} ((l , τ) ∷ xs) ys e with 
@@ -120,12 +120,12 @@ open import Rome.Types.Equivalence
 -- Fundamental theorem (soundness)
 
 fund-≈ : ∀ {Δ₂ : KEnv} {κ : Kind} {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-       η₁ ≈e η₂ → τ₁ ≡ₜ τ₂ → ⟦ τ₁ ⟧ₜ η₁ ≈ ⟦ τ₂ ⟧ₜ η₂
+       η₁ ≈ₑ η₂ → τ₁ ≡ₜ τ₂ → ⟦ τ₁ ⟧ₜ η₁ ≈ ⟦ τ₂ ⟧ₜ η₂
 fund-≈-pred : ∀ {π₁ π₂ : Pred (Type Δ₁ R[ κ ])} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-            η₁ ≈e η₂ → π₁ ≡ₚ π₂ → ⟦ π₁ ⟧ₚ η₁ ≡ ⟦ π₂ ⟧ₚ η₂
+            η₁ ≈ₑ η₂ → π₁ ≡ₚ π₂ → ⟦ π₁ ⟧ₚ η₁ ≡ ⟦ π₂ ⟧ₚ η₂
 fund-≈ᵣ : ∀ {Δ₂ : KEnv} {κ : Kind} 
               {ρ₁ ρ₂ : RowLiteral (Type Δ₁ κ)} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-            η₁ ≈e η₂ → ρ₁ ≡ᵣ ρ₂ → ⟦ ρ₁ ⟧ᵣ η₁ ≈ᵣ ⟦ ρ₂ ⟧ᵣ η₂
+            η₁ ≈ₑ η₂ → ρ₁ ≡ᵣ ρ₂ → ⟦ ρ₁ ⟧ᵣ η₁ ≈ᵣ ⟦ ρ₂ ⟧ᵣ η₂
 
 fund-≈-pred e (τ₁ eq-≲ τ₂) = ap₂ _≲_ (reify-≈ (fund-≈ e τ₁)) (reify-≈ (fund-≈ e τ₂))
 fund-≈-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite
@@ -265,7 +265,7 @@ fund-≈ᵣ {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with
 
 -- An immediate consequence:
 eval-refl-≈ : ∀ {Δ₂ : KEnv} {κ : Kind} {τ : Type Δ₁ κ} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-              η₁ ≈e η₂ → ⟦ τ ⟧ₜ η₁ ≈ ⟦ τ ⟧ₜ η₂
+              η₁ ≈ₑ η₂ → ⟦ τ ⟧ₜ η₁ ≈ ⟦ τ ⟧ₜ η₂
 eval-refl-≈ {τ = τ} e = fund-≈ {τ₁ = τ} e eq-refl
 
 
@@ -352,7 +352,7 @@ soundness-row {ρ₁ = ρ₁} {ρ₂} eq with
 -- Helper to substitute under an eval
  
 evalCRSubst : ∀ {Δ₂ : KEnv} {κ : Kind} {η₁ η₂ : SemEnv Δ₁ Δ₂}
-    → η₁ ≈e η₂
+    → η₁ ≈ₑ η₂
     → {τ₁ τ₂ : Type Δ₁ κ}
     → τ₁ ≡ τ₂
     → (⟦ τ₁ ⟧ₜ η₁) ≈ (⟦ τ₂ ⟧ₜ η₂)

@@ -306,11 +306,11 @@ subₜ-liftsₜ-≡ₜ σ τ = subₜ-cong-≡ₜ liftsₜ-liftsₜNF≡ₜ τ
 --   ` Z ↦ reflect (` Z)
 --   ` S x ↦ idEnv (` S x) ≡ reflect (` S x)
 -- And so lifte idEnv ≈ idEnv.
-lifte-idEnv : (lifte {Δ₁ = Δ₁} {κ = κ} idEnv) ≈e idEnv
+lifte-idEnv : (lifte {Δ₁ = Δ₁} {κ = κ} idEnv) ≈ₑ idEnv
 lifte-idEnv Z = idEnv-≈ Z
 lifte-idEnv (S x) = ↻-ren-reflect S (` x)
 
-lifte²-idEnv : (lifte {Δ₁ = Δ₁ , κ₁} {κ = κ₂} (lifte {Δ₁ = Δ₁} {κ = κ₁} idEnv)) ≈e idEnv
+lifte²-idEnv : (lifte {Δ₁ = Δ₁ , κ₁} {κ = κ₂} (lifte {Δ₁ = Δ₁} {κ = κ₁} idEnv)) ≈ₑ idEnv
 lifte²-idEnv Z = idEnv-≈ Z
 lifte²-idEnv (S x) = trans-≈ (ren-≈ S (lifte-idEnv x)) (↻-ren-reflect S (` x))
 

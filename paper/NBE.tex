@@ -1,7 +1,6 @@
 \documentclass[sigplan,10pt]{acmart}
 \settopmatter{printfolios=true,printccs=true,printacmref=true}
  
-
 \usepackage{accents}        % accents below math symbols
 \usepackage{amsfonts}       % math fonts and blackboards
 \usepackage{amsthm}         % theorem environments
@@ -11,7 +10,8 @@
 \usepackage{enumitem}       % customize list layouts
 \usepackage{ifthen}         % conditional logic in macros
 \usepackage{listings}       % source code formatting
-\usepackage[cache=false]{minted}         % Pygments syntax highlighting
+%\usepackage[cache=false]{minted}         % Pygments syntax highlighting
+\usepackage{minted}         % Pygments syntax highlighting
 \usepackage{newunicodechar} % define Unicode chars in TeX
 \usepackage{stmaryrd}       % extra math/logic symbols
 \usepackage{subcaption}     % subfigures and subcaptions
@@ -30,14 +30,29 @@
   {unicode,naturalnames}{hyperref}
 
 % -----------------------------------------------------------------------------
+% Conditionals:
+%   - set `comments` to true to render text box comments
+%   - set `mono` to true to render pdf without colored syntax highlighting
+%     (better for printing to black and white, since some colors are 
+%      quite light.)
+
+\newif\ifcomments\commentsfalse
+\newif\ifmono\monofalse
+  
+% -----------------------------------------------------------------------------
 % My packages
 
 % Style minted code using rosi-pygments custom style
+\ifmono
+\usemintedstyle{bw}
+\usepackage[bw]{./sty/agda}
+\else
 \usemintedstyle{rosi-agda}
+\usepackage{./sty/agda}
+\fi 
 
 \usepackage{./sty/mathwidth}
 \usepackage{./sty/infer}
-\usepackage{./sty/agda}
 \usepackage{./sty/NBE}
 \usepackage{./sty/commands}
 \usepackage{./sty/environments}
@@ -227,6 +242,7 @@ fmapΣ : ... → Σ ((λ f. f b) ＠
 \begin{rosi}
 fmapΣ : ... → Σ {'Node ▹ Nat, 'Branch ▹ b × b}
 \end{rosi}
+
 
 \Ni Similar reduction takes places in the input type.
 
@@ -5289,7 +5305,7 @@ Towards proving the fundamental lemma, we observe some crucial properties of the
 \AgdaSymbol{;}\AgdaSpace{}%
 \AgdaFunction{idEnv-≈}\AgdaSpace{}%
 \AgdaSymbol{;}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≈e\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≈ₑ\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{;}\AgdaSpace{}%
 \AgdaFunction{soundness}\AgdaSymbol{)}\<%
 \end{code}
@@ -5360,7 +5376,7 @@ We lift the soundness relation to a pointwise equivalence on semantic environmen
 
 \begin{code}%
 %
-\>[2]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≈e\AgdaUnderscore{}}}\AgdaSpace{}%
+\>[2]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≈ₑ\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Δ₁}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -5375,7 +5391,7 @@ We lift the soundness relation to a pointwise equivalence on semantic environmen
 \AgdaPrimitive{Set}\<%
 \\
 %
-\>[2]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≈e\AgdaUnderscore{}}}\AgdaSpace{}%
+\>[2]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≈ₑ\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{Δ₁}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{Δ₁}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -5412,7 +5428,7 @@ We lift the soundness relation to a pointwise equivalence on semantic environmen
 \AgdaSymbol{\{}\AgdaArgument{Δ}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSymbol{\})}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{≈e}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≈ₑ}}\AgdaSpace{}%
 \AgdaFunction{idEnv}\<%
 \\
 %
@@ -5423,11 +5439,24 @@ We lift the soundness relation to a pointwise equivalence on semantic environmen
 \AgdaInductiveConstructor{refl}\<%
 \end{code}
 
+\paragraph{Partial Equivalence (PER)}
+The relation is symmetric and transitive, but not reflexive. 
+
+\begin{code}%
+\>[0]\AgdaComment{--\ put\ refl-≈,\ sym-≈\ here}\<%
+\end{code}
+
+As with all PER models, we have a quasi-reflexive property: provided $V_1$ relates to \emph{some} $V_2$, then both $V_1$ and $V_2$ relate to themselves:
+
+\begin{code} %
+\>[0]\AgdaComment{--\ put\ refl-≈ᵣ\ and\ refl-≈ₗ\ here}\<%
+\end{code}
+
 \paragraph{The fundamental lemma}
 
 The fundamental lemma for the soundness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental lemma is by induction over the type equivalence witness !tau_1 .=.t tau_2!.
 \begin{code}%
-%
+\>[0][@{}l@{\AgdaIndent{1}}]%
 \>[2]\AgdaFunction{fund-≈}%
 \>[3215I]\AgdaSymbol{:}%
 \>[3216I]\AgdaSymbol{∀}\AgdaSpace{}%
@@ -5449,7 +5478,7 @@ The fundamental lemma for the soundness relation states that equivalent types ev
 \\
 %
 \>[11]\AgdaBound{η₁}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{≈e}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{≈ₑ}}\AgdaSpace{}%
 \AgdaBound{η₂}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
@@ -5982,7 +6011,9 @@ For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with
 \end{code}
 \end{AgdaAlign}
 
-\paragraph{The fundamental lemma}
+\paragraph{Properties}
+
+The consistency relation observes properties analogous to the soundness relation. First, types equivalent to neutral types are related to their reflection:
 
 \begin{AgdaAlign}
 \begin{code}[hide] %
@@ -6007,7 +6038,9 @@ For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\<%
+\AgdaModule{Rome.NormalTypes.NBE}\AgdaSpace{}%
+\AgdaKeyword{hiding}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{idEnv}\AgdaSymbol{)}\<%
 \\
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
@@ -6031,17 +6064,197 @@ For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with
 \AgdaKeyword{hiding}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaFunction{⊢⟦\AgdaUnderscore{}⟧≈}}\AgdaSpace{}%
 \AgdaSymbol{;}\AgdaSpace{}%
+\AgdaFunction{reflect-⟦⟧≈}\AgdaSpace{}%
+\AgdaSymbol{;}\AgdaSpace{}%
+\AgdaFunction{reify-⟦⟧≈}\AgdaSpace{}%
+\AgdaSymbol{;}\AgdaSpace{}%
 \AgdaFunction{fund-⟦⟧≈}\AgdaSpace{}%
+\AgdaSymbol{;}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⟦\AgdaUnderscore{}⟧≈ₑ\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{;}\AgdaSpace{}%
+\AgdaFunction{idEnv-⟦⟧≈}\AgdaSpace{}%
 \AgdaSymbol{;}\AgdaSpace{}%
 \AgdaFunction{consistency}\AgdaSymbol{)}\<%
 \end{code}
+\begin{code}%
+%
+\>[2]\AgdaFunction{reflect-⟦⟧≈}%
+\>[3595I]\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Type}\AgdaSpace{}%
+\AgdaGeneralizable{Δ}\AgdaSpace{}%
+\AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{υ}\AgdaSpace{}%
+\AgdaSymbol{:}%
+\>[37]\AgdaDatatype{NeutralType}\AgdaSpace{}%
+\AgdaGeneralizable{Δ}\AgdaSpace{}%
+\AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+\>[3595I][@{}l@{\AgdaIndent{0}}]%
+\>[15]\AgdaBound{τ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{≡ₜ}}\AgdaSpace{}%
+\AgdaField{⇑}\AgdaSpace{}%
+\AgdaBound{υ}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
+\AgdaBound{τ}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⟧≈}}\AgdaSpace{}%
+\AgdaFunction{reflect}\AgdaSpace{}%
+\AgdaBound{υ}\<%
+\end{code}
+\begin{code}[hide]%
+%
+\>[2]\AgdaFunction{reflect-⟦⟧≈}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{Consistency.reflect-⟦⟧≈}\<%
+\end{code}
 
-The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is related to its evaluation in semantic environment $\eta$:
+\Ni Dually, types related to semantic objects are equivalent to their reification. 
+
+\begin{code}%
+%
+\>[2]\AgdaFunction{reify-⟦⟧≈}\AgdaSpace{}%
+\AgdaSymbol{:}%
+\>[3618I]\AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Type}\AgdaSpace{}%
+\AgdaGeneralizable{Δ}\AgdaSpace{}%
+\AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{V}\AgdaSpace{}%
+\AgdaSymbol{:}%
+\>[35]\AgdaFunction{SemType}\AgdaSpace{}%
+\AgdaGeneralizable{Δ}\AgdaSpace{}%
+\AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+\>[.][@{}l@{}]\<[3618I]%
+\>[14]\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
+\AgdaBound{τ}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⟧≈}}\AgdaSpace{}%
+\AgdaBound{V}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{τ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{≡ₜ}}\AgdaSpace{}%
+\AgdaField{⇑}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{reify}\AgdaSpace{}%
+\AgdaBound{V}\AgdaSymbol{)}\<%
+\end{code}
+\begin{code}[hide]%
+%
+\>[2]\AgdaFunction{reify-⟦⟧≈}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{Consistency.reify-⟦⟧≈}\<%
+\end{code}
+
+\paragraph{Logical environments}
+We pointwise relate syntactic substitutions with semantic environments.
+
+\begin{code}%
+%
+\>[2]\AgdaOperator{\AgdaFunction{⟦\AgdaUnderscore{}⟧≈ₑ\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaFunction{Substitution}\AgdaSpace{}%
+\AgdaGeneralizable{Δ₁}\AgdaSpace{}%
+\AgdaGeneralizable{Δ₂}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaFunction{SemEnv}\AgdaSpace{}%
+\AgdaGeneralizable{Δ₁}\AgdaSpace{}%
+\AgdaGeneralizable{Δ₂}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaPrimitive{Set}\<%
+\\
+%
+\>[2]\AgdaOperator{\AgdaFunction{⟦\AgdaUnderscore{}⟧≈ₑ\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaArgument{Δ₁}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{Δ₁}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaBound{σ}\AgdaSpace{}%
+\AgdaBound{η}\AgdaSpace{}%
+\AgdaSymbol{=}\<%
+\\
+\>[2][@{}l@{\AgdaIndent{0}}]%
+\>[4]\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{κ}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Kind}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{α}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{TVar}\AgdaSpace{}%
+\AgdaBound{Δ₁}\AgdaSpace{}%
+\AgdaBound{κ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{σ}\AgdaSpace{}%
+\AgdaBound{α}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⟧≈}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{η}\AgdaSpace{}%
+\AgdaBound{α}\AgdaSymbol{)}\<%
+\end{code}
+
+\Ni  As expected, the identity substitution relates to the identity semantic environment. The term !eq-refl! witnesses reflexivity of type equivalence $\Infix{\TEqv}$.
+
+\begin{code}[hide]%
+%
+\>[2]\AgdaComment{--\ in\ the\ def\ below,\ either\ `\ or\ idEnv\ need\ to\ be\ told\ what\ Δ₁\ is,}\<%
+\\
+%
+\>[2]\AgdaComment{--\ which\ is\ ugly\ to\ use\ an\ implicit\ for.\ This\ is\ a\ small\ little\ presentational}\<%
+\\
+%
+\>[2]\AgdaComment{--\ lie---we'll\ introduce\ its\ environment\ as\ an\ implicit\ of\ the\ module.}\<%
+\\
+%
+\>[2]\AgdaKeyword{module}\AgdaSpace{}%
+\AgdaModule{\AgdaUnderscore{}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{KEnv}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaKeyword{where}\<%
+\\
+\>[2][@{}l@{\AgdaIndent{0}}]%
+\>[4]\AgdaKeyword{open}\AgdaSpace{}%
+\AgdaKeyword{import}\AgdaSpace{}%
+\AgdaModule{Rome.NormalTypes.NBE}\AgdaSpace{}%
+\AgdaKeyword{renaming}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{idEnv}\AgdaSpace{}%
+\AgdaSymbol{to}\AgdaSpace{}%
+\AgdaFunction{ie}\AgdaSymbol{)}\<%
+\\
+%
+\>[4]\AgdaFunction{idEnv}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{ie}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaArgument{Δ}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSymbol{\}}\<%
+\end{code}
+\begin{code}%
+%
+\>[4]\AgdaFunction{idEnv-⟦⟧≈}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
+\AgdaInductiveConstructor{`}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⟧≈ₑ}}\AgdaSpace{}%
+\AgdaFunction{idEnv}\<%
+\\
+%
+\>[4]\AgdaFunction{idEnv-⟦⟧≈}\AgdaSpace{}%
+\AgdaSymbol{\AgdaUnderscore{}}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{reflect-⟦⟧≈}\AgdaSpace{}%
+\AgdaInductiveConstructor{eq-refl}\<%
+\end{code}
+
+\paragraph{The fundamental lemma}
+
+The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is related to its evaluation in semantic environment $\eta$, provided a pointwise relation of $\sigma$ and $\eta$:
 
 \begin{code}%
 %
 \>[2]\AgdaFunction{fund-⟦⟧≈}%
-\>[3585I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[3695I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -6049,7 +6262,7 @@ The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is
 \AgdaGeneralizable{Δ₁}\AgdaSpace{}%
 \AgdaGeneralizable{κ}\AgdaSymbol{)}\<%
 \\
-\>[3585I][@{}l@{\AgdaIndent{0}}]%
+\>[3695I][@{}l@{\AgdaIndent{0}}]%
 \>[12]\AgdaSymbol{\{}\AgdaBound{σ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Substitution}\AgdaSpace{}%
@@ -6067,7 +6280,7 @@ The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is
 %
 \>[12]\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⟧≈e}}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⟧≈ₑ}}\AgdaSpace{}%
 \AgdaBound{η}%
 \>[23]\AgdaSymbol{→}\<%
 \\
@@ -6088,98 +6301,6 @@ The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is
 \>[2]\AgdaFunction{fund-⟦⟧≈}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{Consistency.fund-⟦⟧≈}\<%
-\end{code}
-
-\Ni provided a pointwise relation of $\sigma$ and $\eta$:
-
-\begin{code}[hide] %
-\>[0]\AgdaKeyword{module}\AgdaSpace{}%
-\AgdaModule{FundConsistency}\AgdaSpace{}%
-\AgdaKeyword{where}\<%
-\\
-\>[0][@{}l@{\AgdaIndent{0}}]%
-\>[2]\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.Types}\AgdaSpace{}%
-\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.Kinds}\<%
-\\
-%
-\>[2]\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes}\<%
-\\
-%
-\>[2]\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\<%
-\\
-%
-\>[2]\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.Types.Equivalence}\<%
-\\
-%
-\>[2]\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.Types.Properties}\<%
-\\
-%
-\>[2]\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.Metatheory.NBE.Consistency}\AgdaSpace{}%
-\AgdaSymbol{as}\AgdaSpace{}%
-\AgdaModule{Consistency}\<%
-\\
-%
-\>[2]\AgdaKeyword{open}\AgdaSpace{}%
-\AgdaModule{Consistency}\AgdaSpace{}%
-\AgdaKeyword{hiding}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaOperator{\AgdaFunction{⊢⟦\AgdaUnderscore{}⟧≈}}\AgdaSpace{}%
-\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⟦\AgdaUnderscore{}⟧≈e\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaSymbol{;}\AgdaSpace{}%
-\AgdaFunction{consistency}\AgdaSymbol{)}\<%
-\end{code}
-\begin{code}%
-%
-\>[2]\AgdaOperator{\AgdaFunction{⟦\AgdaUnderscore{}⟧≈e\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaFunction{Substitution}\AgdaSpace{}%
-\AgdaGeneralizable{Δ₁}\AgdaSpace{}%
-\AgdaGeneralizable{Δ₂}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{SemEnv}\AgdaSpace{}%
-\AgdaGeneralizable{Δ₁}\AgdaSpace{}%
-\AgdaGeneralizable{Δ₂}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaPrimitive{Set}\<%
-\\
-%
-\>[2]\AgdaOperator{\AgdaFunction{⟦\AgdaUnderscore{}⟧≈e\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaArgument{Δ₁}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaBound{Δ₁}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaBound{σ}\AgdaSpace{}%
-\AgdaBound{η}\AgdaSpace{}%
-\AgdaSymbol{=}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaSymbol{∀}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{κ}\AgdaSymbol{\}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{α}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{TVar}\AgdaSpace{}%
-\AgdaBound{Δ₁}\AgdaSpace{}%
-\AgdaBound{κ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
-\AgdaBound{σ}\AgdaSpace{}%
-\AgdaBound{α}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⟧≈}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{η}\AgdaSpace{}%
-\AgdaBound{α}\AgdaSymbol{)}\<%
 \end{code}
 
 A natural corollary of the fundamental lemma is that each type $\tau$, propositionally equal to itself under the identity substitution, is related to its evaluation in the identity environment.
@@ -6209,7 +6330,7 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
 \AgdaBound{τ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧≈}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{tr}\AgdaSpace{}%
+\AgdaFunction{subst}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaOperator{\AgdaFunction{⟦\AgdaUnderscore{}⟧≈}}\AgdaSpace{}%
 \AgdaOperator{\AgdaField{⟦}}\AgdaSpace{}%
 \AgdaBound{τ}\AgdaSpace{}%
@@ -6224,7 +6345,7 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
 \AgdaFunction{idEnv-⟦⟧≈}\AgdaSymbol{)}\<%
 \end{code}
 
-\Ni Consistency follows from reification, which asserts that $\tau$ is equivalent to $\Embed (\text{reify} V)$ if $\tau$ is related to $V$.
+\Ni Consistency follows directly from the reification of this property.
 
 \begin{code}%
 %
@@ -6254,9 +6375,11 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
 
 \paragraph{Completeness}
 
+% #[LINK][to embedding equational reasoning, inst, and symmetry]
 \AH{Comment on equational reasoning, transitivity, and symmetry.}
-Consistency implies \emph{completeness}, which is dual to soundness. The helper !inst! reflects propositional equality to type equivalence, while !eq-trans! and !eq-sym! construct transitivity and symmetry of the type equivalence relation.
+Consistency implies \emph{completeness}, which is dual to soundness. The derivation is given below using custom support for \emph{equational reasoning} over type equivalence. The helper !inst! reflects propositional equality to type equivalence, and the suffix $\Infix{^{-1}}$ witnesses symmetry of $\Infix{\TEqv}$.
 
+% #[LINK][to embedding equational reasoning, inst, and symmetry]
 \begin{AgdaAlign}
 \begin{code}[hide] %
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -6295,7 +6418,7 @@ Consistency implies \emph{completeness}, which is dual to soundness. The helper 
 %
 \>[2]\AgdaFunction{completeness}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[3730I]\AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
+\>[3785I]\AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaBound{υ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
@@ -6303,7 +6426,7 @@ Consistency implies \emph{completeness}, which is dual to soundness. The helper 
 \AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[3730I]%
+\>[.][@{}l@{}]\<[3785I]%
 \>[17]\AgdaField{⇓}\AgdaSpace{}%
 \AgdaBound{τ}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≡}}\AgdaSpace{}%

@@ -294,21 +294,21 @@ ren-⟦⟧≈ {κ = R[ κ ]} r {v} {(V₂ ∖ V₁) {nr}} (eq , rel₂ , rel₁)
 --------------------------------------------------------------------------------
 -- Relating syntactic substitutions to semantic environments
  
-⟦_⟧≈e_ : ∀ {Δ₁ : KEnv} {Δ₂ : KEnv} → Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
-⟦_⟧≈e_ {Δ₁ = Δ₁} σ η = ∀ {κ : Kind} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≈ (η α)
+⟦_⟧≈ₑ_ : ∀ {Δ₁ : KEnv} {Δ₂ : KEnv} → Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
+⟦_⟧≈ₑ_ {Δ₁ = Δ₁} σ η = ∀ {κ : Kind} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≈ (η α)
 
 -- Identity relation
-idEnv-⟦⟧≈ : ∀ {Δ₁ : KEnv} →  ⟦ ` ⟧≈e (idEnv {Δ₁})
+idEnv-⟦⟧≈ : ∀ {Δ₁ : KEnv} →  ⟦ ` ⟧≈ₑ (idEnv {Δ₁})
 idEnv-⟦⟧≈ α = reflect-⟦⟧≈ eq-refl
 
 --------------------------------------------------------------------------------
 -- Extended substitutions relate to extended environments
 
 extend-⟦⟧≈ : ∀ {κ : Kind} {σ : Substitution Δ₁ Δ₂} {η : SemEnv Δ₁ Δ₂} → 
-             ⟦ σ ⟧≈e η →
+             ⟦ σ ⟧≈ₑ η →
              ∀ {τ : Type Δ₂ κ} {V : SemType Δ₂ κ} → 
              ⟦ τ ⟧≈ V → 
-             ⟦ (extendₜ σ τ) ⟧≈e (extende η V)
+             ⟦ (extendₜ σ τ) ⟧≈ₑ (extende η V)
 extend-⟦⟧≈ p q Z = q
 extend-⟦⟧≈ p q (S x) = p x
 
@@ -316,8 +316,8 @@ extend-⟦⟧≈ p q (S x) = p x
 -- Weakened substitutions relate to weakened environments
  
 weaken-⟦⟧≈ : ∀ {κ : Kind} {σ : Substitution Δ₁ Δ₂} {η : SemEnv Δ₁ Δ₂} → 
-           ⟦ σ ⟧≈e η → 
-           ⟦ liftsₜ {κ = κ} σ ⟧≈e (extende (λ {κ'} v → renSem S (η v)) (reflect (` Z)))
+           ⟦ σ ⟧≈ₑ η → 
+           ⟦ liftsₜ {κ = κ} σ ⟧≈ₑ (extende (λ {κ'} v → renSem S (η v)) (reflect (` Z)))
 weaken-⟦⟧≈ e Z = reflect-⟦⟧≈ eq-refl
 weaken-⟦⟧≈ e (S α) = ren-⟦⟧≈ S (e α)           
 
@@ -326,8 +326,8 @@ weaken-⟦⟧≈ e (S α) = ren-⟦⟧≈ S (e α)
 
 substEnv-⟦⟧≈ : ∀ {σ₁ σ₂ : Substitution Δ₁ Δ₂} {η : SemEnv Δ₁ Δ₂} → 
              (∀ {κ : Kind} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) →
-             ⟦ σ₁ ⟧≈e η →
-             ⟦ σ₂ ⟧≈e η
+             ⟦ σ₁ ⟧≈ₑ η →
+             ⟦ σ₂ ⟧≈ₑ η
 substEnv-⟦⟧≈ eq rel x rewrite sym (eq x) = rel x
 
 --------------------------------------------------------------------------------
