@@ -999,7 +999,7 @@ We define a semantic version of the flap operator as follows. This definition is
 
 \begin{code}
   apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
-  apply a = λ ρ F → F ⟨·⟩ (renSem ρ a)
+  apply a = λ r F → F ⟨·⟩ (renSem r a)
   _⟨?⟩_ : SemType Δ R[ κ₁ `→ κ₂ ] → 
            SemType Δ κ₁ → SemType Δ R[ κ₂ ]
   f ⟨?⟩ a = apply a ⟨$⟩ f 
@@ -1012,14 +1012,14 @@ The defining equations for the reduction of $\Pi$ is given below. The logic for 
 \begin{code}
   ⟨Π⟩ : SemType Δ R[ κ ] → SemType Δ κ 
   ⟨Π⟩ {κ = ★} x = Π (reify x)
-  ⟨Π⟩ {κ = κ₁ `→ κ₂} F = λ ρ v → ⟨Π⟩ (renSem ρ F ⟨?⟩ v)
+  ⟨Π⟩ {κ = κ₁ `→ κ₂} F = λ r v → ⟨Π⟩ (renSem r F ⟨?⟩ v)
   ⟨Π⟩ {κ = R[ κ ]} ρ = const ⟨Π⟩ ⟨$⟩ ρ
 \end{code}
 \begin{code}[hide]
   ⟨Π⟩ {κ = L} x = lab "impossible"
   ⟨Σ⟩ : SemType Δ R[ κ ] → SemType Δ κ 
   ⟨Σ⟩ {κ = ★} x = Σ (reify x)
-  ⟨Σ⟩ {κ = κ₁ `→ κ₂} F = λ ρ v → ⟨Σ⟩ (renSem ρ F ⟨?⟩ v)
+  ⟨Σ⟩ {κ = κ₁ `→ κ₂} F = λ r v → ⟨Σ⟩ (renSem r F ⟨?⟩ v)
   ⟨Σ⟩ {κ = R[ κ ]} ρ = (λ _ v → ⟨Σ⟩ v) ⟨$⟩ ρ  
   ⟨Σ⟩ {κ = L} _ = lab "impossible"
 \end{code}
@@ -1092,7 +1092,7 @@ A semantic environment maps type variables to semantic types. The identity envir
   ⟦ (μ τ) ⟧ η = μ (reify (⟦ τ ⟧ η))
   ⟦ (lab l) ⟧ η = lab l
   ⟦ (τ₁ `→ τ₂) ⟧ η = (⟦ τ₁ ⟧ η) `→ (⟦ τ₂ ⟧ η)
-  ⟦ (`λ τ) ⟧ η = λ ρ v → ⟦ τ ⟧ (extende (renSem ρ ∘ η) v)
+  ⟦ (`λ τ) ⟧ η = λ r v → ⟦ τ ⟧ (extende (renSem r ∘ η) v)
 \end{code}
 \end{AgdaAlign}
 \caption{Evaluation}
