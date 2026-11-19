@@ -163,13 +163,19 @@ In summary, this paper contributes:
 We begin by illustrating some of the novel type computation features in \Rome.
 
 
-\paragraph{Row types} Rows in \Rome{} are a type-level representation of record fields and variant constructors.  A \emph{row} is an association of labels to types. The operator $\Pi$ constructs a record from a row, while $\Sigma$ constructs a variant. In the former case, labels describe fields and types describe outputs; in the latter, labels describe constructor names and types describe constructor inputs. To demonstrate, a two dimensional point can be specified as a record type, with \R{{'x ▹ Int , 'y ▹ Int}} as its underlying row:
+\paragraph{Row types} Rows in \Rome{} are a type-level representation of record fields and variant constructors.  A \emph{row} is simply an association of labels to types, like so:
+\begin{rosi} 
+row Point = {'x ▹ Int , 'y ▹ Int}
+\end{rosi} 
+
+We use a quote prefix to identify the labels \R{'x} and \R{'y}, which are each associated with the type \R{Int}. The operator $\Pi$ constructs a record from a row, where labels describe atribute names and types describe outputs:
 
 \begin{rosi} 
 point : Π {'x ▹ Int , 'y ▹ Int}
 \end{rosi}
 
-\Ni (Dually, a binary tree type can be specified as a recursive variant: 
+
+Dually, the operator $\Sigma$ constructs a variant from a row, where labels describe constructor names and types describe constructor inputs. For example,  a binary tree type can be specified as a recursive variant: 
 
 \begin{rosi}
 tree : μ (Σ {'Node   ▹ const Int, 
@@ -184,7 +190,7 @@ type Functor f = ∀ a b. (a → b) → f a → f b
 fmapΣ : ∀ z : R[⋆ → ⋆]. Π (Functor z) → Functor (Σ z)
 \end{rosi}
 
-The syntax $\forall z : \RowK {\TypeK \to \TypeK}$ quantifies a \emph{row variable} !z! containing type operators at kind $\TypeK \to \TypeK$. The syntax \R{Functor} \R{＠ z} denotes the mapping of the \R{Functor} type operator over row !z!---that is, the application of \R{Functor} to each operator in !z!. The type of \R{fmapΣ} states that, given a record of \R{fmap} instances at type \R{Π (Functor} \R{＠ z)}, we can give a \R{Functor} instance for \R{Σ z}. This is analogous to components of Haskell's \emph{Deriving Functor} machinery~\citep{Laarhoven07}, but without resort to meta-programming, GHC internals~\citep{GhcAPI}, or Template Haskell~\cite{SheardJ02}.
+The syntax $\forall z : \RowK {\TypeK \to \TypeK}$ quantifies a \emph{row variable} !z! containing type operators at kind $\TypeK \to \TypeK$. The syntax \R{Functor} \R{＠ z} denotes the mapping of the \R{Functor} type operator over row $z$---that is, the application of \R{Functor} to each operator in $z$. The type of \R{fmapΣ} states that, given a record of \R{fmap} instances at type \R{Π (Functor} \R{＠ z)}, we can give a \R{Functor} instance for \R{Σ z}. This is analogous to components of Haskell's \emph{Deriving Functor} machinery~\citep{Laarhoven07}, but without resort to Haskell meta-programming (\ala{} GHC internals~\citep{GhcAPI} or Template Haskell~\cite{SheardJ02}).
 
 \paragraph{Reducing rows}
 \label{sec:reducing-rows2}
@@ -200,7 +206,7 @@ fmapΣ : ∀ z : R[⋆ → ⋆].
 \end{rosi}
 
 
-What is \R{(Σ z) a}? Intuitively, we expect this to mean ``the variant produced by supplying !a! as an argument to each operator in !z!''. Hence this application reduces in \Rome{} according to an associativity rule. First, for conceptual clarity, let us define some metanotation for a "flipped mapping" helper \Infix{?} (read as "flap"):
+But what is \R{(Σ z) a}? Intuitively, we expect this to mean ``the variant produced by supplying the variable $a$ as an argument to each operator in the row variable $z$''. Hence this application reduces in \Rome{} according to an associativity rule. First, for conceptual clarity, let us define some metanotation for a "flipped mapping" helper \Infix{?} (read as "flap"):
 
 \begin{rosi}
 type r ? t = (λ f. f t) ＠ r
@@ -212,7 +218,7 @@ type r ? t = (λ f. f t) ＠ r
 fmapΣ : ... → ∀ a b. (a → b) → Σ (z ? a) → Σ (z ? b) 
 \end{rosi}
 
-This type is in normal form, but there is \emph{potential} computation waiting: all we need is a proper \emph{value} for the row !z!. Consider when !z! is the row underlying the tree functor. Then the return type is:
+This type is in normal form, but there is \emph{potential} computation waiting: all we need is a proper value for the row variable $z$. Consider when $z$ is the row underlying the tree functor. Then the return type is:
 
 \begin{rosi}
 fmapΣ : ... → Σ ({'Node ▹ const Nat, 
@@ -224,7 +230,7 @@ fmapΣ : ... → Σ ({'Node ▹ const Nat,
 fmapΣ : ... → Σ ((λ f. f b) ＠  
                {'Node ▹ const Nat, 'Branch ▹ λ t. t × t})
 \end{rosi}
-\Ni which maps then $\beta$-reduces to: 
+\Ni which maps and $\beta$-reduces to: 
 
 \begin{rosi}
 fmapΣ : ... → Σ {'Node ▹ Nat, 'Branch ▹ b × b}
@@ -238,7 +244,7 @@ fmapΣ : ... → Σ {'Node ▹ Nat, 'Branch ▹ b × b}
 Consider a Boolean AST realized by the (higher-order) row of type operators \R{BoolF}, which has constructors for truth, falsity, conditionals, and disjunction.
 
 \begin{rosi} 
-type BoolF = {'T ▹ const ⊤ , 'F ▹ const ⊤ , 
+row BoolF = {'T ▹ const ⊤ , 'F ▹ const ⊤ , 
               'If ▹ λ b. b × b × b , 'Or ▹ λ b. b × b}  
 \end{rosi}
 
@@ -254,12 +260,12 @@ Observe first that $\mu$, the least fixed-point type operator in \Rome, expects 
 λ b. Σ {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
 \end{rosi}
 
-\Ni Hence record $(\Pi)$ and variant formation $(\Sigma)$ over rows incurs a sort of commutativity with binders necessary for canonicalization.
+\Ni Hence canonicalization requires a sort of commutativitity of record $\Op{\Pi}$ and variant $\Op{\Sigma}$ formers over binders in rows.
 
-Next consider a desugaring pass to replace the \R{Or} constructor with \R{If} statements. Such a pass is typed as follows:
+Next consider a desugaring pass to replace the \R{'Or} constructor with \R{'If} statements. Such a pass is typed as follows:
 
 \begin{rosi}
-type Or = {'Or ▹ λ b. b × b}
+row Or    = {'Or ▹ λ b. b × b}
 desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
 \end{rosi}
 
@@ -276,19 +282,19 @@ desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
 Perhaps instead we wish to desugar \emph{all} Boolean constructs to the untyped $\lambda$-calculus: 
 
 \begin{rosi}
-type LamF  = {'Lam ▹ λ x. x , 
-              'App ▹ λ x. x × x , 
-              'Var ▹ const Nat}
+row LamF  = {'Lam ▹ λ x. x , 
+             'App ▹ λ x. x × x , 
+             'Var ▹ const Nat}
 \end{rosi}
 
-Using row polymorphism and the \emph{row containment} predicates \R{BoolF < y} and \R{LamF < (y  ∖  BoolF)}, we specify that \R{desugar} can operate on any row !y! that includes at least the \R{BoolF} fields and, once those fields are removed, still contains the \R{LambF} fields. This formulation provides a powerful abstraction, enabling \R{desugar} to process any AST that incorporates Boolean constructors.
+Using row polymorphism and the \emph{row containment} predicates \R{BoolF < y} and \R{LamF < (y  ∖  BoolF)}, we specify that \R{desugar} can operate on any row $z$ that includes at least the \R{BoolF} fields and, once those fields are removed, still contains the \R{LamF} fields. This formulation provides a powerful abstraction, enabling \R{desugar} to process any AST that incorporates Boolean constructors.
 
 \begin{rosi}
 desugar : ∀ z : R[⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
           μ (Σ z) → μ (Σ (z ∖ BoolF))  
 \end{rosi}
 
-While this example demonstrates no new forms of \emph{row computation}, it highlights that with each additional row operator comes (possibly many) new \emph{neutral} forms: the types !z! \R{∖ BoolF} and \R{BoolF ∖ z} each may not reduce without a row literal value for !z!.
+While this example demonstrates no new forms of \emph{row computation}, it highlights that with each additional row operator comes (possibly many) new \emph{neutral} forms: the types !z! \R{∖ BoolF} and \R{BoolF ∖ z} each may not reduce without a row literal value for $z$.
 
 % \paragraph{Label-generic extension}
 % While they incur no forms of type computation, it is nevertheless helpful to highlight that System \RO (and hence \Rome) permits first-class labels~\citep{Leijen04} in the kind, type, and term calculus. For example, with first-class labels we can specify the addition of an arbitrary constructor !l! with type !tau! to \emph{any} variant lacking !{l ▹ tau}!:
@@ -314,7 +320,7 @@ While this example demonstrates no new forms of \emph{row computation}, it highl
 \Cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. We have highlighted the syntax that extends System \Fome in \cref{fig:syntax-types}. Labels (i.e., record field and variant constructor names) live at the type level, and are classified by kind $\LabK$. Rows of kind $\kappa$ are classified by $\RowK \kappa$. When possible, we use $\phi$ for type functions, $\rho$ for types of row kind, and $\xi$ for types of label kind. 
 
 
-\paragraph{Mechanized representations} The types \R{Kind} and \R{KEnv} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
+\paragraph{Mechanized representations} The types \DType{Kind} and \DType{KEnv} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
 
 \begin{code}[hide]
 module Syntax where
@@ -354,7 +360,7 @@ The type $\pi \then \tau$ denotes a qualified type \citep{Jones92}. In essence, 
 We presume a set of \emph{label constants} $\mathcal L$ for which (i) equality is decidable and (ii) $<$ induces a strict, total ordering. Rule \krrule{row} ensures that row literals are ordered accordingly. This avoids the need to identify row literals and their normal forms modulo permutation. We distinguish singleton rows \krrule{rsing}, which have variable (or un-reduced) label $\xi$, from row literals \ksrule{row} with literal labels $\ell_i$. Permitting label variables in row literals permits an opportunity for row labels to overlap upon instantiation. The syntax $\Mapp\phi \rho$ maps the type operator $\phi$ across a row $\rho$. The syntax $\rho_2 \Compl \rho_1$ denotes the \emph{row complement} of $\rho_{2}$ by $\rho_{1}$, analogous to set complements.
 
 \paragraph{Mechanized representations}
-Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a \emph{normal form}, and hence the !Pred! type generalizes over both via the !Ty! parameter. For example, predicates on !Type!s are described by !Pred! !(Type! !Delta! !kappa!!)!.
+Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a \emph{normal form}, and hence the !Pred! type generalizes over both via the !Ty! parameter. For example, predicates on \DType{Type}s are described by \DType{Pred} \Symbol{(}\DType{Type} \GVar{Δ} \GVar{κ} \Symbol{)}.
 
 \begin{AgdaAlign}
 \begin{code} 
@@ -363,7 +369,7 @@ Our mechanization is \emph{intrinsic}, meaning types are indexed by context and 
 \end{code}
 
 % TODO[Agda-inline][The Ordered stuff... agda uses a different font]
-Row literals are defined as lists of label-type associations; like with \R{Pred}, this definition may be reused for normal forms, and so is parameterized by \R{Ty}. The predicate \R{Ordered} !xs! asserts that the row literal !xs! is well-ordered on labels. The function \R{ordered?} witnesses that this predicate is decidable.
+Row literals are defined as lists of label-type associations; like with \DType{Pred}, this definition may be reused for normal forms, and so is parameterized by \Var{Ty}. The predicate \Function{Ordered} \Var{xs} asserts that the row literal \Var{xs} is well-ordered on labels. The function \Function{ordered?} witnesses that this predicate is decidable.
 
 \begin{code}
   RowLiteral : (Ty : Set) → Set 
@@ -391,7 +397,7 @@ Row literals are defined as lists of label-type associations; like with \R{Pred}
   data Type Δ where
 \end{code}
 
-Two !Type! constructors are interesting. First, we restrict the formation of $\Pi$ and $\Sigma$ to just kinds that do not yield label-valued rows. % We guard these constructors with the predicate !NotLabel! $\kappa$, which computes to $\bot$ when $\kappa \in \mathcal K$ (see \cref{fig:syntax-types}) and $\top$ otherwise.
+Two \DType{Type} constructors are interesting. First, we restrict the formation of \Constructor{Π} and \Constructor{Σ} to just kinds that do not yield label-valued rows. % We guard these constructors with the predicate !NotLabel! $\kappa$, which computes to $\bot$ when $\kappa \in \mathcal K$ (see \cref{fig:syntax-types}) and $\top$ otherwise.
 
 \begin{code} 
     Π     : {nl : NotLabel κ} → Type Δ (R[ κ ] `→ κ)
@@ -399,9 +405,9 @@ Two !Type! constructors are interesting. First, we restrict the formation of $\P
 \end{code}
 \end{AgdaAlign}
 
-The !NotLabel! $\kappa$ predicate computes to $\bot$ when $\kappa \in \mathcal K$ (see \cref{fig:syntax-types}) and $\top$ otherwise, making it \emph{irrelevant}. Hence congruence over $\Pi$ and $\Sigma$ may be defined without regard for this evidence. That is, we have $\Pi\, \{nl_{1}\}\, \rho_{1} \equiv \Pi\, \{nl_2\}\, \rho_2$ iff $\rho_1 \equiv \rho_2$.
+The \Function{NotLabel} $\kappa$ predicate computes to $\bot$ when $\kappa \in \mathcal K$ (see \cref{fig:kinding}) and $\top$ otherwise, making it \emph{irrelevant}. Hence congruence over $\Pi$ and $\Sigma$ may be defined without regard for this evidence. That is, we have $\Pi\, \{nl_{1}\}\, \rho_{1} \equiv \Pi\, \{nl_2\}\, \rho_2$ iff $\rho_1 \equiv \rho_2$.
 
-Second, we impose a canonical ordering of row literals via the predicate !Ordered! $\rho$. The following constructs row literal types, and is guarded by the predicate !True (ordered? xs)!.
+Second, we impose a canonical ordering of row literals via the predicate \Function{Ordered} $\rho$. The following constructs row literal types, and is guarded by the predicate \Function{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}.
 
 \begin{code}
     ⦅_⦆ : (xs : RowLiteral (Type Δ κ)) → True (ordered? xs) →
@@ -409,7 +415,7 @@ Second, we impose a canonical ordering of row literals via the predicate !Ordere
 \end{code}
 
 % \AH{Space permitting, put (sections of) NotLabel and Ordered into a figure to demonstrate how one needs squashing and the other doesn't.}
-\Ni Unlike with !NotLabel !$\kappa$, the !Ordered xs! predicate is not trivially irrelevant, nor does it compute to $\top$ or $\bot$ on closed terms. However, it is decidable, as witnessed by the function !ordered? xs!. In turn, it can be \emph{squashed} via the Agda Standard Library's~\citep{AgdaStdLib} !True! operator, which computes to $\top$ when !xs! is well-ordered and $\bot$ otherwise. This reproduces the same desirable properties of the !NotLabel! predicate. In particular, we have that $\RowLiteral{xs}\, p \equiv \RowLiteral{ys}\, q$ iff $xs \equiv ys$.
+\Ni Unlike with \Function{NotLabel} $\kappa$, the \Function{Ordered} \Var{xs} predicate is not trivially irrelevant, nor does it compute to $\top$ or $\bot$ on closed terms. However, it is decidable, as witnessed by the function \Function{ordered?} \Var{xs}. In turn, it can be \emph{squashed} via the Agda Standard Library's~\citep{AgdaStdLib} \Type{True} operator, which computes to $\top$ when \Var{xs} is well-ordered and $\bot$ otherwise. This reproduces the same desirable properties of the \Function{NotLabel} predicate. In particular, we have that $\RowLiteral{xs}\, p \equiv \RowLiteral{ys}\, q$ iff $xs \equiv ys$.
 
 
 \subsection{Type Equivalence and Reduction}
@@ -500,14 +506,14 @@ We distinguish singleton rows $\{\LabTy n \Normal \tau\}$ with neutral labels fr
 \end{code}
 \end{AgdaAlign}
 
-Just as with the !Type! syntax, some constructors require predicate constraints. Promotion of a neutral type $n$ to a normal type via the constructor !ne! is guarded by the predicate !Ground! !kappa!, which computes to $\top$ when $\kappa \in \{ \TypeK , \LabK \}$ and $\bot$ otherwise. Likewise, the construction of the row complement $\rho_{2} \Compl \rho_{1}$ is guarded by a predicate !True! !(! !notRowLiterals?! $\rho_{2}$ $\rho_{1}$ !)! asserting that at most one of the applicands is a row literal. This predicate is designed to avoid the explicit negation $\neg$ (!RowLiteral! $\rho_{2}$ $\wedge$ !RowLiteral! $\rho_{1}$), which does not compute on closed terms to the empty or unit type.
+Just as with the \DType{Type} syntax, some constructors require predicate constraints. Promotion of a neutral type $n$ to a normal type via the constructor \Constructor{ne} is guarded by the predicate \Type{Ground} $\kappa$, which computes to $\top$ when $\kappa \in \{ \TypeK , \LabK \}$ and $\bot$ otherwise. Likewise, the construction of the row complement $\rho_{2} \Compl \rho_{1}$ is guarded by a predicate \Type{True} \Symbol{(} \Function{notRowLiterals?} $\rho_{2}$ $\rho_{1}$ \Symbol{)} asserting that at most one of the applicands is a row literal. This predicate is designed to avoid the explicit negation $\neg$ (\Function{RowLiteral} $\rho_{2}$ $\wedge$ \Function{RowLiteral} $\rho_{1}$), which does not compute on closed terms to the empty or unit type.
 
 % #[LINK][to embedding def, embed_omega]
 % #[LINK][to typeclass]
-\Cref{fig:embedding} defines an embedding of normal $\Infix{\Embed}$ and neutral types $\Infix{\Embed_{ne}}$  back to type syntax, which can be used as a reference for the mechanized constructor names for !Type!s, !NeutralType!s, and !NormalType!s. The definitions $\Embed_{\pi}$ and $\Embed_{\rho}$ map embedding over the types contained in predicates and row literals; we use a typeclass so that the symbol $\Infix{\Embed}$ hereafter applies to rows, predicates, and neutral types alike.
+\Cref{fig:embedding} defines an embedding of normal $\Infix{\Embed}$ and neutral types $\Infix{\Embed_{ne}}$  back to type syntax, which can be used as a reference for the mechanized constructor names for \Dtype{Type}s, !NeutralType!s, and !NormalType!s. The definitions $\Embed_{\pi}$ and $\Embed_{\rho}$ map embedding over the types contained in predicates and row literals; we use a typeclass so that the symbol $\Infix{\Embed}$ hereafter applies to rows, predicates, and neutral types alike.
 
 % #[LINK][to ωmap]
-We must also prove, via $\Embed_{\omega}$, that embedding preserves ordering. Some bookkeeping is necessary, as the evidence of the row's well-ordering ($\omega$) is squashed. However, since the !Ordered! predicate is decidable (via !ordered?!), we can reproduce evidence, and vice versa: The function !toWitness! converts $\omega$ !:! !True! !(ordered?! !xs)! into evidence of type !Ordered! !xs!, with !fromWitness! its inverse. This operation is packaged into $\omega$!map! for convenience.
+We must also prove, via $\Embed_{\omega}$, that embedding preserves ordering. Some bookkeeping is necessary, as the evidence of the row's well-ordering ($\omega$) is squashed. However, since the \Function{Ordered} predicate is decidable (via \Function{ordered?}), we can reproduce evidence, and vice versa: The function \Function{toWitness} converts $\omega$ \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)} into evidence of type \Function{Ordered} \Var{xs}, with \Function{fromWitness} its inverse. This operation is packaged into \Function{ωmap} for convenience.
 
 \begin{figure}
 \begin{AgdaAlign}
@@ -565,7 +571,7 @@ Reaping the benefits of intrinsic syntax while dodging the downfalls is largely 
 
 \subsection{Renamings}
 
-A !Renaming! is a function mapping type variables in environment !Delta_1! to environment !Delta_2!. The function !ren! renames an input !Type! !tau! according to an input !Renaming!.
+A \Type{Renaming} is a function mapping type variables in environment $Delta_1$ to environment $Delta_2$. The function \Term{ren} renames an input \DType{Type} \Var{tau} according to an input \Type{Renaming}.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -586,11 +592,11 @@ module Renaming where
 \end{code}
 \end{AgdaAlign}
 
-Renaming is defined as one would expect also normal and neutral types, row literals, and predicates; we use a typeclass to permit the name !ren! to operate over each.
+Renaming is defined as one would expect for normal and neutral types, row literals, and predicates; we use a typeclass to permit the name \TC{ren} to operate over each.
 
 \subsection{Substitutions} 
 
-A !Substitution! both renames and substitutes in parallel by mapping type variables in environment !Delta_1! to types in !Delta_2!. The function $\Infix{\Sub{\Dash}{\Dash}}$ substitutes all type variables in input !Type! !tau! according to an input !Substitution!. Like with renaming, we introduce a typeclass so that this syntax operates over types, neutral and normal types, rows, and predicates.
+A \Type{Substitution} substitutes in parallel by mapping type variables in environment $Delta_1$ to types in $Delta_2$. The function $\Infix{\Sub{\Dash}{\Dash}}$ substitutes all type variables in input \DType{Type} $\tau$ according to an input \Type{Substitution}.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -611,7 +617,11 @@ module Substitution where
 \end{code}
 \end{AgdaAlign}
 
-\Ni While each !Substitution! is a total function, not all variables are changed. In particular, the !Type! constructor !`! constructs a !Type! from a !TVar!, fixing each type variable. This constructor forms the \emph{identity substitution} over types.
+\AH{I don't think this syntax shows up in pink, so could remove this comment.}
+\Ni Like with renaming, we introduce a typeclass so that the syntax \Field{\Underscore{}[\Underscore{}]ₛ} operates over types, neutral and normal types, rows, and predicates.
+
+\AH{Rephrase this as per comment from reviewer.}
+While each !Substitution! is a total function, not all variables are changed. In particular, the \Dtype{Type} constructor \Constructor{`} constructs a \Dtype{Type} from a \Dtype{TVar}, fixing each type variable. This constructor forms the \emph{identity substitution} over types.
 
 \begin{code}[hide]
 module SubId where
@@ -631,7 +641,7 @@ module SubId where
 \section{Normalization by Evaluation}
 \label{sec:NbE}
 
-Normalization by evaluation consists of three key domains and three functions over these domains. We declare !Type!, the syntax of types; !NormalType! and !NeutralType!, the syntax of normal and neutral types; and !SemType!, an embedded domain of semantic types. From there we produce a \emph{reflection} from neutral types to semantic types, a \emph{reification} from semantic types to normal types, and an \emph{evaluation} from types to semantic types. It follows that normalization of a type $\tau$ is the composition of reification after evaluation of $\tau$.
+Normalization by evaluation consists of three key domains and three functions over these domains. We declare \Dtype{Type}, the syntax of types; !NormalType! and !NeutralType!, the syntax of normal and neutral types; and !SemType!, an embedded domain of semantic types. From there we produce a \emph{reflection} from neutral types to semantic types, a \emph{reification} from semantic types to normal types, and an \emph{evaluation} from types to semantic types. It follows that normalization of a type $\tau$ is the composition of reification after evaluation of $\tau$.
 
 \subsection{Residualizing Semantics}
 
@@ -1025,14 +1035,14 @@ The defining equations for the reduction of $\Pi$ is given below. The logic for 
   ⟨Σ⟩ {κ = L} _ = lab "impossible"
 \end{code}
  
-Recall that we may only construct record types in normal form at kind $\TypeK$, and so for the case that $\kappa = \TypeK$ we simply reify the input and construct the record via the !NormalType! constructor !Pi!. We exclude the case that $\kappa = \LabK$ because it is impossible (recall that in the !Type! syntax, we restrict the formation of the $\Pi$ constructor to just non-label kinds.) 
+Recall that we may only construct record types in normal form at kind $\TypeK$, and so for the case that $\kappa = \TypeK$ we simply reify the input and construct the record via the !NormalType! constructor !Pi!. We exclude the case that $\kappa = \LabK$ because it is impossible (recall that in the \Dtype{Type} syntax, we restrict the formation of the $\Pi$ constructor to just non-label kinds.) 
 
 Next, when applying !Pi'V! to a function, we expand the semantic $\lambda$-binding outwards. Thereafter, we apply rule \errule{assoc$_\Pi$} to explain how !Pi'V! operates on a single operand. We implement rule \errule{$\Pi$} directly in the last equation: the application of !Pi'V! to a row-kinded input $\rho$ is simply the mapping of !Pi'V!  over $\rho$.
 
 These two rules characterize the computational interaction of $\Pi$ and $\Sigma$ with higher-order and nested rows. We implement row computation via our semantic helpers. The fact that the semantic helpers resemble their syntactic equational rules, modulo some plumbing, is a desirable feature of our implementation.
 
 \paragraph{Evaluation}
-A semantic environment maps type variables to semantic types. The identity environment, which fixes the meaning of variables, is given as the composition of reflection and !`!. Evaluation (\cref{fig:evaluation}) maps !Type!s to semantic types, given a suitable semantic environment.
+A semantic environment maps type variables to semantic types. The identity environment, which fixes the meaning of variables, is given as the composition of reflection and !`!. Evaluation (\cref{fig:evaluation}) maps \Dtype{Type}s to semantic types, given a suitable semantic environment.
 
 
 \begin{code}
@@ -1355,7 +1365,7 @@ Crucial to most proofs is that the soundness relation forms a \emph{partial equi
 \end{code}
 \begin{code}
     trans-≈ : V₁ ≈ V₂ → V₂ ≈ V₃ → V₁ ≈ V₃
-  sym-≈   : V₁ ≈ V₂ → V₂ ≈ V₁
+    sym-≈   : V₁ ≈ V₂ → V₂ ≈ V₁
 \end{code}
 \begin{code}[hide]
     trans-≈ = Soundness.trans-≈
