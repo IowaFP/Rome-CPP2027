@@ -72,22 +72,21 @@ B βₜ[ A ] = subₜ (extendₜ ` A) B
 record SubstitutionTC (T₁ T₂ T₃ : KEnv → Kind → Set) : Set where
   constructor Sub
   field
-    sub : (∀ {κ : Kind} → TVar Δ₁ κ → T₁ Δ₂ κ) → T₂ Δ₁ κ → T₃ Δ₂ κ
-  _[_]ₛ : T₂ Δ₁ κ → (∀ {κ : Kind} → TVar Δ₁ κ → T₁ Δ₂ κ) → T₃ Δ₂ κ
-  τ [ σ ]ₛ = sub σ τ
-
+    _[_]ₛ : T₂ Δ₁ κ → (∀ {κ : Kind} → TVar Δ₁ κ → T₁ Δ₂ κ) → T₃ Δ₂ κ
+  sub : (∀ {κ : Kind} → TVar Δ₁ κ → T₁ Δ₂ κ) → T₂ Δ₁ κ → T₃ Δ₂ κ
+  sub σ τ = τ [ σ ]ₛ
+  
 open SubstitutionTC {{...}} public
-{-# DISPLAY sub σ τ = τ [ σ ]ₛ #-}
 
 instance
   TypeSubstitution : SubstitutionTC Type Type Type
-  TypeSubstitution = Sub subₜ
+  TypeSubstitution = Sub (λ τ σ → subₜ σ τ)
 
   PredSubstitution : SubstitutionTC Type (λ Δ κ → Pred (Type Δ κ)) (λ Δ κ → Pred (Type Δ κ))
-  PredSubstitution = Sub subPredₜ
+  PredSubstitution = Sub (λ π σ → subPredₜ σ π)
 
   RowSubstitution : SubstitutionTC Type (λ Δ κ → RowLiteral (Type Δ κ)) (λ Δ κ → RowLiteral (Type Δ κ))
-  RowSubstitution = Sub subRowₜ
+  RowSubstitution = Sub (λ ρ σ → subRowₜ σ ρ)
 
 
   

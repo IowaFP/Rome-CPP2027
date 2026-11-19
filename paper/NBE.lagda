@@ -190,7 +190,7 @@ type Functor f = ∀ a b. (a → b) → f a → f b
 fmapΣ : ∀ z : R[⋆ → ⋆]. Π (Functor z) → Functor (Σ z)
 \end{rosi}
 
-The syntax $\forall z : \RowK {\TypeK \to \TypeK}$ quantifies a \emph{row variable} !z! containing type operators at kind $\TypeK \to \TypeK$. The syntax \R{Functor} \R{＠ z} denotes the mapping of the \R{Functor} type operator over row $z$---that is, the application of \R{Functor} to each operator in $z$. The type of \R{fmapΣ} states that, given a record of \R{fmap} instances at type \R{Π (Functor} \R{＠ z)}, we can give a \R{Functor} instance for \R{Σ z}. This is analogous to components of Haskell's \emph{Deriving Functor} machinery~\citep{Laarhoven07}, but without resort to Haskell meta-programming (\ala{} GHC internals~\citep{GhcAPI} or Template Haskell~\cite{SheardJ02}).
+The syntax $\forall z : \RowK {\TypeK \to \TypeK}$ quantifies a \emph{row variable} $z$ containing type operators at kind $\TypeK \to \TypeK$. The syntax \R{Functor} \R{＠ z} denotes the mapping of the \R{Functor} type operator over row $z$---that is, the application of \R{Functor} to each operator in $z$. The type of \R{fmapΣ} states that, given a record of \R{fmap} instances at type \R{Π (Functor} \R{＠ z)}, we can give a \R{Functor} instance for \R{Σ z}. This is analogous to components of Haskell's \emph{Deriving Functor} machinery~\citep{Laarhoven07}, but without resort to Haskell meta-programming (\ala{} GHC internals~\citep{GhcAPI} or Template Haskell~\cite{SheardJ02}).
 
 \paragraph{Reducing rows}
 \label{sec:reducing-rows2}
@@ -260,7 +260,7 @@ Observe first that $\mu$, the least fixed-point type operator in \Rome, expects 
 λ b. Σ {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
 \end{rosi}
 
-\Ni Hence canonicalization requires a sort of commutativitity of record $\Op{\Pi}$ and variant $\Op{\Sigma}$ formers over binders in rows.
+\Ni Hence canonicalization requires a sort of commutativitity of record $\Infix{\Pi}$ and variant $\Infix{\Sigma}$ formers over binders in rows.
 
 Next consider a desugaring pass to replace the \R{'Or} constructor with \R{'If} statements. Such a pass is typed as follows:
 
@@ -295,16 +295,6 @@ desugar : ∀ z : R[⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
 \end{rosi}
 
 While this example demonstrates no new forms of \emph{row computation}, it highlights that with each additional row operator comes (possibly many) new \emph{neutral} forms: the types !z! \R{∖ BoolF} and \R{BoolF ∖ z} each may not reduce without a row literal value for $z$.
-
-% \paragraph{Label-generic extension}
-% While they incur no forms of type computation, it is nevertheless helpful to highlight that System \RO (and hence \Rome) permits first-class labels~\citep{Leijen04} in the kind, type, and term calculus. For example, with first-class labels we can specify the addition of an arbitrary constructor !l! with type !tau! to \emph{any} variant lacking !{l ▹ tau}!:
-
-% \begin{rosi}
-% extend : forall l : L, tau : *, z : R[ * ]. {l ▹ tau} < z => 
-%          Sigma (z - {l ▹ tau}) → # l → tau → Sigma z
-% \end{rosi}
-
-% Critically, the type variable !l! is quantified with \emph{label kind} !L!, and so we express !{l ▹ tau}! as a row singleton with \emph{variable label}. The type !# l! has kind !*! and permits the label to be a first-class argument to the !extend! function.
 
 % -----------------------------------------------------------------------------
 % Rωμ type system
@@ -360,7 +350,7 @@ The type $\pi \then \tau$ denotes a qualified type \citep{Jones92}. In essence, 
 We presume a set of \emph{label constants} $\mathcal L$ for which (i) equality is decidable and (ii) $<$ induces a strict, total ordering. Rule \krrule{row} ensures that row literals are ordered accordingly. This avoids the need to identify row literals and their normal forms modulo permutation. We distinguish singleton rows \krrule{rsing}, which have variable (or un-reduced) label $\xi$, from row literals \ksrule{row} with literal labels $\ell_i$. Permitting label variables in row literals permits an opportunity for row labels to overlap upon instantiation. The syntax $\Mapp\phi \rho$ maps the type operator $\phi$ across a row $\rho$. The syntax $\rho_2 \Compl \rho_1$ denotes the \emph{row complement} of $\rho_{2}$ by $\rho_{1}$, analogous to set complements.
 
 \paragraph{Mechanized representations}
-Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a \emph{normal form}, and hence the !Pred! type generalizes over both via the !Ty! parameter. For example, predicates on \DType{Type}s are described by \DType{Pred} \Symbol{(}\DType{Type} \GVar{Δ} \GVar{κ} \Symbol{)}.
+Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a \emph{normal form}, and hence the \DType{Pred} type generalizes over both via the \Var{Ty} parameter. For example, predicates on \DType{Type}s are described by \DType{Pred} \Symbol{(}\DType{Type} \GVar{Δ} \GVar{κ} \Symbol{)}.
 
 \begin{AgdaAlign}
 \begin{code} 
@@ -397,7 +387,7 @@ Row literals are defined as lists of label-type associations; like with \DType{P
   data Type Δ where
 \end{code}
 
-Two \DType{Type} constructors are interesting. First, we restrict the formation of \Constructor{Π} and \Constructor{Σ} to just kinds that do not yield label-valued rows. % We guard these constructors with the predicate !NotLabel! $\kappa$, which computes to $\bot$ when $\kappa \in \mathcal K$ (see \cref{fig:syntax-types}) and $\top$ otherwise.
+Two \DType{Type} constructors are interesting. First, we restrict the formation of \Constructor{Π} and \Constructor{Σ} to just kinds that do not yield label-valued rows.
 
 \begin{code} 
     Π     : {nl : NotLabel κ} → Type Δ (R[ κ ] `→ κ)
@@ -510,7 +500,7 @@ Just as with the \DType{Type} syntax, some constructors require predicate constr
 
 % #[LINK][to embedding def, embed_omega]
 % #[LINK][to typeclass]
-\Cref{fig:embedding} defines an embedding of normal $\Infix{\Embed}$ and neutral types $\Infix{\Embed_{ne}}$  back to type syntax, which can be used as a reference for the mechanized constructor names for \Dtype{Type}s, !NeutralType!s, and !NormalType!s. The definitions $\Embed_{\pi}$ and $\Embed_{\rho}$ map embedding over the types contained in predicates and row literals; we use a typeclass so that the symbol $\Infix{\Embed}$ hereafter applies to rows, predicates, and neutral types alike.
+\Cref{fig:embedding} defines an embedding of normal $\Infix{\Embed}$ and neutral types $\Infix{\Embed_{ne}}$  back to type syntax, which can be used as a reference for the mechanized constructor names for \DType{Type}s, \DType{NeutralType}s, and \DType{NormalType}s. The definitions $\Embed_{\pi}$ and $\Embed_{\rho}$ map embedding over the types contained in predicates and row literals; we use a typeclass so that the symbol $\Infix{\Embed}$ hereafter applies to rows, predicates, and neutral types alike.
 
 % #[LINK][to ωmap]
 We must also prove, via $\Embed_{\omega}$, that embedding preserves ordering. Some bookkeeping is necessary, as the evidence of the row's well-ordering ($\omega$) is squashed. However, since the \Function{Ordered} predicate is decidable (via \Function{ordered?}), we can reproduce evidence, and vice versa: The function \Function{toWitness} converts $\omega$ \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)} into evidence of type \Function{Ordered} \Var{xs}, with \Function{fromWitness} its inverse. This operation is packaged into \Function{ωmap} for convenience.
@@ -571,7 +561,7 @@ Reaping the benefits of intrinsic syntax while dodging the downfalls is largely 
 
 \subsection{Renamings}
 
-A \Type{Renaming} is a function mapping type variables in environment $Delta_1$ to environment $Delta_2$. The function \Term{ren} renames an input \DType{Type} \Var{tau} according to an input \Type{Renaming}.
+A \Type{Renaming} is a function mapping type variables in environment $\Delta_1$ to environment $\Delta_2$. The function \Term{ren} renames an input \DType{Type} $\tau$ according to an input \Type{Renaming}.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -596,7 +586,7 @@ Renaming is defined as one would expect for normal and neutral types, row litera
 
 \subsection{Substitutions} 
 
-A \Type{Substitution} substitutes in parallel by mapping type variables in environment $Delta_1$ to types in $Delta_2$. The function $\Infix{\Sub{\Dash}{\Dash}}$ substitutes all type variables in input \DType{Type} $\tau$ according to an input \Type{Substitution}.
+A \Type{Substitution} substitutes in parallel by mapping type variables in environment $\Delta_1$ to types in $\Delta_2$. The function $\Infix{\Sub{\Dash}{\Dash}}$ substitutes all type variables in input \DType{Type} $\tau$ according to an input \Type{Substitution}.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -617,11 +607,10 @@ module Substitution where
 \end{code}
 \end{AgdaAlign}
 
-\AH{I don't think this syntax shows up in pink, so could remove this comment.}
 \Ni Like with renaming, we introduce a typeclass so that the syntax \Field{\Underscore{}[\Underscore{}]ₛ} operates over types, neutral and normal types, rows, and predicates.
 
 \AH{Rephrase this as per comment from reviewer.}
-While each !Substitution! is a total function, not all variables are changed. In particular, the \Dtype{Type} constructor \Constructor{`} constructs a \Dtype{Type} from a \Dtype{TVar}, fixing each type variable. This constructor forms the \emph{identity substitution} over types.
+While each \Type{Substitution} is a total function, not all variables are changed. In particular, the \DType{Type} constructor \Constructor{`} constructs a \DType{Type} from a \DType{TVar}, fixing each type variable. This constructor forms the \emph{identity substitution} over types.
 
 \begin{code}[hide]
 module SubId where
@@ -641,7 +630,7 @@ module SubId where
 \section{Normalization by Evaluation}
 \label{sec:NbE}
 
-Normalization by evaluation consists of three key domains and three functions over these domains. We declare \Dtype{Type}, the syntax of types; !NormalType! and !NeutralType!, the syntax of normal and neutral types; and !SemType!, an embedded domain of semantic types. From there we produce a \emph{reflection} from neutral types to semantic types, a \emph{reification} from semantic types to normal types, and an \emph{evaluation} from types to semantic types. It follows that normalization of a type $\tau$ is the composition of reification after evaluation of $\tau$.
+Normalization by evaluation consists of three key domains and three functions over these domains. We declare \DType{Type}, the syntax of types; \DType{NormalType} and \DType{NeutralType}, the syntax of normal and neutral types; and \DType{SemType}, an embedded domain of semantic types. From there we produce a \emph{reflection} from neutral types to semantic types, a \emph{reification} from semantic types to normal types, and an \emph{evaluation} from types to semantic types. It follows that normalization of a type $\tau$ is the composition of reification after evaluation of $\tau$.
 
 \subsection{Residualizing Semantics}
 
@@ -674,7 +663,7 @@ module SemTypes where
 \end{code}
 
 
-\paragraph{Functions} We interpret arrow-kinded types as \emph{Kripke function spaces} \citep{JungT93, Abel13}, which permit the application of interpreted function $\KindJ {\Delta_1} \phi {\kappa_1 \to \kappa_2}$ at any environment !Delta_2! provided a renaming from !Delta_1! into !Delta_2!. The Kripke flavor here is that environments may be viewed as \emph{worlds}, and so each Kripke function returns a type in any \emph{reachable} environment.
+\paragraph{Functions} We interpret arrow-kinded types as \emph{Kripke function spaces} \citep{JungT93, Abel13}, which permit the application of interpreted function $\KindJ {\Delta_1} \phi {\kappa_1 \to \kappa_2}$ at any environment $\Delta_2$ provided a renaming from $\Delta_1$ into $\Delta_2$. The Kripke flavor here is that environments may be viewed as \emph{worlds}, and so each Kripke function returns a type in any \emph{reachable} environment.
 
 \begin{code}[hide]
   module _ where private
@@ -691,7 +680,7 @@ module SemTypes where
     SemType _ _ = ⊥
 \end{code}
 
-Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are canonically $\lambda$-bound, and hence our definition of !SemType! needn't account for the evaluation of arrow-kinded variables. Contrast our definition with that of \citet{ChapmanKNW19}, for which the evaluation of e.g. variable $v : \TypeK \to \TypeK$ is !left (` v)!: 
+Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are canonically $\lambda$-bound, and hence our definition of \DType{SemType} needn't account for the evaluation of arrow-kinded variables. Contrast our definition with that of \citet{ChapmanKNW19}, for which the evaluation of e.g. variable \Var{v} $:$ $\TypeK \to \TypeK$ is \Function{left} \Symbol{(}\Constructor{`} \Var{v}\Symbol{)}: 
 
 \begin{code}
     SemType Δ₁ (κ₁ `→ κ₂) = 
@@ -700,7 +689,7 @@ Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are ca
 \end{code} 
 
 
-\paragraph{Row literals} We define the interpretation of row literals ${\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}}$ as the type !Row! !(SemType! !Delta! !kappa)!, which is defined generically over arbitrary type !A : Set! below. The !Row! type is a finitely indexed map. We choose this representation because operations like row mapping can be expressed as function composition. We will commonly refer to the empty row and cons case on !Row!s as $\epsilon$ and !_::_!, respectively.
+\paragraph{Row literals} We define the interpretation of row literals ${\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}}$ as the type \Type{Row} \Symbol{(}\Type{SemType} $\Delta$ $\kappa$\Symbol{)}, which is defined generically over arbitrary type \GVar{A} \Symbol{:} \Prim{Set} below. The \Type{Row} type is a finitely indexed map. We choose this representation because operations like row mapping can be expressed as function composition. We will commonly refer to the empty row and cons case on \Type{Row}s as $\epsilon$ and $\Infix{\co\co}$, respectively.
 
 \begin{code}
   Row : Set → Set 
@@ -732,14 +721,14 @@ module SemRows where
 \begin{code}[hide]
 \end{code}
 
-Not all row-kinded semantic types are row literals. We must account for \emph{inert} row kinded types for which neutral types halt reduction to row literals. For example, the singleton $\Row {\LabTy n \tau}$ is not a row literal because its label is neutral. In summary, a semantic row is either: a row literal, a neutral-labeled row singleton, an inert map, or an inert row complement.  In order to enforce rule \erule{map$_\circ$}---that the nested map $\Mapp{\phi_{1}}{(\Mapp{\phi_{2}}{\rho})}$ be recomposed to $\Mapp{(\phi_{1} \circ \phi_{2})}{\rho}$---we want to represent the type operator in inert maps functionally. However, a direct attempt in doing so runs afoul of Agda's positivity checker. Consider the following definition of !SemRow! for an inert map constructor:
+Not all row-kinded semantic types are row literals. We must account for \emph{inert} row kinded types for which neutral types halt reduction to row literals. For example, the singleton $\Row {\LabTy n \tau}$ is not a row literal because its label is neutral. In summary, a semantic row is either: a row literal, a neutral-labeled row singleton, an inert map, or an inert row complement.  In order to enforce rule \erule{map$_\circ$}---that the nested map $\Mapp{\phi_{1}}{(\Mapp{\phi_{2}}{\rho})}$ be recomposed to $\Mapp{(\phi_{1} \circ \phi_{2})}{\rho}$---we want to represent the type operator in inert maps functionally. However, a direct attempt in doing so runs afoul of Agda's positivity checker. Consider the following definition of \Type{SemRow} for an inert map constructor:
 \begin{code} 
   data SemRow (Δ : KEnv) : Kind → Set where
     _$_ : KripkeFunction Δ κ₁ κ₂ → 
             NeutralType Δ R[ κ₁ ] → SemRow Δ R[ κ₂ ]
 \end{code}
 
-The Kripke function argument has both a negative occurence and a non-strictly positive occurence of !SemType!, and so Agda rejects this definition (correctly) as ill-founded. We recover a well-founded definition following a subtle encoding trick found in \citet{AllaisBM13}. For the negative occurrence, it is sufficient to instead quantify over \emph{neutral type} arguments; for the non-strictly positive occurrence, we parameterize !SemRow! by a functor $\mathcal T$ !: KEnv! $\to$ !Set!, which serves as a placeholder for !SemType! $(\text{--})$ !kappa!. 
+The Kripke function argument has both a negative occurence and a non-strictly positive occurence of \DType{SemType}, and so Agda rejects this definition (correctly) as ill-founded. We recover a well-founded definition following a subtle encoding trick found in \citet{AllaisBM13}. For the negative occurrence, it is sufficient to instead quantify over \emph{neutral type} arguments; for the non-strictly positive occurrence, we parameterize \Type{SemRow} by a functor $\mathcal T$ \Symbol{:} \DType{KEnv} $\to$ \Prim{Set}, which serves as a placeholder for \DType{SemType} $(\text{--})$ $\kappa$. 
 
 \begin{figure}
 \begin{code}[hide]
@@ -777,7 +766,7 @@ module Caveat where
 \label{fig:SemRow}
 \end{figure}
 
-The constructors in \cref{fig:SemRow} specify inert maps, singleton rows with neutral label, row literals, and inert row complements. As in the syntax, we require predicates that row literals are well-ordered and row complements have at most one row literal. Finally, we adjust the definition of !SemType! !Delta! !R[! !kappa! !]! accordingly so that $\mathcal T =$ !SemType! $(\text{--})$ $\kappa$.
+The constructors in \cref{fig:SemRow} specify inert maps, singleton rows with neutral label, row literals, and inert row complements. As in the syntax, we require predicates that row literals are well-ordered and row complements have at most one row literal. Finally, we adjust the definition of \DType{SemType} $\Delta$ \Constructor{R[} $\kappa$ \Constructor{]} accordingly so that $\mathcal T =$ \DType{SemType} $(\text{--})$ $\kappa$.
 \begin{code}[hide]
   SemType : KEnv → Kind → Set 
 \end{code}
@@ -818,7 +807,7 @@ module ReflectReify where
 
 
 
-Reflection asserts that neutral forms have semantic representations. We define reflection (\cref{fig:reflection}) mutually recursively with reification (\cref{fig:reification}). Types at kind $\TypeK$ and $\LabK$ can be promoted straightforwardly with the !ne! constructor. Neutral types at arrow kind must be expanded into Kripke functions: The input !v! has type !SemType Delta_2 kappa_1! and must be reified, while The function !phi! is kinded in environment !Delta_1! and so must be renamed to !Delta_2!, the environment of !v!. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by !(\! !r! !n! $\to$ !reflect! !n)!. This equation implements the expansion of \erule{map$_\mathsf{id}$} for neutral types.
+Reflection asserts that neutral forms have semantic representations. We define reflection (\cref{fig:reflection}) mutually recursively with reification (\cref{fig:reification}). Types at kind $\TypeK$ and $\LabK$ can be promoted straightforwardly with the \Constructor{ne} constructor. Neutral types at arrow kind must be expanded into Kripke functions: The input $v$ has type \Type{SemType} $\Delta_2$ $\kappa_1$ and must be reified, while The function $\phi$ is kinded in environment $\Delta_1$ and so must be renamed to $\Delta_2$, the environment of $v$. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by \Symbol{(}\Op{λ} \Var{r} \Var{n} $\to$ \Term{reflect} \Var{n}\Symbol{)}. This equation implements the expansion of \erule{map$_\mathsf{id}$} for neutral types.
 
 \subsection{Reification}
 \label{sec:reification}
@@ -887,9 +876,9 @@ Reflection asserts that neutral forms have semantic representations. We define r
 \end{figure}
 \end{AgdaAlign}
 
-Reification asserts that semantic values have syntactic representations. The definition of reification is a little more involved (\cref{fig:reification}). The first two equations are expected (!tau! is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion. Here we see why we choose to interpret functions with a Kripke flavor, as the weakening renaming !S! is crucial to permitting !phi! to operate over the just-introduced type variable !` Z!. The remaining equations describe the reification of the four row cases. In the $\Mapp \phi \tau$ case, we must reify the neutral Kripke function $\phi$ analogously to the reification of type operators. We reify row literals effectively by mapping reification over the contents of each semantic row, reconstructing a list as we go along. A straightforward definition of !reifyRow! might attempt to induct over the !Row! argument's length (its first component), which Agda's termination checker rejects. This is because the recursive call in the successor case will be over $(n , P \circ \text{fsuc})$, where the second component is not structurally smaller. We bypass this restriction by instead recursing over the curried form !reify!!Row!$^{\to}$. In both the row literal and row complement case, some bookkeeping is necessary to ensure that (respectively) reification respects row orderedness and reification does not produce row literals from inert rows.
+Reification asserts that semantic values have syntactic representations. The definition of reification is a little more involved (\cref{fig:reification}). The first two equations are expected ($\tau$ is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion. Here we see why we choose to interpret functions with a Kripke flavor, as the weakening renaming \Constructor{S} is crucial to permitting $\phi$ to operate over the just-introduced type variable \Constructor{` Z}. The remaining equations describe the reification of the four row cases. In the $\Mapp \phi \tau$ case, we must reify the neutral Kripke function $\phi$ analogously to the reification of type operators. We reify row literals effectively by mapping reification over the contents of each semantic row, reconstructing a list as we go along. A straightforward definition of \Function{reifyRow} might attempt to induct over the \Type{Row} argument's length (its first component), which Agda's termination checker rejects. This is because the recursive call in the successor case will be over $(n , P \circ \text{fsuc})$, where the second component is not structurally smaller. We bypass this restriction by instead recursing over the curried form \Function{reifyRow}$^{\to}$. In both the row literal and row complement case, some bookkeeping is necessary to ensure that (respectively) reification respects row orderedness and reification does not produce row literals from inert rows.
 
-Finally, The !NormalType! constructor !ne! stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence the composition of reflection and reification effectively $\eta$-expands neutral types.
+Finally, The \DType{NormalType} constructor \Constructor{ne} stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence the composition of reflection and reification effectively $\eta$-expands neutral types.
 
 \begin{code}[hide]
 module ηNorm where 
@@ -917,7 +906,7 @@ module ηNorm where
 
 \section{Evaluation}
 \label{sec:Evaluation}
-Our next task is to \emph{evaluate} terms of type !Type Delta kappa! into the semantic domain at type !SemType Delta kappa!. This component of the normalization algorithm implements row computation. We proceed by defining semantic helpers that reduce !SemType! arguments.
+Our next task is to \emph{evaluate} terms of type \DType{Type} $\Delta$ $\kappa$ into the semantic domain at type \Type{SemType} $\Delta$ $\kappa$. This component of the normalization algorithm implements row computation. We proceed by defining semantic helpers that reduce \DType{SemType} arguments.
 
 \begin{code}[hide]
 module Evaluation where
@@ -944,7 +933,7 @@ We define semantic application straightforwardly as Agda application under the i
 \Ni Semantic application implements $\beta$-reduction. 
 
 \paragraph{Semantic mapping}
-We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row may take. The functions !ordered!!Map!$_{2}$ and !not!!Row!!Literal!!.map.! are bookkeeping that assert our orderedness and row literal predicates are preserved by semantic mapping.
+We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row may take. The functions \Function{orderedMap₂} and \Function{notRowLiteral\$} are bookkeeping that assert our orderedness and row literal predicates are preserved by semantic mapping.
 
 \begin{AgdaAlign}
 \begin{code}
@@ -974,11 +963,11 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \end{code}
 \end{AgdaAlign}
 
-\Ni The case where !rho! is a row literal is interesting in that our choice of representation for row literals as finite maps pays off: we express the mapping of !phi! across the row !(n , P)! by composing !P! with !F!. (The function !map!$_{2}$ maps over a tuple's second component.) This equation, and line 3, implement the equational rule \errule{map}. 
+\Ni The case where $\rho$ is a row literal is interesting in that our choice of representation for row literals as finite maps pays off: we express the mapping of $\phi$ across the row $(n , P)$ by composing $P$ with $F$. (The function \Function{map₂} maps over a tuple's second component.) This equation, and line 3, implement the equational rule \errule{map}. 
 
-The mapping of !phi! over a complement is distributive, following rule \errule{map$_{\setminus}$}. Likewise, we follow rule \errule{map$_\circ$} in grouping the nested map !phi_1! !.map.! !(phi_2 .map. n)! into a composed map. Here again a functional representation pays off by permitting composition in the semantic domain.
+The mapping of $\phi$ over a complement is distributive, following rule \errule{map$_{\setminus}$}. Likewise, we follow rule \errule{map$_\circ$} in grouping the nested map $\Mapp {\phi_1} {(\Mapp {phi_2}  n)}$ into a composed map. Here again a functional representation pays off by permitting composition in the semantic domain.
 
-\paragraph{Semantic complement} The complement of two row-kinded semantic types is always inert when one (or both) are not row literals, and thus constructed simply by the !_COMPL_! constructor. The interesting case is when we must reduce two row literals to another row literal.
+\paragraph{Semantic complement} The complement of two row-kinded semantic types is always inert when one (or both) are not row literals, and thus constructed simply by the \Constructor{\Underscore{}∖\Underscore{}} constructor. The interesting case is when we must reduce two row literals to another row literal.
 
 \begin{AgdaAlign}
 \begin{code}
@@ -989,21 +978,21 @@ The mapping of !phi! over a complement is distributive, following rule \errule{m
   {-# TERMINATING #-}
 \end{code}
 \begin{code}
-  _∖V_ : (ρ₂ ρ₁ : Row (SemType Δ κ)) → Row (SemType Δ κ)
-  (zero , P) ∖V ρ = ε 
-  (suc n , P) ∖V ρ with P fzero
-  ... | (l , τ) = if l In? ρ then 
-                  (n , P ∘ fsuc) ∖V ρ else
-                  (l , τ) ⨾⨾ ((n , P ∘ fsuc) ∖V ρ)
+  _⟨∖⟩_ : (ρ₂ ρ₁ : Row (SemType Δ κ)) → Row (SemType Δ κ)
+  (zero , P) ⟨∖⟩ ρ = ε 
+  (suc n , P) ⟨∖⟩ ρ with P fzero
+  ... | (l , τ) = if l In? ρ then
+                  (n , P ∘ fsuc) ⟨∖⟩ ρ else
+                  (l , τ) ⨾⨾ ((n , P ∘ fsuc) ⟨∖⟩ ρ)
 \end{code}
 \begin{code}[hide]
   import Rome.NormalTypes.NBE.Normalization as Normalization
   _⟨∖⟩′_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
-  _⟨∖⟩′_ = Normalization._∖V_
+  _⟨∖⟩′_ = Normalization._⟨∖⟩_
 \end{code}
 \end{AgdaAlign}
 
-The semantic helper above implements the subtract function given in \cref{fig:equivalence}, and is effectively identical logic. In the interest of concision, we present this helper by induction over the !Row! input's first component, which Agda's termination checker rejects. Like with !reifyRow! (\cref{fig:reification}), our artifact instead recurses over a curried form. This nuisance highlights a shortcoming in Agda's strictly syntactic termination checking, and could be avoided with type-based alternatives~\citep{AbelP16, AbreuDHJMS23}.
+The semantic helper above implements the subtract function given in \cref{fig:equivalence}, and is effectively identical logic. In the interest of concision, we present this helper by induction over the \Type{Row} input's first component, which Agda's termination checker rejects. Like with \Function{reifyRow} (\cref{fig:reification}), our artifact instead recurses over a curried form. This nuisance highlights a shortcoming in Agda's strictly syntactic termination checking, and could be avoided with type-based alternatives~\citep{AbelP16, AbreuDHJMS23}.
 
 \paragraph{Semantic flap}
 We define a semantic version of the flap operator as follows. This definition is auxiliary but helpful in tidying code.
@@ -1035,14 +1024,14 @@ The defining equations for the reduction of $\Pi$ is given below. The logic for 
   ⟨Σ⟩ {κ = L} _ = lab "impossible"
 \end{code}
  
-Recall that we may only construct record types in normal form at kind $\TypeK$, and so for the case that $\kappa = \TypeK$ we simply reify the input and construct the record via the !NormalType! constructor !Pi!. We exclude the case that $\kappa = \LabK$ because it is impossible (recall that in the \Dtype{Type} syntax, we restrict the formation of the $\Pi$ constructor to just non-label kinds.) 
+Recall that we may only construct record types in normal form at kind $\TypeK$, and so for the case that $\kappa = \TypeK$ we simply reify the input and construct the record via the \DType{NormalType} constructor \Constructor{Pi}. We exclude the case that $\kappa = \LabK$ because it is impossible (recall that in the \DType{Type} syntax, we restrict the formation of the $\Pi$ constructor to just non-label kinds.) 
 
-Next, when applying !Pi'V! to a function, we expand the semantic $\lambda$-binding outwards. Thereafter, we apply rule \errule{assoc$_\Pi$} to explain how !Pi'V! operates on a single operand. We implement rule \errule{$\Pi$} directly in the last equation: the application of !Pi'V! to a row-kinded input $\rho$ is simply the mapping of !Pi'V!  over $\rho$.
+Next, when applying \Function{⟨Π⟩} to a function, we expand the semantic $\lambda$-binding outwards. Thereafter, we apply rule \errule{assoc$_\Pi$} to explain how \Function{⟨Π⟩} operates on a single operand. We implement rule \errule{$\Pi$} directly in the last equation: the application of \Function{⟨Π⟩} to a row-kinded input $\rho$ is simply the mapping of \Function{⟨Π⟩}  over $\rho$.
 
 These two rules characterize the computational interaction of $\Pi$ and $\Sigma$ with higher-order and nested rows. We implement row computation via our semantic helpers. The fact that the semantic helpers resemble their syntactic equational rules, modulo some plumbing, is a desirable feature of our implementation.
 
 \paragraph{Evaluation}
-A semantic environment maps type variables to semantic types. The identity environment, which fixes the meaning of variables, is given as the composition of reflection and !`!. Evaluation (\cref{fig:evaluation}) maps \Dtype{Type}s to semantic types, given a suitable semantic environment.
+A semantic environment maps type variables to semantic types. The identity environment, which fixes the meaning of variables, is given as the composition of reflection and \Constructor{`}. Evaluation (\cref{fig:evaluation}) maps \DType{Type}s to semantic types, given a suitable semantic environment.
 
 
 \begin{code}
@@ -1111,7 +1100,7 @@ A semantic environment maps type variables to semantic types. The identity envir
 \end{figure}
 
 
-We describe only the interesting cases of evaluation. The first equation states that variables evaluate to their meaning in environment !eta!. As desired, the equations for application !_cdot_!, row complement !_COMPL_!, record and variant operators !Pi! and !Sigma!, and mapping !_.map._! defer to the semantic helpers defined in this section. (The operation $\setminus\text{V}'$ is the semantic complement operator for row literals lifted to !SemRow!s.) Evaluation of labeled singletons must check if the label is a neutral variable !n! or label literal !ell!, making sure to only construct row literals with literal labels. The evaluation of row literals $\Infix{\Sem{\Dash}_{\rho}}$ is effectively inverse to !reifyRow! (\cref{fig:reification}). In each case, we employ our smart constructors for semantic row literals. We have an obligation to prove that evaluation preserves the ordering evidence $\omega$, which is performed by the auxiliary lemma $\Infix{\SemO{\Dash}}$ denoting ordered row literal evidence to ordered semantic row evidence.
+We describe only the interesting cases of evaluation. The first equation states that variables evaluate to their meaning in environment $\eta$. As desired, the equations for application \Constructor{\Underscore{}·\Underscore{}}, row complement \Constructor{\Underscore{}∖\Underscore{}}, record and variant operators \Constructor{Π} and \Constructor{Σ}, and mapping \Constructor{\Underscore{}\$\Underscore{}} defer to the semantic helpers defined in this section. (The operation \Function{⟨∖⟩′} is the semantic complement operator for row literals lifted to \DType{SemRow}s.) Evaluation of labeled singletons must check if the label is a neutral variable $n$ or label literal $\ell$, making sure to only construct row literals with literal labels. The evaluation of row literals $\Infix{\Sem{\Dash}_{\rho}}$ is effectively inverse to \Function{reifyRow} (\cref{fig:reification}). In each case, we employ our smart constructors for semantic row literals. We have an obligation to prove that evaluation preserves the ordering evidence $\omega$, which is performed by the auxiliary lemma $\Infix{\SemO{\Dash}}$ denoting ordered row literal evidence to ordered semantic row evidence.
 
 \paragraph{Normalization} Finally, normalization in the NbE approach is simply the composition of reification after evaluation.  
 
@@ -1120,13 +1109,15 @@ We describe only the interesting cases of evaluation. The first equation states 
   ⇓ τ = reify (⟦ τ ⟧ idEnv)
 \end{code}
 
+\Ni Similar definitions can be given for the evaluation and normaliation of predicates and row literals, which we express via the typeclass methods \Symbol{\TC{⟦\Underscore{}⟧}} and \Symbol{\TC{⇓}}, respectively.
+
 % -----------------------------------------------------------------------------
 % Metatheory
 
 \section{Metatheory}
 \label{sec:metatheory}
 
-This section describes the metatheory of \Rome. A note on nomenclature: what we and some others~\citep{Lindley05, Friedman75, KellerA10} refer to as \emph{soundness} and \emph{consistency} is in some NbE literature~\citep{Statman82, BergerS91, ChapmanKNW19, Abel13} referred to as \emph{completeness} and \emph{soundness}, respectively. The difference amounts to perspective: is the \emph{normalization} procedure sound and complete, or the \emph{equational theory}? Because our motivation is to show that, in contrast to System \RO~\citep{HubersM23}, the equational theory of \Rome{} is complete, we commit to the latter perspective.
+This section describes the metatheory of \Rome. A note on nomenclature: what we and some others~\citep{Lindley05, Friedman75, KellerA10} refer to as \emph{soundness} and \emph{consistency} is in some NbE literature~\citep{Statman82, BergerS91, ChapmanKNW19, Abel13} referred to as \emph{completeness} and \emph{soundness}, respectively. The difference amounts to perspective: is the \emph{normalization procedure} sound and complete, or the \emph{equational theory}? Because our motivation is to show that, in contrast to System \RO~\citep{HubersM23}, the equational theory of \Rome{} is complete, we commit to the latter perspective.
 
 \subsection{Canonicity of Normal Types}
 \begin{AgdaAlign}
@@ -1294,7 +1285,7 @@ module SoundnessRelation where
     Uniform φ × Uniform ψ × PointEqual-≈ {Δ₁} φ ψ 
 \end{code}
 
-\Ni Uniformity states that passing a renaming $r_2$ to a Kripke function is equivalent to renaming it algorithmically---that is, semantic renaming (!renSem!) commutes with Kripke renaming. The uniformity property is attributable to \citet{AllaisBM13} but simplified by \citet{ChapmanKNW19}. The !PointEqual!!-!!~~! predicate circumvents any need to postulate functional extensionality. Rather, we assert that two Kripke functions $\phi$ and $\psi$ map equivalent inputs to equivalent outputs under all renamings.
+\Ni Uniformity states that passing a renaming $r_2$ to a Kripke function is equivalent to renaming it algorithmically---that is, semantic renaming (\Function{renSem}) commutes with Kripke renaming. The uniformity property is attributable to \citet{AllaisBM13} but simplified by \citet{ChapmanKNW19}. The \Function{PointEqual-≈} predicate circumvents any need to postulate functional extensionality. Rather, we assert that two Kripke functions $\phi$ and $\psi$ map equivalent inputs to equivalent outputs under all renamings.
 
 Some plumbing is necessary in the case that we are equating two inert maps $\Mapp {\phi} {n}$ and $\Mapp {\psi} {m}$: 
 
@@ -1308,7 +1299,7 @@ Some plumbing is necessary in the case that we are equating two inert maps $\Map
   ... | no _ = ⊥   
 \end{code}
 
-\Ni Kind equality is decidable !(.=.k?)!, which lets us relate inert maps only when the domains of $\phi$ and $\psi$ (that is, $\kappa_{1}$ and $\kappa_1'$) are equivalent. The predicates !UniformNE! and !PointEqualNE! are entirely analogous to !Uniform! and !PointEqual! except that they describe Kripke functions in which the domain is a !NeutralType! rather than !SemType!. 
+\Ni Kind equality is decidable $\Infix{\equiv_k}$, which lets us relate inert maps only when the domains of $\phi$ and $\psi$ (that is, $\kappa_{1}$ and $\kappa_1'$) are equivalent. The predicates \Function{UniformNE} and \Function{PointEqualNE-≈} are entirely analogous to \Function{Uniform} and \Function{PointEqual-≈} except that they describe Kripke functions in which the domain is a \DType{NeutralType} rather than \DType{SemType}. 
 
 Finally, we relate row literals of equal length by a pointwise relation of their contents.
 
@@ -1393,10 +1384,10 @@ We lift the soundness relation to a pointwise equivalence on semantic environmen
 \begin{code}
   _≈ₑ_ : {Δ₁ : KEnv} (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
   _≈ₑ_ {Δ₁ = Δ₁} η₁ η₂ = 
-    ∀ {κ} (x : TVar Δ₁ κ) → (η₁ x) ≈ (η₂ x)
+    ∀ {κ} (x : TVar Δ₁ κ) → η₁ x ≈ η₂ x
 \end{code}
 
-\Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by !idEnv-~~!. 
+\Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by \Function{idEnv-≈}. 
 \begin{code}[hide]
   module _ {Δ : KEnv} where 
     idEnv = ie {Δ}
@@ -1450,6 +1441,8 @@ module ConsistencyStatement where
 \end{code}
 \end{AgdaAlign}
 
+
+\AH{You know, this is an Agda paper, not a category theory paper. It's fine to make the notation uniform and favor (1) Agda in-line over math environments, and (2) underscores over dashes.}
 We define a logical relation for consistency $\LRC{\Dash}{\Dash}$ by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ is equivalent to the embedding of $V$. In other words, $\tau$ and $V$ are identified up to type equivalence.
 
 \begin{AgdaAlign}
@@ -1482,7 +1475,7 @@ module ConsistencyRelation where
       ⟦ ren r f · τ ⟧≈ (renKripke r φ ⟨·⟩ V)
 \end{code}
 
-That a type $\tau$ is equivalent to an inert map requires the identification of some equivalent type $\Mapp f {\Embed\, n}$ such that $f$ is related to $\phi$. Of course, $\phi$ is not a !SemType! (its domain is a neutral type), and so the definition !SoundKripkeNE! mirrors the logic above for relating functional types modulo a neutral domain argument.
+That a type $\tau$ is equivalent to an inert map $\Mapp \phi n$ requires the identification of some equivalent type $\Mapp f {\Embed\, n}$ such that $f$ is related to $\phi$. Of course, $\phi$ is not a \DType{SemType} (its domain is a neutral type), and so the definition \Function{SoundKripkeNE} mirrors the logic above for relating functional types modulo a neutral domain argument.
 
 \begin{code}
   ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (φ $ n) = 
@@ -1502,7 +1495,9 @@ That a type $\tau$ is equivalent to an inert map requires the identification of 
     × ⟦ ⇑ (reify ρ₁) ⟧≈ ρ₁
 \end{code}
 
-For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with suitable orderedness evidence) and assert, via ![[_]]r~~!, that the contents of the row literal (a list of label-type pairs) is related to the contents of the semantic row (a finite map to semantic types). The helper ![[_]]~~!$_2$ asserts that the first components of each pair are equal and the second components are related under ![[_]]~~!.
+\AH{Elsewhere I use dashes, here I use underscores. Try to consolidate these.} 
+
+For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with suitable orderedness evidence) and assert, via \Function{⟦\Underscore{}⟧≈ᵣ}, that the contents of the row literal (a list of label-type pairs) is related to the contents of the semantic row (a finite map to semantic types). The helper \Function{⟦\Underscore{}⟧≈₂} asserts that the first components of each pair are equal and the second components are related under \Function{⟦\Underscore{}⟧≈}.
 
 \begin{code}
   ⟦_⟧≈_ {κ = R[ κ ]} τ (row ρ ω) =
@@ -1513,8 +1508,8 @@ For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with
       ⟦_⟧≈ᵣ_ : RowLiteral (Type Δ κ) → 
                Row (SemType Δ κ) → Set
       ⟦ [] ⟧≈ᵣ (zero , P) = ⊤
-      ⟦ x ∷ ρ ⟧≈ᵣ (suc n , P) = 
-        (⟦ x ⟧≈₂ P fzero) × ⟦ ρ ⟧≈ᵣ (n , P ∘ fsuc)
+      ⟦ x ∷ xs ⟧≈ᵣ (suc n , P) = 
+        (⟦ x ⟧≈₂ P fzero) × ⟦ xs ⟧≈ᵣ (n , P ∘ fsuc)
 \end{code}
 \begin{code}[hide]
       ⟦ [] ⟧≈ᵣ (suc n , P) = ⊥
@@ -1561,10 +1556,10 @@ We pointwise relate syntactic substitutions with semantic environments.
 \begin{code}
   ⟦_⟧≈ₑ_ : Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
   ⟦_⟧≈ₑ_ {Δ₁ = Δ₁} σ η = 
-    ∀ {κ : Kind} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≈ (η α)
+    ∀ {κ : Kind} (α : TVar Δ₁ κ) → ⟦ σ α ⟧≈ η α
 \end{code}
 
-\Ni  As expected, the identity substitution relates to the identity semantic environment. The term !eq-refl! witnesses reflexivity of type equivalence $\Infix{\TEqv}$.
+\Ni  As expected, the identity substitution relates to the identity semantic environment. The constructor \Constructor{eq-refl} witnesses reflexivity of type equivalence $\Infix{\TEqv}$.
 
 \begin{code}[hide]
   -- in the def below, either ` or idEnv need to be told what Δ₁ is,
@@ -1607,7 +1602,7 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
 \Ni Consistency follows directly from the reification of this property.
 
 \begin{code}
-  consistency : (τ : Type Δ₁ κ) → τ ≡ₜ ⇑ (⇓ τ) 
+  consistency : (τ : Type Δ κ) → τ ≡ₜ ⇑ (⇓ τ) 
   consistency = reify-⟦⟧≈ ∘ ⊢⟦_⟧≈
 \end{code}
 \end{AgdaAlign}
@@ -1617,7 +1612,7 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
 
 % #[LINK][to embedding equational reasoning, inst, and symmetry]
 \AH{Comment on equational reasoning, transitivity, and symmetry.}
-Consistency implies \emph{completeness}, which is dual to soundness. The derivation is given below using custom support for \emph{equational reasoning} over type equivalence. The helper !inst! reflects propositional equality to type equivalence, and the suffix $\Infix{^{-1}}$ witnesses symmetry of $\Infix{\TEqv}$.
+Consistency implies \emph{completeness}, which is dual to soundness. The derivation is given below using custom support for equational reasoning over type equivalence. The helper \Function{inst} reflects propositional equality to type equivalence, and the suffix $\Infix{\Dash}^{-1}$ witnesses symmetry of $\Infix{\TEqv}$.
 
 % #[LINK][to completeness proof]
 \begin{AgdaAlign}
@@ -1683,7 +1678,7 @@ Existing formalizations of row calculi with type-level computation differ in bot
 
 \paragraph{Elaboration-based approaches}
 
-\Citet{Chlipala10} describes \emph{featherweight Ur}, a language with type-level records and an elaboration into Coq. The development does not provide a normalization procedure for Ur's own definitional equality. Instead, the author conjectures that a terminating and confluent procedure could be given. More recently, \Citet{TooheyCJX26} give an elaboration semantics for $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. In contrast, our normalizer operates directly on higher-order rows and must account explicitly for row computation. Moreover, their proof relies on a logical relation for normalization that lives in !Prop!, and hence provides no constructive algorithm mapping type syntax to normal forms.
+\Citet{Chlipala10} describes \emph{featherweight Ur}, a language with type-level records and an elaboration into Coq. The development does not provide a normalization procedure for Ur's own definitional equality. Instead, the author conjectures that a terminating and confluent procedure could be given. More recently, \Citet{TooheyCJX26} give an elaboration semantics for $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. In contrast, our normalizer operates directly on higher-order rows and must account explicitly for row computation. Moreover, their proof relies on a logical relation for normalization that lives in \DType{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms.
 
 \subsection{NbE and Intrinsic Mechanization}
 

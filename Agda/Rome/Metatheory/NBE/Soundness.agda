@@ -200,7 +200,7 @@ fund-≈ e (eq-lab refl) = refl
 fund-≈ {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ = τ} {F}) with ⟦ l ⟧ₜ η₁ | ⟦ l ⟧ₜ η₂ | idext e l
 ... | ne x | ne x | refl = (refl , refl) , cong-App (idext e F) (idext e τ)
 ... | lab l | lab l | refl = refl , λ { fzero → refl , idext e (F · τ) }
-fund-≈ {η₁ = η₁} {η₂} e (eq-∖ eq₂ eq₁) = cong-∖V (fund-≈ e eq₂) (fund-≈ e eq₁)
+fund-≈ {η₁ = η₁} {η₂} e (eq-∖ eq₂ eq₁) = cong-⟨∖⟩ (fund-≈ e eq₂) (fund-≈ e eq₁)
 fund-≈ {η₁ = η₁} {η₂} e (eq-labTy {l = l} {τ = τ} eq) with ⟦ l ⟧ₜ η₁ | fund-≈ e eq 
 ... | lab ℓ | refl = refl , (λ { fzero → refl , idext e τ })
 fund-≈ {η₁ = η₁} {η₂} e (eq-$-∖ {F = F} {ρ₂} {ρ₁}) 
@@ -232,7 +232,7 @@ fund-≈ {η₁ = η₁} {η₂} e (eq-$-∖ {F = F} {ρ₂} {ρ₁}) | row (n ,
 ... | c₂ ∖ c₁ | d₂ ∖ d₁ | fst₂ , snd₂ = 
   (refl , (λ i → I i .fst , idext e F .snd .snd id (I i .snd))) , (cong-$ (idext e F) fst₂) , (cong-$ (idext e F) snd₂)
 ... | row (m , Q) ω₁-1 | row (.m , Q') ω₁-2 | refl , J = 
-  ↻-⟨$⟩-∖V 
+  ↻-⟨$⟩-⟨∖⟩ 
     (⟦ F ⟧ₜ η₁) (⟦ F ⟧ₜ η₂) 
     n m P P' {ω₂-1} {ω₂-2} 
     Q Q' {ω₁-1} {ω₁-2} 

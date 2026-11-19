@@ -220,14 +220,14 @@ map-apply (suc n) P φ (rel-fzero , rel-fsuc) v V rel-v =
 
 map-Π : ∀ {nl : NotLabel κ} (n : ℕ) (P : Fin n → Label × SemType Δ R[ κ ]) → 
         (rel : ⟦ ⇑ᵣ (reifyRow' n P) ⟧≈ᵣ (n , P)) → 
-        ⟦ map (map₂ (_·_ (Π {notLabel = nl}))) (⇑ᵣ (reifyRow' n P)) ⟧≈ᵣ (n ,  λ i → P i .fst , ΠV (P i .snd))
+        ⟦ map (map₂ (_·_ (Π {notLabel = nl}))) (⇑ᵣ (reifyRow' n P)) ⟧≈ᵣ (n ,  λ i → P i .fst , ⟨Π⟩ (P i .snd))
 
 map-Σ : ∀ {nl : NotLabel κ} (n : ℕ) (P : Fin n → Label × SemType Δ R[ κ ]) → 
         (rel : ⟦ ⇑ᵣ (reifyRow' n P) ⟧≈ᵣ (n , P)) → 
-        ⟦ map (map₂ (_·_ (Σ {notLabel = nl}))) (⇑ᵣ (reifyRow' n P)) ⟧≈ᵣ (n ,  λ i → P i .fst , ΣV (P i .snd))
+        ⟦ map (map₂ (_·_ (Σ {notLabel = nl}))) (⇑ᵣ (reifyRow' n P)) ⟧≈ᵣ (n ,  λ i → P i .fst , ⟨Σ⟩ (P i .snd))
 
 --------------------------------------------------------------------------------
--- Consistency of Π and ΠV definition
+-- Consistency of Π and ⟨Π⟩ definition
 
 sound-Π {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≈ q)
 sound-Π {κ₁ = L} {nl = ()} ρ {v} {V} q
@@ -409,13 +409,13 @@ sound-Π {κ₁ = R[ κ ]} {nl = nl} r {v} {(ρ₂ ∖ ρ₁) {nr}} (eq , rel₂
     (eq-∖ (eq-sym eq-Π) (eq-sym eq-Π)) 
   (eq-trans 
     (eq-∖ (reify-⟦⟧≈ (sound-Π id rel₂)) (reify-⟦⟧≈ (sound-Π id rel₁))) 
-  (eq-trans (eq-sym (↻-⇑-reify-∖ ((λ ρ → ΠV) ⟨$⟩ ρ₂) ((λ ρ → ΠV) ⟨$⟩ ρ₁) {nr = notRowLiteral$ nr})) eq-refl))))))) , (refl-⟦⟧≈ (sound-Π {nl = nl} id rel₂)) , ((refl-⟦⟧≈ (sound-Π {nl = nl} id rel₁)))
+  (eq-trans (eq-sym (↻-⇑-reify-∖ ((λ ρ → ⟨Π⟩) ⟨$⟩ ρ₂) ((λ ρ → ⟨Π⟩) ⟨$⟩ ρ₁) {nr = notRowLiteral$ nr})) eq-refl))))))) , (refl-⟦⟧≈ (sound-Π {nl = nl} id rel₂)) , ((refl-⟦⟧≈ (sound-Π {nl = nl} id rel₁)))
 
 map-Π zero P rel = tt
 map-Π {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Π {nl = nl} id rel-fzero) , (map-Π n (P ∘ fsuc) rel-fsuc)
 
 --------------------------------------------------------------------------------
--- Consistency of Σ and ΣV definition (identical to Π def'n above)
+-- Consistency of Σ and ⟨Σ⟩ definition (identical to Π def'n above)
 
 sound-Σ {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≈ q)
 sound-Σ {κ₁ = L} {nl = ()} ρ {v} {V} q
@@ -597,7 +597,7 @@ sound-Σ {κ₁ = R[ κ ]} {nl = nl} r {v} {(ρ₂ ∖ ρ₁) {nr}} (eq , rel₂
     (eq-∖ (eq-sym eq-Σ) (eq-sym eq-Σ)) 
   (eq-trans 
     (eq-∖ (reify-⟦⟧≈ (sound-Σ id rel₂)) (reify-⟦⟧≈ (sound-Σ id rel₁))) 
-  (eq-trans (eq-sym (↻-⇑-reify-∖ ((λ ρ → ΣV) ⟨$⟩ ρ₂) ((λ ρ → ΣV) ⟨$⟩ ρ₁) {nr = notRowLiteral$ nr})) eq-refl))))))) , (refl-⟦⟧≈ (sound-Σ {nl = nl} id rel₂)) , ((refl-⟦⟧≈ (sound-Σ {nl = nl} id rel₁)))
+  (eq-trans (eq-sym (↻-⇑-reify-∖ ((λ ρ → ⟨Σ⟩) ⟨$⟩ ρ₂) ((λ ρ → ⟨Σ⟩) ⟨$⟩ ρ₁) {nr = notRowLiteral$ nr})) eq-refl))))))) , (refl-⟦⟧≈ (sound-Σ {nl = nl} id rel₂)) , ((refl-⟦⟧≈ (sound-Σ {nl = nl} id rel₁)))
 
 map-Σ zero P rel = tt
 map-Σ {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Σ {nl = nl} id rel-fzero) , (map-Σ n (P ∘ fsuc) rel-fsuc)

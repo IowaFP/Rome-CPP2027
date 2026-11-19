@@ -95,13 +95,13 @@ _$′_ : NormalType Δ (κ₁ `→ κ₂) →
 
 instance
   NormalTypeSubstitutionNF : SubstitutionTC NormalType NormalType NormalType
-  NormalTypeSubstitutionNF = Sub subₜNF
+  NormalTypeSubstitutionNF = Sub (λ τ σ → subₜNF σ τ)
 
   NeutralTypeSubstitutionNF : SubstitutionTC NormalType NeutralType NormalType
-  NeutralTypeSubstitutionNF = Sub subₜNE
+  NeutralTypeSubstitutionNF = Sub (λ n σ → subₜNE σ n)
 
   NormalPredSubstitutionNF : SubstitutionTC NormalType (λ Δ κ → Pred (NormalType Δ R[ κ ])) (λ Δ κ → Pred (NormalType Δ R[ κ ]))
-  NormalPredSubstitutionNF = Sub subPredₜNF
+  NormalPredSubstitutionNF = Sub (λ π σ → subPredₜNF σ π)
 
   NormalRowLitSubstitutionNF : SubstitutionTC NormalType (λ Δ κ → RowLiteral (NormalType Δ κ)) (λ Δ κ → RowLiteral (NormalType Δ κ))
-  NormalRowLitSubstitutionNF = Sub subRowₜNF
+  NormalRowLitSubstitutionNF = Sub (λ ρ σ → subRowₜNF σ ρ)

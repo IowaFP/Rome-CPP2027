@@ -206,14 +206,14 @@ notRowLiteral$ {F = F} {ρ₂} {φ $ n} (right y) = right tt
 -- -- -- --------------------------------------------------------------------------------
 -- -- -- -- Semantic complement on SemTypes
 
-_∖V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
-row ρ₂ ω₂ ∖V row ρ₁ ω₁ = row (ρ₂ ∖v ρ₁) (ordered∖v ρ₂ ρ₁ ω₂ ω₁)
-ρ₂@(x ▹ x₁) ∖V ρ₁ = (ρ₂ ∖ ρ₁) {nr = left tt}
-ρ₂@(row ρ x) ∖V ρ₁@(x₁ ▹ x₂) = (ρ₂ ∖ ρ₁) {nr = right tt}
-ρ₂@(row ρ x) ∖V ρ₁@(_ ∖ _) = (ρ₂ ∖ ρ₁) {nr = right tt}
-ρ₂@(row ρ x) ∖V ρ₁@(_ $ _) = (ρ₂ ∖ ρ₁) {nr = right tt}
-ρ@(ρ₂ ∖ ρ₃) ∖V ρ' = (ρ ∖ ρ') {nr = left tt}
-ρ@(φ $ n) ∖V ρ' = (ρ ∖ ρ') {nr = left tt}
+_⟨∖⟩_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
+row ρ₂ ω₂ ⟨∖⟩ row ρ₁ ω₁ = row (ρ₂ ∖v ρ₁) (ordered∖v ρ₂ ρ₁ ω₂ ω₁)
+ρ₂@(x ▹ x₁) ⟨∖⟩ ρ₁ = (ρ₂ ∖ ρ₁) {nr = left tt}
+ρ₂@(row ρ x) ⟨∖⟩ ρ₁@(x₁ ▹ x₂) = (ρ₂ ∖ ρ₁) {nr = right tt}
+ρ₂@(row ρ x) ⟨∖⟩ ρ₁@(_ ∖ _) = (ρ₂ ∖ ρ₁) {nr = right tt}
+ρ₂@(row ρ x) ⟨∖⟩ ρ₁@(_ $ _) = (ρ₂ ∖ ρ₁) {nr = right tt}
+ρ@(ρ₂ ∖ ρ₃) ⟨∖⟩ ρ' = (ρ ∖ ρ') {nr = left tt}
+ρ@(φ $ n) ⟨∖⟩ ρ' = (ρ ∖ ρ') {nr = left tt}
 
 -- --------------------------------------------------------------------------------
 -- -- Semantic flap
@@ -221,9 +221,9 @@ row ρ₂ ω₂ ∖V row ρ₁ ω₁ = row (ρ₂ ∖v ρ₁) (ordered∖v ρ₂
 apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
 apply a = λ ρ F → F ⟨·⟩ (renSem ρ a)
 
-infixr 0 _<?>V_
-_<?>V_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
-f <?>V a = apply a ⟨$⟩ f
+infixr 0 _⟨?⟩_
+_⟨?⟩_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
+f ⟨?⟩ a = apply a ⟨$⟩ f
 
 
 --------------------------------------------------------------------------------
@@ -238,7 +238,7 @@ open Xi
 ξ : ∀ {Δ : KEnv} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
 ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
 ξ {κ = L} Ξ x = lab "impossible"
-ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
+ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F ⟨?⟩ v)
 ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) ⟨$⟩ x
 
 Π-rec Σ-rec : Xi 
@@ -248,9 +248,9 @@ open Xi
   record
   { Ξ★ = Σ ; ren-★ = λ ρ τ → refl  }
 
-ΠV ΣV : ∀ {Δ : KEnv} → SemType Δ R[ κ ] → SemType Δ κ
-ΠV = ξ Π-rec
-ΣV = ξ Σ-rec
+⟨Π⟩ ⟨Σ⟩ : ∀ {Δ : KEnv} → SemType Δ R[ κ ] → SemType Δ κ
+⟨Π⟩ = ξ Π-rec
+⟨Σ⟩ = ξ Σ-rec
 
 ξ-Kripke : Xi → KripkeFunction Δ R[ κ ] κ
 ξ-Kripke Ξ ρ v = ξ Ξ v
@@ -290,7 +290,7 @@ open Xi
 ⟦ π ⇒ τ ⟧ₜ η = ⟦ π ⟧ₚ η ⇒ ⟦ τ ⟧ₜ η
 ⟦ `∀ τ ⟧ₜ η = `∀ (⟦ τ ⟧ₜ (lifte η)) 
 ⟦ μ τ ⟧ₜ η = μ (reify (⟦ τ ⟧ₜ η))
-⟦ ρ₂ ∖ ρ₁ ⟧ₜ η = ⟦ ρ₂ ⟧ₜ η ∖V ⟦ ρ₁ ⟧ₜ η
+⟦ ρ₂ ∖ ρ₁ ⟧ₜ η = ⟦ ρ₂ ⟧ₜ η ⟨∖⟩ ⟦ ρ₁ ⟧ₜ η
 ⟦ lab l ⟧ₜ η = lab l
 ⟦ `λ τ ⟧ₜ η = λ ρ v → ⟦ τ ⟧ₜ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)
 ⟦ Π ⟧ₜ η = Π-Kripke
