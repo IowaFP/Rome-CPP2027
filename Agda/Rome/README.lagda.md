@@ -4,6 +4,17 @@
 module Rome.README where 
 ```
 
+## Installation
+[Install Agda](https://agda.readthedocs.io/en/nightly/getting-started/installation.html) and Agda's [standard library](https://github.com/agda/agda-stdlib). This repository was built on:
+- [agda 2.8.0.2](https://github.com/agda/agda/releases/#release-v2.8.0.2) (branch [release-2.8.0.2](https://github.com/agda/agda/tree/release-2.8.0.2))
+- [agda-stdlib 2.4](https://github.com/agda/agda-stdlib/releases/tag/v2.4) (branch [v2.4-release](https://github.com/agda/agda-stdlib/tree/v2.4-release))
+
+You can install specific agda versions either by:
+1. downloading binaries from tagged [agda](https://github.com/agda/agda/tags) and [agda-stdlib](https://github.com/agda/agda-stdlib/tags) releases; or, 
+2. installing a specific branch (e.g., `release-2.8.0.2`) via [Agda's source](https://github.com/agda/agda) and likewise cloning and checking out a specific branch of [agda-stdlib](https://github.com/agda/agda-stdlib). 
+
+Rome should compile on slightly older/newer versions. At the time of writing, Agda 2.9 and 2.10 have been released, but do not have a compatible standard library release.
+
 # Summary & Main Claims
 For those seeking a brief exposé: the main claims of our paper
 are given by: 
