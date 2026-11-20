@@ -174,12 +174,12 @@ fund-≈ {η₁ = η₁} {η₂} e (eq-▹ {l₁ = l₁} {l₂} eq-l eq-τ) with
 ... | lab l | lab l | refl = refl , (λ { fzero → refl , fund-≈ e eq-τ } )
 fund-≈ e (eq-⇒ eq-π eq-τ) = ap₂ _⇒_ (fund-≈-pred e eq-π) (fund-≈ e eq-τ)
 fund-≈ e (eq-Π-assoc {ρ = ρ} {τ}) = 
-  cong-Π 
+  cong-⟨Π⟩ 
     (cong-$ 
       (cong-apply (idext e τ))
       (ren-≈ id (idext e ρ))) 
 fund-≈ e (eq-Σ-assoc {ρ = ρ} {τ}) =
-  cong-Σ 
+  cong-⟨Σ⟩ 
     (cong-$ 
       (cong-apply (idext e τ))
       (ren-≈ id (idext e ρ))) 

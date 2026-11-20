@@ -186,8 +186,8 @@ cong-ξ Ξ {κ = R[ κ ]} {x} {y} x≈y = cong-$ (Unif-ξ Ξ , Unif-ξ Ξ , (λ 
           V₁ ≈ V₂ → renSem r (⟨Π⟩ V₁) ≈ ⟨Π⟩ (renSem {κ = R[ κ ]} r V₂) 
 ↻-renSem-Π = ↻-renSem-ξ Π-rec
 
-cong-Π : ∀ {Δ : KEnv} {κ : Kind} {τ₁ τ₂ : SemType Δ R[ κ ]} → _≈_ {κ = R[ κ ]} τ₁ τ₂ → ⟨Π⟩ τ₁ ≈ ⟨Π⟩ τ₂
-cong-Π = cong-ξ Π-rec
+cong-⟨Π⟩ : ∀ {Δ : KEnv} {κ : Kind} {τ₁ τ₂ : SemType Δ R[ κ ]} → _≈_ {κ = R[ κ ]} τ₁ τ₂ → ⟨Π⟩ τ₁ ≈ ⟨Π⟩ τ₂
+cong-⟨Π⟩ = cong-ξ Π-rec
 
 Unif-Π : ∀ {Δ : KEnv} {κ : Kind} → Uniform (Π-Kripke {Δ = Δ} {κ = κ})
 Unif-Π ρ₁ = ↻-renSem-Π
@@ -199,8 +199,8 @@ Unif-Π ρ₁ = ↻-renSem-Π
           V₁ ≈ V₂ → renSem r (⟨Σ⟩ V₁) ≈ ⟨Σ⟩ (renSem {κ = R[ κ ]} r V₂) 
 ↻-renSem-Σ = ↻-renSem-ξ Σ-rec
 
-cong-Σ : ∀ {Δ : KEnv} {κ : Kind} {τ₁ τ₂ : SemType Δ R[ κ ]} → _≈_ {κ = R[ κ ]} τ₁ τ₂ → ⟨Σ⟩ τ₁ ≈ ⟨Σ⟩ τ₂
-cong-Σ = cong-ξ Σ-rec
+cong-⟨Σ⟩ : ∀ {Δ : KEnv} {κ : Kind} {τ₁ τ₂ : SemType Δ R[ κ ]} → _≈_ {κ = R[ κ ]} τ₁ τ₂ → ⟨Σ⟩ τ₁ ≈ ⟨Σ⟩ τ₂
+cong-⟨Σ⟩ = cong-ξ Σ-rec
 
 Unif-Σ : ∀ {Δ : KEnv} {κ : Kind} → Uniform (Σ-Kripke {Δ = Δ} {κ = κ})
 Unif-Σ ρ₁ = ↻-renSem-Σ
@@ -296,8 +296,8 @@ idext-row :  {Δ₁ : KEnv} {Δ₂ : KEnv} {κ : Kind}
     (reify-≈ (↻-renSem-eval r τ (refl-≈ʳ ∘ e))))
 ↻-renSem-eval r (π ⇒ τ) e = ap₂ _⇒_ (↻-renSem-eval-pred r π e) (↻-renSem-eval r τ e)
 ↻-renSem-eval r (lab l) e = refl
-↻-renSem-eval r Π e = Unif-Π , Unif-Π , (λ ρ₁ x → cong-Π x) 
-↻-renSem-eval r Σ e = Unif-Σ , Unif-Σ , (λ ρ₁ x → cong-Σ x) 
+↻-renSem-eval r Π e = Unif-Π , Unif-Π , (λ ρ₁ x → cong-⟨Π⟩ x) 
+↻-renSem-eval r Σ e = Unif-Σ , Unif-Σ , (λ ρ₁ x → cong-⟨Σ⟩ x) 
 ↻-renSem-eval r (τ₁ $ τ₂) {η₁} {η₂} e = 
   trans-≈ 
     (↻-renSem-$ r (idext e τ₁) (idext e τ₂)) 
@@ -361,11 +361,11 @@ idext {κ = κ} e (lab x) = refl
 idext {κ = R[ κ₁ ] `→ κ₁} {η₁} {η₂} e Π = 
   Unif-Π , 
   Unif-Π , 
-  λ r x → cong-Π x 
+  λ r x → cong-⟨Π⟩ x 
 idext {κ = κ} e Σ =
   Unif-Σ , 
   Unif-Σ , 
-  λ r x → cong-Σ x 
+  λ r x → cong-⟨Σ⟩ x 
 idext {κ = κ} e (_$_ {κ₁} {κ₂} τ₁ τ₂) = cong-$ (idext e τ₁) (idext e τ₂)
 idext e (ρ₂ ∖ ρ₁) = cong-⟨∖⟩ (idext e ρ₂) (idext e ρ₁)
 idext e (⦅ xs ⦆ _) = idext-row e xs
@@ -453,8 +453,8 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with ⟦ ρ ⟧ᵣ η₁ | idext-row e �
 ↻-renₜ-eval r (μ τ) {η₁} {η₂} e = ap μ (reify-≈ (↻-renₜ-eval r τ e))
 ↻-renₜ-eval r (π ⇒ τ) {η₁} {η₂} e = ap₂ _⇒_ (↻-renₜ-eval-pred r π e) (↻-renₜ-eval r τ e)
 ↻-renₜ-eval r (lab l) {η₁} {η₂} e = refl
-↻-renₜ-eval r Π {η₁} {η₂} e = Unif-Π , Unif-Π , λ r x → cong-Π x
-↻-renₜ-eval r Σ {η₁} {η₂} e = Unif-Σ , Unif-Σ , λ r x → cong-Σ x
+↻-renₜ-eval r Π {η₁} {η₂} e = Unif-Π , Unif-Π , λ r x → cong-⟨Π⟩ x
+↻-renₜ-eval r Σ {η₁} {η₂} e = Unif-Σ , Unif-Σ , λ r x → cong-⟨Σ⟩ x
 ↻-renₜ-eval r (τ₁ $ τ₂) {η₁} {η₂} e = cong-$ (↻-renₜ-eval r τ₁ e) (↻-renₜ-eval r τ₂ e)
 ↻-renₜ-eval r (⦅ ρ ⦆ ω) {η₁} {η₂} e = ↻-renₜ-evalRow r ρ e  
 ↻-renₜ-eval r (ρ₂ ∖ ρ₁) {η₁} {η₂} e = cong-⟨∖⟩ (↻-renₜ-eval r ρ₂ e) (↻-renₜ-eval r ρ₁ e)
@@ -538,8 +538,8 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with ⟦ ρ ⟧ᵣ η₁ | idext-row e �
 ↻-subₜ-eval (μ τ) e σ = ap μ (reify-≈ (↻-subₜ-eval τ e σ))
 ↻-subₜ-eval (π ⇒ τ) e σ = ap₂ _⇒_ (↻-subₜ-eval-pred π e σ) (↻-subₜ-eval τ e σ)
 ↻-subₜ-eval (lab l) e σ = refl
-↻-subₜ-eval Π e σ = Unif-Π , Unif-Π , λ r v → cong-Π v
-↻-subₜ-eval Σ e σ = Unif-Σ , Unif-Σ , λ r v → cong-Σ v
+↻-subₜ-eval Π e σ = Unif-Π , Unif-Π , λ r v → cong-⟨Π⟩ v
+↻-subₜ-eval Σ e σ = Unif-Σ , Unif-Σ , λ r v → cong-⟨Σ⟩ v
 ↻-subₜ-eval (τ₁ $ τ₂) e σ = cong-$ (↻-subₜ-eval τ₁ e σ) (↻-subₜ-eval τ₂ e σ)
 ↻-subₜ-eval (⦅ ρ ⦆ _) {η₁} e σ = ↻-subₜ-evalRow ρ e σ
 ↻-subₜ-eval (ρ₂ ∖ ρ₁) {η₁} e σ = cong-⟨∖⟩ (↻-subₜ-eval ρ₂ e σ) (↻-subₜ-eval ρ₁ e σ)
@@ -573,8 +573,8 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with ⟦ ρ ⟧ᵣ η₁ | idext-row e �
       (sym-≈ (trans-≈ 
         (third ((fst ∘ snd) (idext e f) id r (⟦ a ⟧ₜ η₂) (⟦ a ⟧ₜ η₂) (refl-≈ʳ (idext e a))) id (refl-≈ʳ v)) 
         (third (third (idext (refl-≈ʳ ∘ e) f) r (↻-renSem-eval r a (refl-≈ʳ ∘ e))) id (refl-≈ʳ v))))
-↻-eval-Kripke Π r v e = cong-Π v
-↻-eval-Kripke Σ r v e = cong-Σ v
+↻-eval-Kripke Π r v e = cong-⟨Π⟩ v
+↻-eval-Kripke Σ r v e = cong-⟨Σ⟩ v
 
 --------------------------------------------------------------------------------
 -- Evaluating a weakened typed in an extended environment is cancellative

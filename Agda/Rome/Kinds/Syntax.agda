@@ -23,12 +23,10 @@ NotLabel L = ⊥
 NotLabel (κ₁ `→ κ₂) = NotLabel κ₂
 NotLabel R[ κ ] = NotLabel κ
 
-notLabel? : ∀ (κ : Kind) → Dec (NotLabel κ)
-notLabel? ★ = yes tt
-notLabel? L = no λ ()
-notLabel? (κ `→ κ₁) = notLabel? κ₁
-notLabel? R[ κ ] = notLabel? κ
-
+NotLabelIrrelevant : ∀ κ → Irrelevant (NotLabel κ)
+NotLabelIrrelevant ★ nl₁ nl₂ = refl
+NotLabelIrrelevant (κ `→ κ₁) nl₁ nl₂ = NotLabelIrrelevant κ₁ nl₁ nl₂
+NotLabelIrrelevant R[ κ ] nl₁ nl₂ = NotLabelIrrelevant κ nl₁ nl₂
 
 --------------------------------------------------------------------------------
 -- Partitioning of kinds by row/arrow kind

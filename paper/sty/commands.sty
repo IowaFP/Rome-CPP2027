@@ -374,7 +374,7 @@
 
 % Agda links
 \newcommand\DocBase{https://iowafp.github.io/Rome-CPP2027/}
-\newcommand\Module[1]{Rome.#1.html}
+\newcommand\Module[1]{#1.html}
 
 % URL to Rome.{#2}.html with optional anchor e.g.
 % \Doc{Types} == ../Rome.Types.html 
@@ -384,15 +384,30 @@
 
 % Link text to a module, e.g.:
 % \Link{Types}{the type module} == the type module | (linked to Rome.Types.html)
-\newcommand\Link[2]{\href{\Doc{#1}}{#2}}
+\newcommand\Link[3][Rome]{\href{\Doc{#1.#2}}{#3}}
 
 % References specifically to modules, e.g.:
 % \Source{Types.Syntax} == [Types.Syntax] | (linked to Rome.Types.Syntax.html)
-\newcommand\Source[1]{\Link{#1}{[#1]}}
+\newcommand\Source[2][Rome]{\Link[#1]{#2}{#2}}
+% For formatting source references in italicized environments, e.g.
+% \paragraph{Mechanized Representations \UpParens{\Source{Kinds.Syntax}}}
+\newcommand\UpParens[1]{\textup{(}#1\textup{)}}
+\newcommand\SourceP[2][Rome]{\UpParens{\Source[#1]{#2}}}
 
 % Anchored names, e.g.:
 % \Name{Types.Syntax}{Type} == Type | (linked to Rome.Types.Syntax.html#Type)
-\newcommand\Name[2]{\href{\ADoc{#1}{#2}}{#2}}
+\newcommand\Name[3][Rome]{\href{\ADoc{#1.#2}{#3}}{#3}}
+% When an anchor differs from the printed name e.g. a constructor \Pi is 
+% \Constructor{\AName{Types.Syntax}{Type.Π}{Π}}
+\newcommand\AName[4][Rome]{\href{\ADoc{#1.#2}{#3}}{#4}}
+
+
+
+
+% Formatting "Mechanized Representation" headers
+\newcommand\MechRep[1]{Mechanized Representations \textup{(}\Source{#1}\textup{)}}
+\newcommand\MechRepp[2]{Mechanized Representations \textup{(}\Source{#1}, \Source{#2}\textup{)}}
+\newcommand\MechReppp[3]{Mechanized Representations \textup{(}\Source{#1}, \Source{#2}, \Source{#3}\textup{)}}
 
 
 % Agda shorthands

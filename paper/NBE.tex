@@ -1,4 +1,4 @@
-\documentclass[sigplan,10pt]{acmart}
+\documentclass[sigplan,screen,10pt]{acmart}
 \settopmatter{printfolios=true,printccs=true,printacmref=true}
  
 \usepackage{accents}        % accents below math symbols
@@ -26,8 +26,7 @@
 % \usepackage[svgnames, dvipsnames]{xcolor}  % named colors and shading
 \usepackage[capitalize,noabbrev]{cleveref} % capitalized cross-refs
 \usepackage[normalem]{ulem}                % text underlining/striking
-\PassOptionsToPackage                      % PDF bookmarks/links
-  {unicode,naturalnames}{hyperref}
+\PassOptionsToPackage{unicode}{hyperref}
 
 % -----------------------------------------------------------------------------
 % Conditionals:
@@ -45,10 +44,10 @@
 % Style minted code using rosi-pygments custom style
 \ifmono
 \usemintedstyle{bw}
-\usepackage[bw, links]{./sty/agda}
+\usepackage[bw]{./sty/agda}
 \else
 \usemintedstyle{rosi-agda}
-\usepackage[links]{./sty/agda}
+\usepackage{./sty/agda}
 \fi 
 
 \usepackage{./sty/mathwidth}
@@ -66,15 +65,24 @@
 \setcounter{section}{0}
 
 % -----------------------------------------------------------------------------
-% ACM garbage
+% ACM Stuff
 
-\setcopyright{none}
+\setcopyright{rightsretained}
+\acmPrice{}
+\acmYear{2027}
+\copyrightyear{2027}
+\acmNumber{CPP}
+\received{2026-11-25}
+\received[accepted]{2026-11-25}
 \citestyle{acmauthoryear}
-\settopmatter{printacmref=false, printfolios=true}
-\renewcommand{\footnotetextcopyrightpermission}{} 
-% Redefine the \acmDOI command to do nothing 
-\pagestyle{empty}
-\fancyfoot{}
+\bibliographystyle{ACM-Reference-Format}
+% \acmDOI{10.1145/3571196}
+% \acmSubmissionID{popl23main-p17-p}
+% \acmJournal{PACMPL}
+% \acmVolume{7}
+% \acmArticle{3}
+% \acmMonth{1}
+% \fancyfoot{}
 
 % -----------------------------------------------------------------------------
 % Title and Author
@@ -135,8 +143,8 @@ Row types map labels to types, and are used to \emph{structurally} type records 
 % -----------------------------------------------------------------------------
 % Introduction
 
-\section{Link test}
-Here is the doc base \DocBase{}. Here is a module name: \Module{Types}. Here we put the two together, without optional parameter \Doc{Types.Syntax} and with optional parameter \Doc{Types.Syntax}{Type}. Here is a link where the text and the route differ \Link{Types.Syntax}{Types}. Here is a link to source \Source{Types}. Here is an anchored linked to the definition \Name{Types.Syntax}{Type}. Here is an Agda-formatted link to \DType{\Name{Types.Syntax}{Type}}.
+% \section{Link test}
+% Here is a link where the text and the route differ \Link{Types.Syntax}{Types}. Here is a link to source \Source{Types}. Here is an anchored linked to the definition \Name{Types.Syntax}{Type}. Here is an Agda-formatted link to \DType{\Name{Types.Syntax}{Type}}.
 
 \section{Introduction}
 Row types, as introduced by \citet{wand87}, describe type-level associations of labels to types. Rows can be used dually to type \emph{records} (i.e., classes and objects) and \emph{variants} (i.e., algebraic data types). Recent row type systems~\citep{HubersM23,Chlipala10,Chlipala16, TooheyCJX26} use higher-order rows to describe meta- and generic programs. However, these calculi lack a formal metatheory of type computation.
@@ -322,8 +330,8 @@ While this example demonstrates no new forms of \emph{row computation}, it highl
 \AH{Check Agda documentation for what the inline command is, again... I imagine I can get a fair bit of mileage at least with the basic examples.}
 \Cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. We have highlighted the syntax that extends System \Fome in \cref{fig:syntax-types}. Labels (i.e., record field and variant constructor names) live at the type level, and are classified by kind $\LabK$. Rows of kind $\kappa$ are classified by $\RowK \kappa$. When possible, we use $\phi$ for type functions, $\rho$ for types of row kind, and $\xi$ for types of label kind. 
 
-% \Source{Kinds.Syntax}
-\paragraph{Mechanized representations} The types \DType{Kind} and \DType{KEnv} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
+ % \Source{Kinds.Syntax}
+ \paragraph{Mechanized Representations \SourceP{Kinds.Syntax}} The types \DType{\Name{Kinds.Syntax}{Kind}} and \DType{\Name{Kinds.Syntax}{KEnv}} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -387,7 +395,7 @@ While this example demonstrates no new forms of \emph{row computation}, it highl
 \AgdaDatatype{Kind}\<%
 \end{code}
 
-Our mechanization employs intrinsically well-scoped De Bruijn variables, meaning variables are effectively indices into a kinding environment $\Delta$. The variables $\kappa$ and $\Delta$ are implicitly quantified kinds and kinding environments.
+Our mechanization employs intrinsically well-scoped De Bruijn variables, meaning variables are effectively indices into a kinding environment $\Delta$. The variables $\kappa$ and $\Delta$ are \Link{Kinds.GVars}{implicitly quantified} kinds and kinding environments.
 
 \begin{code}[hide]%
 %
@@ -451,14 +459,14 @@ Our mechanization employs intrinsically well-scoped De Bruijn variables, meaning
 
 The type $\pi \then \tau$ denotes a qualified type \citep{Jones92}. In essence, the predicate $\pi$ restricts the instantiation of the type variables in $\tau$. The predicate $\LeqP {\rho_1} {\rho_2}$ denotes that $\rho_1$ is \emph{contained} in $\rho_2$. Note that the predicate $\LeqP {\rho_1} {\rho_2}$ relates only row-kinded types (rule \ksrule{$\lesssim$}): it is \emph{not} a full-fledged subtyping relation. The predicate $\PlusP {\rho_{1}} {\rho_{2}} {\rho_{3}}$ denotes that rows $\rho_{1}$ and $\rho_{2}$ concatenate to the row $\rho_{3}$. We index the judgment $\KindJ \Delta \pi {\RowK \kappa}$ by row kind, which expresses that the rows constrained in $\pi$ house types with kind $\kappa$.
 
-We presume a set of \emph{label constants} $\mathcal L$ for which equality is decidable and over which $\Infix{<}$ induces a strict, total ordering. \Rome{} employs a \emph{commutative row theory}~\citep{MorrisM19}, meaning row literals are (i) identified modulo permutation of fields and (ii) label overlaps are forbidden. Property (i) is enforced by \krrule{row}, which requires that row literals be well-ordered. This avoids the need to equate e.g. $\Row{\ell_1 \Labels \tau_1, \ell_2 \Labels \tau_2}$ and $\Row{\ell_2 \Labels \tau_2, \ell_1 \Labels \tau_1}$, as the latter is simply ill-formed (presuming WLOG that $\ell_1 < \ell_2$). Property (ii) is enforced by the strictness of ordering, as e.g. in the row $\Row{\ell \Labels \tau, \ell \Labels \upsilon}$ we do not have $\ell < \ell$. 
+We presume a set of \emph{label constants} $\mathcal L$ for which equality is decidable and over which $\Infix{<}$ induces a strict, total ordering. \Rome{} employs a \emph{commutative row theory}~\citep{MorrisM19}, meaning row literals are (i) identified modulo permutation of fields and (ii) label overlaps are forbidden. Property (i) is enforced by \krrule{row}, which requires that row literals be well-ordered. This avoids the need to equate e.g. $\Row{\ell_1 \Labels \tau_1, \ell_2 \Labels \tau_2}$ and $\Row{\ell_2 \Labels \tau_2, \ell_1 \Labels \tau_1}$, as the latter is simply ill-formed (presuming WLOG that $\ell_1 < \ell_2$). Property (ii) is enforced by the strictness of ordering, as e.g. we do not have that $\ell < \ell$ for the row $\Row{\ell \Labels \tau, \ell \Labels \upsilon}$. 
 
 Care must be taken that the instantiation of variable labels does not introduce an overlap. For example, the row $\Row{\ell \Labels \tau, \alpha \Labels \upsilon}$ will be ill-formed if the label variable $\alpha$ is instantiated with label literal $\ell$. Hence we distinguish singleton rows \krrule{rsing}, which may have variable (or un-reduced) label $\xi$, from row literals \ksrule{row} with literal labels $\ell_i$. This is not as restrictive as it might appear. Rather, we capture the mixture of variable and label literals via predicates, writing $\PlusP {\Row{\ell \Labels \tau}} {\Row{\alpha \Labels \upsilon}} {z} \then \dots$ to let $z$ denote $\Row{\ell \Labels \tau, \alpha \Labels \upsilon}$. 
 
 Lastly, the syntax $\Mapp \phi \rho$ maps the type operator $\phi$ across a row $\rho$, and the syntax $\rho_2 \Compl \rho_1$ denotes the \emph{row complement} of $\rho_{2}$ by $\rho_{1}$, analogous to set complements.
 
-\paragraph{Mechanized representations}
-Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a \emph{normal form}, and hence the \DType{Pred} type generalizes over both via the \Var{Ty} parameter. For example, predicates on \DType{Type}s are described by \DType{Pred} \Symbol{(}\DType{Type} \GVar{Δ} \Constructor{R[}\GVar{κ}\Constructor{]}\Symbol{)}.
+\paragraph{Mechanized Representations \SourceP{Types.Syntax}}
+Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a \emph{normal form}, and hence the \DType{\Name{Types.Syntax}{Pred}} type generalizes over both via the \Var{Ty} parameter. For example, predicates on \DType{\Name{Types.Syntax}{Type}}s are described by \DType{Pred} \Symbol{(}\DType{Type} \GVar{Δ} \Constructor{R[}\GVar{κ}\Constructor{]}\Symbol{)}.
 
 \begin{AgdaAlign}
 \begin{code} %
@@ -484,7 +492,7 @@ Our mechanization is \emph{intrinsic}, meaning types are indexed by context and 
 \end{code}
 
 % TODO[Agda-inline][The Ordered stuff... agda uses a different font]
-Row literals are defined as lists of label-type associations; like with \DType{Pred}, this definition may be reused for normal forms, and so is parameterized by \Var{Ty}. The predicate \Function{Ordered} \Var{xs} asserts that the row literal \Var{xs} is well-ordered on labels. The function \Function{ordered?} witnesses that this predicate is decidable.
+The type synonym \Function{\Name{Types.Syntax}{RowLiteral}} defines row literals as lists of label-type associations; like with \DType{Pred}, this definition may be reused for normal forms, and so is parameterized by \Var{Ty}. The predicate \Function{\Name{Types.Syntax}{Ordered}} \Var{xs} asserts that the row literal \Var{xs} is well-ordered on labels. The function \Function{\Name{Types.Syntax}{ordered?}} witnesses that this predicate is decidable.
 
 
 \begin{code}[hide]%
@@ -715,7 +723,7 @@ Row literals are defined as lists of label-type associations; like with \DType{P
 \AgdaKeyword{where}\<%
 \end{code}
 
-Two sets of \DType{Type} constructors are interesting. First, we restrict the formation of \Constructor{Π} and \Constructor{Σ} to just kinds that do not yield label-valued rows.
+Two sets of \DType{Type} constructors are interesting. First, we restrict the formation of \Constructor{\AName{Types.Syntax}{Type.Π}{Π}} and \Constructor{\AName{Types.Syntax}{Type.Σ}{Σ}} to just kinds that do not yield label-valued rows.
 
 \begin{code} %
 \>[2][@{}l@{\AgdaIndent{1}}]%
@@ -752,9 +760,9 @@ Two sets of \DType{Type} constructors are interesting. First, we restrict the fo
 \end{code}
 \end{AgdaAlign}
 
-The \Function{NotLabel} $\kappa$ predicate computes to $\bot$ when $\kappa \in \mathcal K$ (see \cref{fig:kinding}) and $\top$ otherwise, making it \emph{irrelevant}. Hence congruence over $\Pi$ and $\Sigma$ may be defined without regard for this evidence. That is, we have \Constructor{Π} \Symbol{\{}\Var{nl₁}\Symbol{\}} \Var{ρ₁} \DType{≡} \Constructor{Π} \Symbol{\{}\Var{nl₂}\Symbol{\}} \Var{ρ₂} iff \Var{ρ₁} \DType{≡} \Var{ρ₂}.
+\Ni The \Function{\Name{Kinds.Syntax}{NotLabel}} $\kappa$ predicate computes to \Term{\Name[Data]{Empty}{⊥}} when $\kappa \in \mathcal K$ (see \cref{fig:kinding}) and \Term{\Name[Agda]{Builtin.Unit}{⊤}} otherwise, making it \emph{irrelevant}. Hence congruence over $\Pi$ and $\Sigma$ may be defined without regard for this evidence. That is, we have \Constructor{Π} \Symbol{\{}\Var{nl₁}\Symbol{\}} \Var{ρ₁} \DType{≡} \Constructor{Π} \Symbol{\{}\Var{nl₂}\Symbol{\}} \Var{ρ₂} iff \Var{ρ₁} \DType{≡} \Var{ρ₂} (\Function{\Name{Types.Syntax}{cong-Π}}).
 
-Second, we impose a canonical ordering of row literals via the predicate \Function{Ordered} $\rho$. The following constructs row literal types, and is guarded by the predicate \Function{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}.
+Second, The constructor \Constructor{\AName{Types.Syntax}{Type.⦅\Underscore⦆}{⦅\Underscore⦆}} for row literal types is guarded by the predicate \Function{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}.
 
 \begin{code}%
 %
@@ -781,7 +789,7 @@ Second, we impose a canonical ordering of row literals via the predicate \Functi
 \end{code}
 
 % \AH{Space permitting, put (sections of) NotLabel and Ordered into a figure to demonstrate how one needs squashing and the other doesn't.}
-\Ni Unlike with \Function{NotLabel} $\kappa$, the \Function{Ordered} \Var{xs} predicate is not trivially irrelevant, nor does it compute to $\top$ or $\bot$ on closed terms. However, it is decidable, as witnessed by the function \Function{ordered?} \Var{xs}. In turn, it can be \emph{squashed} via the Agda Standard Library's~\citep{AgdaStdLib} \Type{True} operator, which computes to $\top$ when \Var{xs} is well-ordered and $\bot$ otherwise. This reproduces the same desirable properties of the \Function{NotLabel} predicate. In particular, we have that \Constructor{⦅} \Var{xs} \Constructor{⦆} \Var{ω}$_{xs}$ \DType{≡} \Constructor{⦅} \Var{ys} \Constructor{⦆} \Var{ω}$_{ys}$ iff \Var{xs} \DType{≡} \Var{ys}.
+\Ni Unlike with \Function{NotLabel} $\kappa$, the \Function{Ordered} \Var{xs} predicate is not trivially irrelevant, nor does it compute to \DType{⊤} or \DType{⊥} on closed terms. However, it is decidable, as witnessed by the function \Function{ordered?} \Var{xs}. In turn, it can be \emph{squashed} via the Agda Standard Library's~\citep{AgdaStdLib} \Type{\Name[Relation]{Nullary.Decidable.Core}{True}} operator, which computes to \DType{⊤} when \Var{xs} is well-ordered and \DType{⊥} otherwise. This reproduces the same desirable properties of the \Function{NotLabel} predicate. In particular, we have that \Constructor{⦅} \Var{xs} \Constructor{⦆} \Var{ω}$_{xs}$ \DType{≡} \Constructor{⦅} \Var{ys} \Constructor{⦆} \Var{ω}$_{ys}$ iff \Var{xs} \DType{≡} \Var{ys} (\Function{\Name{Types.Syntax}{cong-⦅\Underscore⦆}}).
 
 \subsection{Type Equivalence and Reduction}
 \label{sec:type-equivalence}
@@ -826,10 +834,10 @@ The interesting rules describe row complement computation and the interplay of $
 \end{align*}
 \end{small}
 % #LINK[to derivation]
-\Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it. 
+\Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it (\Function{\Name{Types.Properties.Derivable}{eq-Π▹}}). 
 
-\paragraph{Mechanized representations}
-Equivalence on predicates and types is represented mechanically by the typed relations $\Infix{\TEqv}$ and $\Infix{\PEqv}$.
+\paragraph{Mechanized Representations \SourceP{Types.Equivalence}}
+Equivalence on predicates and types is represented mechanically by the typed relations (\DType{\AName{Types.Equivalence}{\Underscore≡ₜ\Underscore}{≡ₜ}}) and (\DType{\AName{Types.Equivalence}{\Underscore≡ₚ\Underscore}{≡ₚ}}).
 
 \begin{AgdaAlign}
 \begin{code}%
@@ -877,8 +885,6 @@ Equivalence on predicates and types is represented mechanically by the typed rel
 
 \Ni Well-kindedness of each inference rule is enforced intrinsically by the kind indices of each predicate and type.
 
-
-
 \subsection{Normal Forms}
 \label{sec:normal-forms}
 
@@ -890,7 +896,11 @@ Normalization reduces applications and maps except when a variable blocks comput
 
 We distinguish singleton rows $\{\LabTy n \Normal \tau\}$ with neutral labels from row literals $\RowIx i 0 m {\LabTy {\ell_i} {\Normal {\tau_i}}}$ with literal labels $\ell_i$. A row is otherwise an inert map $\Mapp \phi n$ or the complement of two rows $\Normal{\tau_2} \Compl \Normal{\tau_1}$. We require in the kinding of normal row complements \kruleNF{$\Compl$} that one (or both) rows are not literal, otherwise the complement would compute. By consequence of $\eta$-expansion, records and variants need only be formed at kind $\TypeK$. The remaining normal type syntax and normal kinding rules do not differ from their counterparts in \cref{fig:syntax-types} and \cref{fig:kinding}.
 
-\paragraph{Mechanized representations} Normal and neutral types are represented intrinsically as the following types.
+% =============================================================================
+% WIP[Adding links to source] Stopping for now, Start back up from here. 
+% =============================================================================
+
+\paragraph{Mechanized representations \SourceP{NormalTypes.Syntax}} Normal and neutral types are represented intrinsically as the following types.
 
 \begin{AgdaAlign}
 \begin{code}%
@@ -1472,9 +1482,13 @@ While each \Type{Substitution} is a total function, not all variables are change
 \section{Normalization by Evaluation}
 \label{sec:NbE}
 
-Normalization by evaluation consists of three key domains and three functions over these domains. We declare \DType{Type}, the syntax of types; \DType{NormalType} and \DType{NeutralType}, the syntax of normal and neutral types; and \DType{SemType}, an embedded domain of semantic types. From there we produce a \emph{reflection} from neutral types to semantic types, a \emph{reification} from semantic types to normal types, and an \emph{evaluation} from types to semantic types. It follows that normalization of a type $\tau$ is the composition of reification after evaluation of $\tau$.
+% #LINK[to reflection, reification, evaluation, and normalization? Maybe not. They come soon.]
+% #TODO[] Or, Maybe change this text to:
+% We declare (i) the syntax of \DType{Type}s, (ii) the syntax of \DType{NormalType}s and \DType{NeutralType}s, and (iii) an embedded domain of semantic types. From there we produce (i) a reflection from neutral to semantic types, (ii) a reification from semantic types to normal types, and (iii) an evaluation from types to semantic types. It follows...
+% #TODO[Visual] Maybe borrow from "Type Theory in Type Theory" and make a little graph diagram?
+Normalization by evaluation consists of three key domains and three functions over these domains. We declare (i) \DType{Type}, the syntax of types; (ii) \DType{NormalType} and \DType{NeutralType}, the syntax of normal and neutral types; and (iii) \DType{SemType}, an embedded domain of semantic types. From there we (i) \Function{\Name{NormalTypes.NBE.Normalization}{reflect}} neutral types to semantic types; (ii) \Function{\Name{NormalTypes.NBE.Normalization}{reify}} from semantic types to normal types; and (iii) evaluate (\Function{\AName{NormalTypes.NBE.Normalization}{⟦\Underscore⟧ₜ}{⟦\Underscore⟧}}) types into semantic types. It follows that normalization (\Function{\AName{NormalTypes.NBE.Normalization}{⇓ₜ}{⇓}}) of a type $\tau$ is the composition of reification after evaluation of $\tau$.
 
-\subsection{Residualizing Semantics}
+\subsection{Residualizing Semantics \SourceP{NormalTypes.NBE.Syntax}}
 \label{sec:residual-semantics}
 
 We define our semantic domain in Agda recursively over the syntax of kinds. Our semantics is \emph{residualizing}~\citep{Lindley05} because we distinguish \emph{values} in the semantic domain (functions and rows) from \emph{residual values} (unbound variables, applications with a variable in head position, and normal forms) at ground kind. Hence semantic types are residual values at type and label kind.
@@ -6734,7 +6748,6 @@ Normalization by evaluation has also been mechanized in Agda for substantially r
 % \appendix
 
 
-\bibliographystyle{ACM-Reference-Format}
 \bibliography{NBE}
 \end{document}
 %%% Local Variables: 

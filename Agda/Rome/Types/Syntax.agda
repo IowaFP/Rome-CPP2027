@@ -133,6 +133,22 @@ data Type Δ where
         Type Δ R[ κ ] → Type Δ R[ κ ] → 
         ---------------------------------
         Type Δ R[ κ ]
+--------------------------------------------------------------------------------
+-- NotLabel κ is irrelevant, and so Π {nl₁} · τ₁ ≡ Π  {nl₂} · τ₂ iff τ₁ ≡ τ₂.
+
+cong-Π : {τ₁ τ₂ : Type Δ R[ κ ]} → 
+         {nl₁ nl₂ : NotLabel κ} → 
+         τ₁ ≡ τ₂ → 
+         Π {notLabel = nl₁} · τ₁ ≡ Π {notLabel = nl₂} · τ₂
+cong-Π {κ = κ} {τ₁ = τ₁} {τ₂} {nl₁} {nl₂} refl = 
+       ap (λ x → Π {notLabel = x} · τ₁) (NotLabelIrrelevant κ nl₁ nl₂)
+
+cong-Σ : {τ₁ τ₂ : Type Δ R[ κ ]} → 
+         {nl₁ nl₂ : NotLabel κ} → 
+         τ₁ ≡ τ₂ → 
+         Σ {notLabel = nl₁} · τ₁ ≡ Σ {notLabel = nl₂} · τ₂
+cong-Σ {κ = κ} {τ₁ = τ₁} {τ₂} {nl₁} {nl₂} refl = 
+       ap (λ x → Σ {notLabel = x} · τ₁) (NotLabelIrrelevant κ nl₁ nl₂)
 
 --------------------------------------------------------------------------------
 -- Simple row well-formedness
