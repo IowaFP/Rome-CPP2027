@@ -469,7 +469,7 @@ The interesting rules describe row complement computation and the interplay of $
 \end{align*}
 \end{small}
 % #LINK[to derivation]
-\Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it (\Function{\Name{Types.Properties.Derivable}{eq-Π▹}}). 
+\Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it (\Function{\Name{Types.Properties.Derivable}{eq-Πλ}}). 
 
 \paragraph{Mechanized Representations \SourceP{Types.Equivalence}}
 Equivalence on predicates and types is represented mechanically by the typed relations (\DType{\AName{Types.Equivalence}{\Underscore≡ₜ\Underscore}{≡ₜ}}) and (\DType{\AName{Types.Equivalence}{\Underscore≡ₚ\Underscore}{≡ₚ}}).
