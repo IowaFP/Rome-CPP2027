@@ -114,7 +114,6 @@
 {-# OPTIONS -W noUnreachableClauses #-}
 module NBE where 
 open import Rome.Prelude
-open import Rome.Prelude.Equivalence
 \end{code}
 
 % -----------------------------------------------------------------------------
