@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-} -- 
 module Rome.Types.Properties.Substitution where
 
 open import Rome.Prelude

@@ -3,5 +3,6 @@ depend: standard-library
 include : ./
 
 flags:
+  --safe
 
   
