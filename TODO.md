@@ -18,7 +18,7 @@
 - [x] Replace `sub` with `_[_]_{\sigma}`
 - [x] Can I make the Agda and Rosi colors match? Would probably need to implement my own Minted color theme.
   - Update: Yes, I did have to. See Rosi Pygments.
-- [ ] Format in-lined agda using native TeX macros
+- [x] Format in-lined agda using native TeX macros
   - Rely on Math Mode in **General**, only use in-lining for *references to specific Agda constructs*, e.g., the names "Type, NormalType", etc.
   - Just check what's in NBE.tex and copy the styling directly.
   - Less painful than Agda's experimental support for automatica-inlining (see [documentation](https://agda.readthedocs.io/en/latest/tools/generating-latex.html#latex-inline-references))

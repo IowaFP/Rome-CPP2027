@@ -168,7 +168,7 @@ We begin by illustrating some of the novel type computation features in \Rome.
 row Point = {'x ▹ Int , 'y ▹ Int}
 \end{rosi} 
 
-We use a quote prefix to identify the labels \R{'x} and \R{'y}, which are each associated with the type \R{Int}. The operator $\Pi$ constructs a record from a row, where labels describe atribute names and types describe outputs:
+We use a quote prefix to identify the label literals \R{'x} and \R{'y}, which are each associated with the type \R{Int}. The operator $\Pi$ constructs a record from a row, where labels describe attribute names and types describe outputs:
 
 \begin{rosi} 
 point : Π {'x ▹ Int , 'y ▹ Int}
@@ -187,7 +187,7 @@ tree : μ (Σ {'Node   ▹ const Int,
 \begin{rosi}
 type Functor : (⋆ → ⋆) → ⋆
 type Functor f = ∀ a b. (a → b) → f a → f b
-fmapΣ : ∀ z : R[⋆ → ⋆]. Π (Functor z) → Functor (Σ z)
+fmapΣ : ∀ z : R[⋆ → ⋆]. Π (Functor ＠ z) → Functor (Σ z)
 \end{rosi}
 
 The syntax $\forall z : \RowK {\TypeK \to \TypeK}$ quantifies a \emph{row variable} $z$ containing type operators at kind $\TypeK \to \TypeK$. The syntax \R{Functor} \R{＠ z} denotes the mapping of the \R{Functor} type operator over row $z$---that is, the application of \R{Functor} to each operator in $z$. The type of \R{fmapΣ} states that, given a record of \R{fmap} instances at type \R{Π (Functor} \R{＠ z)}, we can give a \R{Functor} instance for \R{Σ z}. This is analogous to components of Haskell's \emph{Deriving Functor} machinery~\citep{Laarhoven07}, but without resort to Haskell meta-programming (\ala{} GHC internals~\citep{GhcAPI} or Template Haskell~\cite{SheardJ02}).
@@ -241,7 +241,7 @@ fmapΣ : ... → Σ {'Node ▹ Nat, 'Branch ▹ b × b}
 
 \paragraph{Desugaring Booleans}
 
-Consider a Boolean AST realized by the (higher-order) row of type operators \R{BoolF}, which has constructors for truth, falsity, conditionals, and disjunction.
+Consider a Boolean AST realized by the row of type operators \R{BoolF}, which has constructors for truth, falsity, conditionals, and disjunction.
 
 \begin{rosi} 
 row BoolF = {'T ▹ const ⊤ , 'F ▹ const ⊤ , 
@@ -254,7 +254,7 @@ We specify an evaluation function as taking the least fixed-point of the variant
 eval : μ (Σ BoolF) → Σ {'T ▹ ⊤ , 'F ▹ ⊤}
 \end{rosi}
 
-Observe first that $\mu$, the least fixed-point type operator in \Rome, expects its input to be canonically $\lambda$-bound, otherwise the types of term constants such as \R{out} \R{:} \R{μ BoolF} \R{→} \R{BoolF (μ BoolF)} cannot compute. As \R{Σ BoolF} has kind $\TypeK \to \TypeK$ in an empty context, this should be the case. But this means that the expression \R{Σ BoolF} must (in-line and) normalize to: 
+Observe first that $\mu$, the least fixed-point type operator in \Rome, expects its input to be canonically $\lambda$-bound, otherwise the types of term constants such as \R{out} \R{:} \R{μ BoolF} \R{→} \R{BoolF (μ BoolF)} cannot compute. As \R{Σ BoolF} has kind $\TypeK \to \TypeK$ in an empty context, this \emph{should} be the case. But then the expression \R{Σ BoolF} must (in-line and) normalize to: 
 
 \begin{rosi}
 λ b. Σ {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
@@ -269,7 +269,7 @@ row Or    = {'Or ▹ λ b. b × b}
 desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
 \end{rosi}
 
-\Ni The syntax \R{(BoolF ∖ Or)} describes the row obtained by removing the \R{Or} row fields from the \R{BoolF} row---hence the type specifies precisely the intent of desugaring. We should expect the following computation:
+\Ni The syntax \R{(BoolF ∖ Or)} describes the row obtained by removing the \R{Or} row fields from the \R{BoolF} row---hence the type specifies precisely the intent of desugaring. We should expect the following to compute:
 
 \begin{rosi}
   BoolF ∖ Or
@@ -347,10 +347,14 @@ Our mechanization employs intrinsically well-scoped De Bruijn variables, meaning
 
 The type $\pi \then \tau$ denotes a qualified type \citep{Jones92}. In essence, the predicate $\pi$ restricts the instantiation of the type variables in $\tau$. The predicate $\LeqP {\rho_1} {\rho_2}$ denotes that $\rho_1$ is \emph{contained} in $\rho_2$. Note that the predicate $\LeqP {\rho_1} {\rho_2}$ relates only row-kinded types (rule \ksrule{$\lesssim$}): it is \emph{not} a full-fledged subtyping relation. The predicate $\PlusP {\rho_{1}} {\rho_{2}} {\rho_{3}}$ denotes that rows $\rho_{1}$ and $\rho_{2}$ concatenate to the row $\rho_{3}$. We index the judgment $\KindJ \Delta \pi {\RowK \kappa}$ by row kind, which expresses that the rows constrained in $\pi$ house types with kind $\kappa$.
 
-We presume a set of \emph{label constants} $\mathcal L$ for which (i) equality is decidable and (ii) $<$ induces a strict, total ordering. Rule \krrule{row} ensures that row literals are ordered accordingly. This avoids the need to identify row literals and their normal forms modulo permutation. We distinguish singleton rows \krrule{rsing}, which have variable (or un-reduced) label $\xi$, from row literals \ksrule{row} with literal labels $\ell_i$. Permitting label variables in row literals permits an opportunity for row labels to overlap upon instantiation. The syntax $\Mapp\phi \rho$ maps the type operator $\phi$ across a row $\rho$. The syntax $\rho_2 \Compl \rho_1$ denotes the \emph{row complement} of $\rho_{2}$ by $\rho_{1}$, analogous to set complements.
+We presume a set of \emph{label constants} $\mathcal L$ for which equality is decidable and over which $\Infix{<}$ induces a strict, total ordering. \Rome{} employs a \emph{commutative row theory}~\citep{MorrisM19}, meaning row literals are (i) identified modulo permutation of fields and (ii) label overlaps are forbidden. Property (i) is enforced by \krrule{row}, which requires that row literals be well-ordered. This avoids the need to equate e.g. $\Row{\ell_1 \Labels \tau_1, \ell_2 \Labels \tau_2}$ and $\Row{\ell_2 \Labels \tau_2, \ell_1 \Labels \tau_1}$, as the latter is simply ill-formed (presuming WLOG that $\ell_1 < \ell_2$). Property (ii) is likewise enforced by strict ordering, as duplicate labels are not well-ordered. For example, in the row $\Row{\ell \Labels \tau, \ell \Labels \upsilon}$ we do not have $\ell < \ell$. 
+
+Care must be taken that the instantiation of variable labels does not introduce an overlap. For example, the row $\Row{\ell \Labels \tau, \alpha \Labels \upsilon}$ will be ill-formed if the label variable $\alpha$ is instantiated with label literal $\ell$. Hence we distinguish singleton rows \krrule{rsing}, which may have variable (or un-reduced) label $\xi$, from row literals \ksrule{row} with literal labels $\ell_i$. This is not as restrictive as it might appear. Rather, we capture the mixture of variable and label literals via predicates, writing $\PlusP {\Row{\ell \Labels \tau}} {\Row{\alpha \Labels \upsilon}} {z} \then \dots$ to let $z$ denote $\Row{\ell \Labels \tau, \alpha \Labels \upsilon}$. 
+
+Lastly, the syntax $\Mapp \phi \rho$ maps the type operator $\phi$ across a row $\rho$, and the syntax $\rho_2 \Compl \rho_1$ denotes the \emph{row complement} of $\rho_{2}$ by $\rho_{1}$, analogous to set complements.
 
 \paragraph{Mechanized representations}
-Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a \emph{normal form}, and hence the \DType{Pred} type generalizes over both via the \Var{Ty} parameter. For example, predicates on \DType{Type}s are described by \DType{Pred} \Symbol{(}\DType{Type} \GVar{Δ} \GVar{κ} \Symbol{)}.
+Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a \emph{normal form}, and hence the \DType{Pred} type generalizes over both via the \Var{Ty} parameter. For example, predicates on \DType{Type}s are described by \DType{Pred} \Symbol{(}\DType{Type} \GVar{Δ} \Constructor{R[}\GVar{κ}\Constructor{]}\Symbol{)}.
 
 \begin{AgdaAlign}
 \begin{code} 
@@ -361,12 +365,16 @@ Our mechanization is \emph{intrinsic}, meaning types are indexed by context and 
 % TODO[Agda-inline][The Ordered stuff... agda uses a different font]
 Row literals are defined as lists of label-type associations; like with \DType{Pred}, this definition may be reused for normal forms, and so is parameterized by \Var{Ty}. The predicate \Function{Ordered} \Var{xs} asserts that the row literal \Var{xs} is well-ordered on labels. The function \Function{ordered?} witnesses that this predicate is decidable.
 
+
+\begin{code}[hide]
+  private variable
+    Ty : Set 
+\end{code}
 \begin{code}
   RowLiteral : (Ty : Set) → Set 
   RowLiteral Ty = List (Label × Ty)
-  Ordered  : ∀ {Ty : Set} → RowLiteral Ty → Set 
-  ordered? : ∀ {Ty : Set} → (ρ : RowLiteral Ty) → 
-             Dec (Ordered ρ) 
+  Ordered  : RowLiteral Ty → Set 
+  ordered? : (ρ : RowLiteral Ty) → Dec (Ordered ρ) 
 \end{code}
 \begin{code}[hide]
   NotLabel : Kind → Set
@@ -387,7 +395,7 @@ Row literals are defined as lists of label-type associations; like with \DType{P
   data Type Δ where
 \end{code}
 
-Two \DType{Type} constructors are interesting. First, we restrict the formation of \Constructor{Π} and \Constructor{Σ} to just kinds that do not yield label-valued rows.
+Two sets of \DType{Type} constructors are interesting. First, we restrict the formation of \Constructor{Π} and \Constructor{Σ} to just kinds that do not yield label-valued rows.
 
 \begin{code} 
     Π     : {nl : NotLabel κ} → Type Δ (R[ κ ] `→ κ)
@@ -395,7 +403,7 @@ Two \DType{Type} constructors are interesting. First, we restrict the formation 
 \end{code}
 \end{AgdaAlign}
 
-The \Function{NotLabel} $\kappa$ predicate computes to $\bot$ when $\kappa \in \mathcal K$ (see \cref{fig:kinding}) and $\top$ otherwise, making it \emph{irrelevant}. Hence congruence over $\Pi$ and $\Sigma$ may be defined without regard for this evidence. That is, we have $\Pi\, \{nl_{1}\}\, \rho_{1} \equiv \Pi\, \{nl_2\}\, \rho_2$ iff $\rho_1 \equiv \rho_2$.
+The \Function{NotLabel} $\kappa$ predicate computes to $\bot$ when $\kappa \in \mathcal K$ (see \cref{fig:kinding}) and $\top$ otherwise, making it \emph{irrelevant}. Hence congruence over $\Pi$ and $\Sigma$ may be defined without regard for this evidence. That is, we have \Constructor{Π} \Symbol{\{}\Var{nl₁}\Symbol{\}} \Var{ρ₁} \DType{≡} \Constructor{Π} \Symbol{\{}\Var{nl₂}\Symbol{\}} \Var{ρ₂} iff \Var{ρ₁} \DType{≡} \Var{ρ₂}.
 
 Second, we impose a canonical ordering of row literals via the predicate \Function{Ordered} $\rho$. The following constructs row literal types, and is guarded by the predicate \Function{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}.
 
@@ -405,8 +413,7 @@ Second, we impose a canonical ordering of row literals via the predicate \Functi
 \end{code}
 
 % \AH{Space permitting, put (sections of) NotLabel and Ordered into a figure to demonstrate how one needs squashing and the other doesn't.}
-\Ni Unlike with \Function{NotLabel} $\kappa$, the \Function{Ordered} \Var{xs} predicate is not trivially irrelevant, nor does it compute to $\top$ or $\bot$ on closed terms. However, it is decidable, as witnessed by the function \Function{ordered?} \Var{xs}. In turn, it can be \emph{squashed} via the Agda Standard Library's~\citep{AgdaStdLib} \Type{True} operator, which computes to $\top$ when \Var{xs} is well-ordered and $\bot$ otherwise. This reproduces the same desirable properties of the \Function{NotLabel} predicate. In particular, we have that $\RowLiteral{xs}\, p \equiv \RowLiteral{ys}\, q$ iff $xs \equiv ys$.
-
+\Ni Unlike with \Function{NotLabel} $\kappa$, the \Function{Ordered} \Var{xs} predicate is not trivially irrelevant, nor does it compute to $\top$ or $\bot$ on closed terms. However, it is decidable, as witnessed by the function \Function{ordered?} \Var{xs}. In turn, it can be \emph{squashed} via the Agda Standard Library's~\citep{AgdaStdLib} \Type{True} operator, which computes to $\top$ when \Var{xs} is well-ordered and $\bot$ otherwise. This reproduces the same desirable properties of the \Function{NotLabel} predicate. In particular, we have that \Constructor{⦅} \Var{xs} \Constructor{⦆} \Var{ω}$_{xs}$ \DType{≡} \Constructor{⦅} \Var{ys} \Constructor{⦆} \Var{ω}$_{ys}$ iff \Var{xs} \DType{≡} \Var{ys}.
 
 \subsection{Type Equivalence and Reduction}
 \label{sec:type-equivalence}
@@ -419,22 +426,21 @@ We define reduction on types by directing the type equivalence judgment $\TEqvJ 
 
 The rules \erule{$\beta$} and \erule{$\eta$} are expected. The rules \erule{map} and \erule{map$_\Labels$} map the type operator $\phi$ over the contents of the row literal $\Row{\LabTy {\ell_i} {\tau_i}}$ and row singleton $\Row{\LabTy \xi \tau}$, respectively.
 
-The rules \erule{map$_\mathsf{id}$} and \erule{map$_{\circ}$} describe functor mapping laws. Normally, the rules \erule{$\eta$} and \erule{map$_{\circ}$} would be presented in the opposite direction (i.e., that $\Mapp {(\lambda \alpha. \alpha)} \rho = \rho$). However, this direction enforces that arrow-kinded variables are canonically $\lambda$-bound and row-kinded variables are canonically maps. Incorporating these rules into the equational theory is not mandatory. For example, \citet{ChapmanKNW19} do not reason modulo $\eta$-equivalence. However it simplifies metatheory, as our mechanization logic may rule out row-kinded and arrow-kinded neutrals, making the definition of semantic types and later logical relations (e.g., in \cref{sec:consistency}) much simpler.
+The rules \erule{map$_\mathsf{id}$} and \erule{map$_{\circ}$} describe functor mapping laws. Normally, the rules \erule{$\eta$} and \erule{map$_{\circ}$} would be presented in the opposite direction (i.e., that $\TEqvJ {\Delta} {\Mapp {(\lambda \alpha. \alpha)} \rho} {\rho} {\RowK \kappa}$). However, the direction chosen enforces that arrow-kinded variables are canonically $\lambda$-bound and row-kinded variables are canonically maps. Incorporating these rules into the equational theory is not mandatory---\citet{ChapmanKNW19}, for example, do not reason modulo $\eta$-equivalence. However, ruling out row-kinded and arrow-kinded neutrals simplifies the definition of semantic types~\cref{sec:residual-semantics} and logical relations~\cref{sec:consistency} later.
 
 The interesting rules describe row complement computation and the interplay of $\Pi$ and $\Sigma$ with edge cases. The rule \erule{$\Compl$} reduces row complements algorithmically by subtracting the elements of the second operand from the first. The syntax $\{ \LabTy {\ell} {\tau}, \rho\}$ is metanotation, treating rows as lists. The rule \erule{map$_\setminus$} specifies that mapping distributes over complements. The rule \erule{assoc$_\Xi$} reassociates applications of $\Pi$ and $\Sigma$ of the form $(\Pi\, \rho)\, \tau$ to $\Pi\, (\rho \, \Flap \, \tau)$, ensuring that $\Pi$ is the outermost syntax and that reduction may continue by supplying each operator in $\rho$ with the argument $\tau$. The rule \erule{$\Xi$} reveals that the application of $\Pi$ and $\Sigma$ to nested rows is instead mapping. To illustrate, consider the following type with kind $\TypeK \to \TypeK$.
 
 \begin{rosi} 
-Π (Σ {'a ▹ {'b ▹ λ x. x}})
+Π (Σ {'x ▹ {'y ▹ λ α. α}})
 \end{rosi}
 
-\Ni The row \R{{'a ▹ {'b ▹ λ x. x}}} has kind $\RowK{\RowK {\TypeK \to \TypeK}}$, and so the application of $\Sigma$ to this row can be "pushed in" to the inner row \R{{'b ▹ λ x. x}}, as so: 
+\Ni The row \R{{'x ▹ {'y ▹ λ α. α}}} has kind $\RowK{\RowK {\TypeK \to \TypeK}}$, and so rule \errule{$\Sigma$} asserts that the application of $\Sigma$ to this row can be "pushed in" to the inner row \R{{'y ▹ λ α. α}}, as so: 
 
 \begin{rosi} 
-Π {'a ▹ Σ {'b ▹ λ x. x}}
+Π {'x ▹ Σ {'y ▹ λ α. α}}
 \end{rosi}
 
 \Ni This process is repeated as many times as necessary. Of note too is that, as this type has arrow kind, normalization must produce a canonical $\lambda$-bound form. We might expect to need the following rule to commute $\Xi \in \{\Pi, \Sigma\}$ over $\lambda$-bindings in rows: 
-
 
 \begin{small}
 \begin{align*}
@@ -451,7 +457,7 @@ The interesting rules describe row complement computation and the interplay of $
     {\kappa_1 \to \kappa_2}}} 
 \end{align*}
 \end{small}
-
+% #LINK[to derivation]
 \Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it. 
 
 \paragraph{Mechanized representations}
@@ -496,13 +502,15 @@ We distinguish singleton rows $\{\LabTy n \Normal \tau\}$ with neutral labels fr
 \end{code}
 \end{AgdaAlign}
 
-Just as with the \DType{Type} syntax, some constructors require predicate constraints. Promotion of a neutral type $n$ to a normal type via the constructor \Constructor{ne} is guarded by the predicate \Type{Ground} $\kappa$, which computes to $\top$ when $\kappa \in \{ \TypeK , \LabK \}$ and $\bot$ otherwise. Likewise, the construction of the row complement $\rho_{2} \Compl \rho_{1}$ is guarded by a predicate \Type{True} \Symbol{(} \Function{notRowLiterals?} $\rho_{2}$ $\rho_{1}$ \Symbol{)} asserting that at most one of the applicands is a row literal. This predicate is designed to avoid the explicit negation $\neg$ (\Function{RowLiteral} $\rho_{2}$ $\wedge$ \Function{RowLiteral} $\rho_{1}$), which does not compute on closed terms to the empty or unit type.
+\Ni Predicates on \DType{NormalType}s are described by \DType{Pred} \Symbol{(}\DType{NormalType} \GVar{Δ} \Constructor{R[}\GVar{κ}\Constructor{]}\Symbol{)}, and, likewise, row literals of \DType{NormalType}s are described by \Type{RowLiteral} \Symbol{(}\DType{NormalType} \GVar{Δ} \GVar{κ}\Symbol{)}.
+
+Just as with the \DType{Type} syntax, some constructors require predicate constraints. Promotion of a neutral type $n$ to a normal type via the constructor \Constructor{ne} is guarded by the predicate \Type{Ground} $\kappa$, which computes to $\top$ when $\kappa \in \{ \TypeK , \LabK \}$ and $\bot$ otherwise. Likewise, the construction of the row complement $\rho_{2} \Compl \rho_{1}$ is guarded by a predicate \Type{True} \Symbol{(} \Function{notRowLiterals?} $\rho_{2}$ $\rho_{1}$ \Symbol{)} asserting that at most one of the operands is a row literal. This predicate is designed to avoid the explicit negation $\neg$ (\Function{RowLiteral} $\rho_{2}$ $\wedge$ \Function{RowLiteral} $\rho_{1}$), which does not compute on closed terms to the empty or unit type.
 
 % #[LINK][to embedding def, embed_omega]
 % #[LINK][to typeclass]
 \Cref{fig:embedding} defines an embedding of normal $\Infix{\Embed}$ and neutral types $\Infix{\Embed_{ne}}$  back to type syntax, which can be used as a reference for the mechanized constructor names for \DType{Type}s, \DType{NeutralType}s, and \DType{NormalType}s. The definitions $\Embed_{\pi}$ and $\Embed_{\rho}$ map embedding over the types contained in predicates and row literals; we use a typeclass so that the symbol $\Infix{\Embed}$ hereafter applies to rows, predicates, and neutral types alike.
 
-% #[LINK][to ωmap]
+% #[LINK][to ωmap][to True in Agda stdlib]
 We must also prove, via $\Embed_{\omega}$, that embedding preserves ordering. Some bookkeeping is necessary, as the evidence of the row's well-ordering ($\omega$) is squashed. However, since the \Function{Ordered} predicate is decidable (via \Function{ordered?}), we can reproduce evidence, and vice versa: The function \Function{toWitness} converts $\omega$ \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)} into evidence of type \Function{Ordered} \Var{xs}, with \Function{fromWitness} its inverse. This operation is packaged into \Function{ωmap} for convenience.
 
 \begin{figure}
@@ -633,6 +641,7 @@ module SubId where
 Normalization by evaluation consists of three key domains and three functions over these domains. We declare \DType{Type}, the syntax of types; \DType{NormalType} and \DType{NeutralType}, the syntax of normal and neutral types; and \DType{SemType}, an embedded domain of semantic types. From there we produce a \emph{reflection} from neutral types to semantic types, a \emph{reification} from semantic types to normal types, and an \emph{evaluation} from types to semantic types. It follows that normalization of a type $\tau$ is the composition of reification after evaluation of $\tau$.
 
 \subsection{Residualizing Semantics}
+\label{sec:residual-semantics}
 
 We define our semantic domain in Agda recursively over the syntax of kinds. Our semantics is \emph{residualizing}~\citep{Lindley05} because we distinguish \emph{values} in the semantic domain (functions and rows) from \emph{residual values} (unbound variables, applications with a variable in head position, and normal forms) at ground kind. Hence semantic types are residual values at type and label kind.
 
@@ -1442,7 +1451,7 @@ module ConsistencyStatement where
 \end{AgdaAlign}
 
 
-\AH{You know, this is an Agda paper, not a category theory paper. It's fine to make the notation uniform and favor (1) Agda in-line over math environments, and (2) underscores over dashes.}
+\AH{You know, this is an Agda paper, not a category theory paper. It's fine to make the notation uniform and favor (i) Agda in-line over math environments, and (ii) underscores over dashes.}
 We define a logical relation for consistency $\LRC{\Dash}{\Dash}$ by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ is equivalent to the embedding of $V$. In other words, $\tau$ and $V$ are identified up to type equivalence.
 
 \begin{AgdaAlign}
