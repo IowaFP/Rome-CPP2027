@@ -1,1 +1,1 @@
-agda --html --html-dir=./html Agda/Rome/README.lagda.md
+agda --html --html-dir=./docs Agda/Rome/README.lagda.md
