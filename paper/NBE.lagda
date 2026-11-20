@@ -125,6 +125,9 @@ Row types map labels to types, and are used to \emph{structurally} type records 
 % -----------------------------------------------------------------------------
 % Introduction
 
+\section{Link test}
+Here is the doc base \DocBase{}. Here is a module name: \Module{Types}. Here we put the two together, without optional parameter \Doc{Types.Syntax} and with optional parameter \Doc{Types.Syntax}{Type}. Here is a link where the text and the route differ \Link{Types.Syntax}{Types}. Here is a link to source \Source{Types}. Here is an anchored linked to the definition \Name{Types.Syntax}{Type}. Here is an Agda-formatted link to \DType{\Name{Types.Syntax}{Type}}.
+
 \section{Introduction}
 Row types, as introduced by \citet{wand87}, describe type-level associations of labels to types. Rows can be used dually to type \emph{records} (i.e., classes and objects) and \emph{variants} (i.e., algebraic data types). Recent row type systems~\citep{HubersM23,Chlipala10,Chlipala16, TooheyCJX26} use higher-order rows to describe meta- and generic programs. However, these calculi lack a formal metatheory of type computation.
 
@@ -153,14 +156,15 @@ In summary, this paper contributes:
   \item a \emph{fully safe} Agda artifact witnessing the computability of normal forms and type equivalence.
 \end{enumerate}
 
+Our artifact is free and available on Github~\citep{GithubArtifact} for quick browsing and Zenodo~\citep{Artifact} for long-term archival; modules, definitions, and mechanized claims are also \href{\DocBase}{hyperlinked} throughout the paper.
+
 % -----------------------------------------------------------------------------
 % Rows in Action
 
 \section{Rows in Action}
 \label{sec:rows-in-action}
 
-We begin by illustrating some of the novel type computation features in \Rome.
-
+We begin by illustrating some of the novel type computation features in \Rome. Code excerpts are formatted \ala{} \Rosi, an experimental implementation of System \Rome.~\citep{Rosi}
 
 \paragraph{Row types} Rows in \Rome{} are a type-level representation of record fields and variant constructors.  A \emph{row} is simply an association of labels to types, like so:
 \begin{rosi} 
@@ -308,7 +312,7 @@ While this example demonstrates no new forms of \emph{row computation}, it highl
 \AH{Check Agda documentation for what the inline command is, again... I imagine I can get a fair bit of mileage at least with the basic examples.}
 \Cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. We have highlighted the syntax that extends System \Fome in \cref{fig:syntax-types}. Labels (i.e., record field and variant constructor names) live at the type level, and are classified by kind $\LabK$. Rows of kind $\kappa$ are classified by $\RowK \kappa$. When possible, we use $\phi$ for type functions, $\rho$ for types of row kind, and $\xi$ for types of label kind. 
 
-
+% \Source{Kinds.Syntax}
 \paragraph{Mechanized representations} The types \DType{Kind} and \DType{KEnv} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
 
 \begin{code}[hide]

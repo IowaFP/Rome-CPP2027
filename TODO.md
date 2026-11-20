@@ -3,6 +3,7 @@
 - [x] Clean up this entire repo, actually, and couple/publish .lagda and .latex with code 
 - [x] Remove header.tex; unfuck package management
 - [ ] Upload artifact to Zenodo
+- [ ] FIX CITATION TO ZENODO in .bib!
 - [ ] Upload pre-print to arxiv
 - [ ] When ready to publish, nuke the git history
 

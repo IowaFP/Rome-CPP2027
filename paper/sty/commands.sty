@@ -279,6 +279,7 @@
 \newcommand\InlineOff{\lstDeleteShortInline{!}}
 
 \newcommand\Rose{\textsc{Rose}\xspace}
+\newcommand\Rosi{\textsc{Rosi}\xspace}
 \newcommand{\Remy}{R\'emy\xspace}
 
 \newcommand\mcl[1]{\multicolumn{2}{l}{#1}}
@@ -370,6 +371,29 @@
 \newcommand\FOPlus{\textrm{F$_{\omega}^{\otimes\oplus}$}}
 \newcommand\RowLiteral[1]{\ensuremath{\llparenthesis\, #1\, \rrparenthesis}}
 \newcommand\Code[2][]{\mintinline[#1]{#2}}
+
+% Agda links
+\newcommand\DocBase{https://iowafp.github.io/Rome-CPP2027/}
+\newcommand\Module[1]{Rome.#1.html}
+
+% URL to Rome.{#2}.html with optional anchor e.g.
+% \Doc{Types} == ../Rome.Types.html 
+% \Doc[Type]{Types} == /Rome.Types.html#Type
+\newcommand\Doc[1]{\DocBase\Module{#1}}
+\newcommand\ADoc[2]{\Doc{#1}\##2}
+
+% Link text to a module, e.g.:
+% \Link{Types}{the type module} == the type module | (linked to Rome.Types.html)
+\newcommand\Link[2]{\href{\Doc{#1}}{#2}}
+
+% References specifically to modules, e.g.:
+% \Source{Types.Syntax} == [Types.Syntax] | (linked to Rome.Types.Syntax.html)
+\newcommand\Source[1]{\Link{#1}{[#1]}}
+
+% Anchored names, e.g.:
+% \Name{Types.Syntax}{Type} == Type | (linked to Rome.Types.Syntax.html#Type)
+\newcommand\Name[2]{\href{\ADoc{#1}{#2}}{#2}}
+
 
 % Agda shorthands
 \newcommand\Keyword[1]{\AgdaKeyword{#1}}
