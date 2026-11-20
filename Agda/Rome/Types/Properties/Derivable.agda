@@ -65,53 +65,52 @@ module _ where
 --  Π (l ▹ τ) ≡ υ → Π ... 
 -- not sure, but the idea is simply that: an equality on row singletons
 -- can be mapped across row literals.
-module _ where 
   
-  open ≡ₜ-Reasoning
-  eq-Πλ : ∀ l → 
-          (τ : Type (Δ , κ₁) κ₂) (nl : NotLabel κ₂) → 
-          Π {notLabel = nl} · (l ▹ `λ τ) ≡ₜ `λ (Π {notLabel = nl} · (weakenₜ l ▹ τ))
-  eq-Πλ {κ₁ = κ₁} {κ₂} l τ nl = 
-    Π · (l ▹ `λ τ)                       
-      ≡ₜ⟨ eq-η ⟩ 
-    `λ (weakenₜ (Π · (l ▹ `λ τ)) · ` Z)  
-      ≡ₜ⟨ eq-λ eq-Π-assoc ⟩ 
-    `λ (Π · (weakenₜ (l ▹ `λ τ) ?? ` Z)) 
-      ≡ₜ⟨ eq-λ (eq-· eq-refl (eq-· eq-β eq-refl)) ⟩
-    `λ
-     (Π ·
-      ((`λ (`λ (` Z · ` (S Z)) $ ` (S Z)) 
-        βₜ[ weakenₜ (l ▹ `λ τ) ]) · ` Z)) 
-      ≡ₜ⟨ (eq-λ ∘ eq-· eq-refl) eq-β ⟩ 
-    `λ
-     (Π ·
+open ≡ₜ-Reasoning
+eq-Πλ : ∀ l → 
+        (τ : Type (Δ , κ₁) κ₂) (nl : NotLabel κ₂) → 
+        Π {notLabel = nl} · (l ▹ `λ τ) ≡ₜ `λ (Π {notLabel = nl} · (weakenₜ l ▹ τ))
+eq-Πλ {κ₁ = κ₁} {κ₂} l τ nl = 
+  Π · (l ▹ `λ τ)                       
+    ≡ₜ⟨ eq-η ⟩ 
+  `λ (weakenₜ (Π · (l ▹ `λ τ)) · ` Z)  
+    ≡ₜ⟨ eq-λ eq-Π-assoc ⟩ 
+  `λ (Π · (weakenₜ (l ▹ `λ τ) ?? ` Z)) 
+    ≡ₜ⟨ eq-λ (eq-· eq-refl (eq-· eq-β eq-refl)) ⟩
+  `λ
+    (Π ·
+    ((`λ (`λ (` Z · ` (S Z)) $ ` (S Z)) 
+      βₜ[ weakenₜ (l ▹ `λ τ) ]) · ` Z)) 
+    ≡ₜ⟨ (eq-λ ∘ eq-· eq-refl) eq-β ⟩ 
+  `λ
+    (Π ·
+    (subₜ (liftsₜ (extendₜ ` (weakenₜ (l ▹ `λ τ))))
+      (`λ (` Z · ` (S Z)) $ ` (S Z))
+      βₜ[ ` Z ]))                        
+    ≡ₜ⟨ (eq-λ ∘ eq-· eq-refl) eq-▹$ ⟩
+  `λ
+    (Π ·
+    (subₜ (extendₜ ` (` Z)) (renₜ S (renₜ S l)) ▹
+      (subₜ (extendₜ ` (` Z))
       (subₜ (liftsₜ (extendₜ ` (weakenₜ (l ▹ `λ τ))))
-       (`λ (` Z · ` (S Z)) $ ` (S Z))
-       βₜ[ ` Z ]))                        
-      ≡ₜ⟨ (eq-λ ∘ eq-· eq-refl) eq-▹$ ⟩
-    `λ
-     (Π ·
-      (subₜ (extendₜ ` (` Z)) (renₜ S (renₜ S l)) ▹
-       (subₜ (extendₜ ` (` Z))
-        (subₜ (liftsₜ (extendₜ ` (weakenₜ (l ▹ `λ τ))))
-         (`λ (` Z · ` (S Z))))
-        · subₜ (extendₜ ` (` Z)) 
-              (renₜ S (renₜ S (`λ τ)))))) 
-      ≡ₜ⟨ (eq-λ ∘ eq-· eq-refl) 
-          (eq-▹ (inst (subₜ-weaken (weakenₜ l) (` Z))) eq-β) ⟩ 
-    `λ
-     (Π ·
-      (weakenₜ l ▹
-       (subₜ (liftsₜ (extendₜ ` (` Z)))
-        (subₜ (liftsₜ (liftsₜ (extendₜ ` (weakenₜ (l ▹ `λ τ)))))
-         (` Z · ` (S Z)))
-        βₜ[ subₜ (extendₜ ` (` Z)) (renₜ S (renₜ S (`λ τ))) ]))) 
-      ≡ₜ⟨ (eq-λ {κ₂ = κ₂} ∘ (eq-· {τ₁ = Π {notLabel = nl}} eq-refl) ∘ (eq-▹ eq-refl)) eq-β ⟩
-    `λ
-        (Π ·
-         (weakenₜ l ▹
-          (subₜ (liftsₜ (extendₜ ` (` Z)))
-           (renₜ (liftₜ S) (renₜ (liftₜ S) τ))
-           βₜ[ ` Z ])))
-      ≡ₜ⟨ eq-λ (eq-· eq-refl (eq-▹ eq-refl (inst (subₜ-weaken-over-lift² τ)))) ⟩ 
-    `λ (Π · (weakenₜ l ▹ τ)) ∎
+        (`λ (` Z · ` (S Z))))
+      · subₜ (extendₜ ` (` Z)) 
+            (renₜ S (renₜ S (`λ τ)))))) 
+    ≡ₜ⟨ (eq-λ ∘ eq-· eq-refl) 
+        (eq-▹ (inst (subₜ-weaken (weakenₜ l) (` Z))) eq-β) ⟩ 
+  `λ
+    (Π ·
+    (weakenₜ l ▹
+      (subₜ (liftsₜ (extendₜ ` (` Z)))
+      (subₜ (liftsₜ (liftsₜ (extendₜ ` (weakenₜ (l ▹ `λ τ)))))
+        (` Z · ` (S Z)))
+      βₜ[ subₜ (extendₜ ` (` Z)) (renₜ S (renₜ S (`λ τ))) ]))) 
+    ≡ₜ⟨ (eq-λ {κ₂ = κ₂} ∘ (eq-· {τ₁ = Π {notLabel = nl}} eq-refl) ∘ (eq-▹ eq-refl)) eq-β ⟩
+  `λ
+      (Π ·
+        (weakenₜ l ▹
+        (subₜ (liftsₜ (extendₜ ` (` Z)))
+          (renₜ (liftₜ S) (renₜ (liftₜ S) τ))
+          βₜ[ ` Z ])))
+    ≡ₜ⟨ eq-λ (eq-· eq-refl (eq-▹ eq-refl (inst (subₜ-weaken-over-lift² τ)))) ⟩ 
+  `λ (Π · (weakenₜ l ▹ τ)) ∎
