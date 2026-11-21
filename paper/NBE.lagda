@@ -111,6 +111,18 @@
 \email{garrett-morris@uiowa.edu}
 
 % -----------------------------------------------------------------------------
+% Section conditionals
+% (For faster building)
+\newif\ifintro\introfalse
+\newif\ifrowsInAction\rowsInActionfalse
+\newif\ifrome\rometrue
+\newif\ifdesign\designfalse
+\newif\ifNbE\NbEfalse
+\newif\ifevaluation\evaluationfalse
+\newif\ifmetatheory\metatheoryfalse
+\newif\ifrelatedWork\relatedWorkfalse
+
+% -----------------------------------------------------------------------------
 % Document
 
 \begin{document}
@@ -137,6 +149,9 @@ Row types map labels to types, and are used to \emph{structurally} type records 
 % Here is a link where the text and the route differ \Link{Types.Syntax}{Types}. Here is a link to source \Source{Types}. Here is an anchored linked to the definition \Name{Types.Syntax}{Type}. Here is an Agda-formatted link to \DType{\Name{Types.Syntax}{Type}}.
 
 \section{Introduction}
+\label{sec:intro}
+\ifintro
+
 Row types, as introduced by \citet{wand87}, describe type-level associations of labels to types. Rows can be used dually to type \emph{records} (i.e., classes and objects) and \emph{variants} (i.e., algebraic data types). Recent row type systems~\citep{HubersM23,Chlipala10,Chlipala16, TooheyCJX26} use higher-order rows to describe meta- and generic programs. However, these calculi lack a formal metatheory of type computation.
 
 Systems with type computation typically include a \emph{type conversion} rule, in which a term $M$ at type $\tau$ may be converted to type $\upsilon$ provided that $\tau = \upsilon$. But this rule complicates and impedes the metatheory. For example, type checking is not decidable if type equivalence is not decidable. Consider the judgment $\TypeJ {\Gamma, x : \tau} {x} {\upsilon}$, which is well-typed if $\tau \equiv \upsilon$ and ill-typed otherwise. In addition, type conversion impedes \emph{preservation} and \emph{progress}. For example, when analyzing an application $\TypeJ \Gamma {M\, N} {\upsilon}$, inverting the head term $\TypeJ \Gamma M {\tau \to \upsilon}$  via the inductive hypothesis may yield a conversion rather than a canonical $\lambda$-binding, leaving the proof \emph{stuck}.
@@ -165,12 +180,14 @@ In summary, this paper contributes:
 \end{enumerate}
 
 Our artifact is free and available on Github~\citep{GithubArtifact} for quick browsing and Zenodo~\citep{Artifact} for long-term archival; modules, definitions, and mechanized claims are also \href{\DocBase}{hyperlinked} throughout the paper.
+\fi 
 
 % -----------------------------------------------------------------------------
 % Rows in Action
 
 \section{Rows in Action}
 \label{sec:rows-in-action}
+\ifrowsInAction
 
 We begin by illustrating some of the novel type computation features in \Rome. Code excerpts are formatted \ala{} \Rosi, an experimental implementation of System \Rome.~\citep{Rosi}
 
@@ -306,13 +323,16 @@ desugar : ∀ z : R[⋆ → ⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
 \end{rosi}
 
 While this example demonstrates no new forms of \emph{row computation}, it highlights that with each additional row operator comes (possibly many) new \emph{neutral} forms: the types !z! \R{∖ BoolF} and \R{BoolF ∖ z} each may not reduce without a row literal value for $z$.
+\fi
 
 % -----------------------------------------------------------------------------
 % Rωμ type system
 
 \section{The \Rome{} Type System}
-\label{sec:Rome}
- This section defines the \Rome{} type system. \Cref{fig:kinding} gives the kinding rules for the highlighted \Rome{} types. We omit the syntax of terms and typing rules, as we are focused purely on type-level computation.
+\label{sec:rome}
+\ifrome
+
+This section defines the \Rome{} type system. \Cref{fig:kinding} gives the kinding rules for the highlighted \Rome{} types. We omit the syntax of terms and typing rules, as we are focused purely on type-level computation.
 
 \subsection{Kind Syntax}
 \input{figures/syntax-types}
@@ -570,11 +590,14 @@ module Embedding where
 \caption{Embedding}
 \label{fig:embedding}
 \end{figure}
+\fi 
 
 % -----------------------------------------------------------------------------
 % Design choices, renaming, substitution
 
 \section{Design Choices in Formalized Metatheory}
+\label{sec:design}
+\ifdesign
 
 Our development occupies a sweet-spot in intrinsically well-typed syntax. Because variables are well-scoped and types are well-kinded, relations and functions defined on types preserve kind and context definitionally. This reduces the overhead of tedious well-formedness predicates and preservation lemmas. 
 
@@ -644,12 +667,14 @@ module SubId where
   import Rome.Types.Properties.Substitution as Substitution
   sub-id = Substitution.sub-id
 \end{code}
+\fi
 
 % -----------------------------------------------------------------------------
 % Normalization by Evaluation
 
 \section{Normalization by Evaluation}
 \label{sec:NbE}
+\ifNbE
 
 % #LINK[to reflection, reification, evaluation, and normalization? Maybe not. They come soon.]
 % #TODO[] Or, Maybe change this text to:
@@ -926,12 +951,15 @@ module ηNorm where
   import Rome.NormalTypes.Properties.Substitution as Substitution
   subNF-id = Substitution.subₜNF-id
 \end{code}
+\fi
 
 % -----------------------------------------------------------------------------
 % Evaluation
 
 \section{Evaluation}
-\label{sec:Evaluation}
+\label{sec:evaluation}
+\ifevaluation
+
 Our next task is to \emph{evaluate} terms of type \DType{Type} $\Delta$ $\kappa$ into the semantic domain at type \Type{SemType} $\Delta$ $\kappa$. This component of the normalization algorithm implements row computation. We proceed by defining semantic helpers that reduce \DType{SemType} arguments.
 
 \begin{code}[hide]
@@ -1136,12 +1164,14 @@ We describe only the interesting cases of evaluation. The first equation states 
 \end{code}
 
 \Ni Similar definitions can be given for the evaluation and normaliation of predicates and row literals, which we express via the typeclass methods \Symbol{\TC{⟦\Underscore{}⟧}} and \Symbol{\TC{⇓}}, respectively.
+\fi
 
 % -----------------------------------------------------------------------------
 % Metatheory
 
 \section{Metatheory}
 \label{sec:metatheory}
+\ifmetatheory
 
 This section describes the metatheory of \Rome. A note on nomenclature: what we and some others~\citep{Lindley05, Friedman75, KellerA10} refer to as \emph{soundness} and \emph{consistency} is in some NbE literature~\citep{Statman82, BergerS91, ChapmanKNW19, Abel13} referred to as \emph{completeness} and \emph{soundness}, respectively. The difference amounts to perspective: is the \emph{normalization procedure} sound and complete, or the \emph{equational theory}? Because our motivation is to show that, in contrast to System \RO~\citep{HubersM23}, the equational theory of \Rome{} is complete, we commit to the latter perspective.
 
@@ -1685,12 +1715,14 @@ module DecTyEquiv where
   ... | no  p = no (p ∘ soundness)
 \end{code}
 \end{AgdaAlign}
+\fi 
 
 % -----------------------------------------------------------------------------
 % Formalization choices & related work
 
 \section{Formalization Choices \& Related Work}
 \label{sec:related-work}
+\ifrelatedWork
 
 We conclude with a discussion of related row calculi and formalization efforts.
 
@@ -1713,6 +1745,7 @@ Our NbE construction follows the intrinsic syntax and logical-relation technique
 
 \paragraph{Dependent type theories}
 Normalization by evaluation has also been mechanized in Agda for substantially richer type theories, particularly dependent type theory \citep{Abel13,AbelC14,AbelAHPMSS19}. These developments address challenges that are largely orthogonal to ours, such as explicit substitutions and the transport of context and type indices through dependent syntax. We focus instead on the interaction between higher-order row computation and the semantic invariants required by reification. Pinning down a precise treatment of explicit substitutions is still ongoing research. \Citet{AltenkirchK16B} use quotient inductive-inductive types (via postulating constructors and eliminators), while \Citet{ChenNFT26} investigate this approach in Cubical Agda, where higher inductive types are supported by the ambient theory. In $\Rome$, the term--type--kind stratification allows us to retain ordinary inductive syntax and propositional equality throughout the development. This keeps normalization executable and avoids features forbade by the trusted !--safe! flag.
+\fi
 
 % \clearpage
 % \appendix
