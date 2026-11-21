@@ -1,0 +1,184 @@
+-- ============================================================================
+-- Section 2: Rows in Action
+-- 
+-- To run:
+-- 1. make sure you have downloaded Rosi (github.com/IowaFP/Rosi).
+-- 2. Cabal install Rosi to somewhere in your $PATH
+-- 2. Run 
+--    rosi -i <path/to/Rosi/rolib> RowsInAction.ro
+-- where <path/to/...> is the path to your Rosi installation's `rolib` folder,
+-- which houses Ro.Base. Note that:
+-- 1. Definitions in Ro.Base are the target of elaboration of syntactic sugar
+--    so it is crucial that it be included.
+-- 2. The path is specified in Unix forward-slash format, even if on Windows.
+--    E.g., my path 
+--      C:\Users\Ahube\Rosi\rolib
+--    is
+--      /c/Users/ahube/Rosi/rolib 
+-- ============================================================================
+
+import Ro.Base 
+
+-- -----------------------------------------------------------------------------
+-- Some basic types and type constructors, some of which
+-- are already defined in Ro.Base
+
+-- Identity type 
+type Id : * → *
+type Id x = x
+
+-- identity function
+id : t → t
+id x = x
+
+-- Const type operator
+type Const : ⋆ → ⋆ → ⋆
+type Const = λ a x. a
+
+-- const function
+const : t → u → t
+const x y = x
+
+-- The unit type as empty record
+type Unit : ⋆
+type Unit = Π {} 
+
+tt : Unit
+tt = prj ('l := λ x. x)
+
+-- Nats 
+type NatF : ⋆ → ⋆
+type NatF n = Σ {'Zero ▹ Unit , 'Succ ▹ n }
+
+type Nat : ⋆
+type Nat = μ NatF
+
+-- N.b. Rosi has implicit In/Out coercions, making it behave, effectively,
+-- as an equi-recursive type system.
+zero : Nat 
+zero = (inj ('Zero ▹ tt))
+
+suc : Nat → Nat
+suc n = inj ('Succ ▹ n)
+
+-- Pairs and triples 
+type Pair : ⋆ → ⋆ → ⋆
+type Pair x y =  Π {'1 ▹ x, '2 ▹ y}
+
+type Triple  : ⋆ → ⋆ → ⋆ → ⋆
+type Triple x y z = Π {'1 ▹ x, '2 ▹ y , '3 ▹ z}
+
+-- Constructors
+pair : x → y → Pair x y
+pair x y = ('1 ▹ x, '2 ▹ y)
+
+triple : x → y → z → Triple x y z
+triple x y z = ('1 ▹ x, '2 ▹ y, '3 ▹ z)
+
+-- Destructors
+fst : {'1 ▹ a} < z ⇒ Π z → a
+fst p = sel p '1
+
+snd : {'2 ▹ a} < z ⇒ Π z → a
+snd p = sel p '2
+
+thd : {'3 ▹ a} < z ⇒ Π z → a
+thd p = sel p '3
+
+-- -----------------------------------------------------------------------------
+-- Points
+
+type Point : R[⋆]
+type Point = {'x ▹ Nat , 'y ▹ Nat}
+
+-- constructor
+point x y = ('x ▹ x, 'y ▹ y)
+
+-- accessors
+getx p = p.'x
+gety p = p.'y
+
+-- -----------------------------------------------------------------------------
+-- Trees
+
+type TreeF : R[⋆ → ⋆]
+type TreeF = {'Leaf ▹ Const Nat, 'Branch ▹ λ tree. Pair tree tree}
+
+type Tree : ⋆
+type Tree = μ (Σ TreeF)
+
+-- Constructors
+leaf : Nat → Tree
+leaf n = inj ('Leaf ▹ n)
+
+branch : Tree → Tree → Tree
+branch l r = inj ('Branch ▹ pair l r)
+
+-- -----------------------------------------------------------------------------
+-- Functors and fmapΣ
+
+type Functor : (⋆ → ⋆) → ⋆
+type Functor f = forall a b. (a → b) → f a → f b
+
+fmapΣ : forall z : R[⋆ → ⋆]. Π (Functor z) → Functor (Σ z)
+fmapΣ d @a @b f = ana #(λ X. X a) (λ l v. inj (l := d.l f v))
+
+-- -----------------------------------------------------------------------------
+-- BoolF and complements
+
+type BoolF : R[⋆ → ⋆]
+type BoolF = {'T ▹ Const Unit , 'F ▹ Const Unit , 
+              'If ▹ λ b. Triple b b b , 'Or ▹ λ b. Pair b b}  
+
+type Bool : ⋆
+type Bool =  Σ {'T ▹ Unit , 'F ▹ Unit}
+
+-- constructors
+true : {'T ▹ Unit} < z ⇒ Σ z 
+true = inj ('T := tt)
+
+false : {'F ▹ Unit} < z ⇒ Σ z 
+false = inj ('F := tt)
+
+-- eliminators, for use in defining eval
+ite : Bool → a → a → a 
+ite b x y = match b
+  (case 'T (λ t. x) | case 'F (λ t. y))
+
+or : Bool → Bool → Bool
+or a b = ite a true b
+
+-- evaluating bools
+eval : μ (Σ BoolF) → Bool
+eval = fix (λ eval. 
+      (case 'T (const true)) 
+    | (case 'F (const false))
+    | (case 'If (λ p. ite 
+                  (eval (fst p)) 
+                  (eval (snd p)) 
+                  (eval (thd p))))
+    | (case 'Or (λ p. or
+                  (eval (fst p)) 
+                  (eval (snd p)))))
+
+-- We can verify that 
+--   Σ BoolF ≡ λ b. Σ {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
+-- bye checking if:
+--   _ : (Σ BoolF) b → Σ {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b} 
+-- type checks under the identity.
+checkΣBoolF : (Σ BoolF) b → 
+              Σ {'T ▹ Unit , 
+                 'F ▹ Unit , 
+                 'If ▹ Triple b b b , 
+                 'Or ▹ Pair b b}
+checkΣBoolF = id
+
+type Or : R[⋆ → ⋆]
+type Or = {'Or ▹ λ b. Pair b b}
+
+desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
+desugarOr =  fix (λ desugar. 
+    (case 'T (inj true)) 
+  | (case 'F (inj false))
+  | (case 'If ?) -- (λ p. inj ('If ▹ p))
+  | (case 'Or ?))

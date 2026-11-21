@@ -176,20 +176,20 @@ We begin by illustrating some of the novel type computation features in \Rome. C
 
 \paragraph{Row types} Rows in \Rome{} are a type-level representation of record fields and variant constructors.  A \emph{row} is simply an association of labels to types, like so:
 \begin{rosi} 
-row Point = {'x ▹ Int , 'y ▹ Int}
+row Point = {'x ▹ Nat , 'y ▹ Nat}
 \end{rosi} 
 
-We use a quote prefix to identify the label literals \R{'x} and \R{'y}, which are each associated with the type \R{Int}. The operator $\Pi$ constructs a record from a row, where labels describe attribute names and types describe outputs:
+We use a quote prefix to identify the label literals \R{'x} and \R{'y}, which are each associated with the type \R{Nat}. The operator $\Pi$ constructs a record from a row, where labels describe attribute names and types describe outputs:
 
 \begin{rosi} 
-point : Π {'x ▹ Int , 'y ▹ Int}
+point : Π {'x ▹ Nat , 'y ▹ Nat}
 \end{rosi}
 
 
 Dually, the operator $\Sigma$ constructs a variant from a row, where labels describe constructor names and types describe constructor inputs. For example,  a binary tree type can be specified as a recursive variant: 
 
 \begin{rosi}
-tree : μ (Σ {'Node   ▹ const Int, 
+tree : μ (Σ {'Leaf   ▹ const Nat, 
              'Branch ▹ λ tree. tree × tree})
 \end{rosi}
 
@@ -232,19 +232,19 @@ fmapΣ : ... → ∀ a b. (a → b) → Σ (z ? a) → Σ (z ? b)
 This type is in normal form, but there is \emph{potential} computation waiting: all we need is a proper value for the row variable $z$. Consider when $z$ is the row underlying the tree functor. Then the return type is:
 
 \begin{rosi}
-fmapΣ : ... → Σ ({'Node ▹ const Nat, 
+fmapΣ : ... → Σ ({'Leaf ▹ const Nat, 
                    'Branch ▹ λ t. t × t} ? b)
 \end{rosi}
 
 \Ni Expanding the flap metanotation yields:
 \begin{rosi}
 fmapΣ : ... → Σ ((λ f. f b) ＠  
-               {'Node ▹ const Nat, 'Branch ▹ λ t. t × t})
+               {'Leaf ▹ const Nat, 'Branch ▹ λ t. t × t})
 \end{rosi}
 \Ni which maps and $\beta$-reduces to: 
 
 \begin{rosi}
-fmapΣ : ... → Σ {'Node ▹ Nat, 'Branch ▹ b × b}
+fmapΣ : ... → Σ {'Leaf ▹ Nat, 'Branch ▹ b × b}
 \end{rosi}
 
 
