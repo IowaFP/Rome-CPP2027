@@ -1,10 +1,11 @@
 # Rome CPP 2027
 Artifact for Certified Proofs Programs 2027 publication *Normalization by Evaluation of Higher-Order Rows* by Alex Hubers & Garrett Morris.
 
-
-
-## Artifact & Code
+## Artifact & Agda Code
 See [./Agda/Rome/REDME.lagda.md](./Agda/Rome/README.lagda.md) for a summary of the artifact and its claims.
+
+## Rosi Code
+Section 2 contains a number of example types in Rosi. Working Rosi code is given in [./Rosi](./Rosi/); see the [README](./Rosi/README.md) for more details.
 
 ## Paper Requirements
 [NBE.lagda](./paper/NBE.lagda) requires:

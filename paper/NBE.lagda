@@ -41,7 +41,6 @@
 % -----------------------------------------------------------------------------
 % My packages
 
-% Style minted code using rosi-pygments custom style
 \ifmono
 \usemintedstyle{bw}
 \usepackage[bw]{./sty/agda}
@@ -113,14 +112,15 @@
 % -----------------------------------------------------------------------------
 % Section conditionals
 % (For faster building)
-\newif\ifintro\introfalse
-\newif\ifrowsInAction\rowsInActionfalse
+
+\newif\ifintro\introtrue
+\newif\ifrowsInAction\rowsInActiontrue
 \newif\ifrome\rometrue
-\newif\ifdesign\designfalse
-\newif\ifNbE\NbEfalse
-\newif\ifevaluation\evaluationfalse
-\newif\ifmetatheory\metatheoryfalse
-\newif\ifrelatedWork\relatedWorkfalse
+\newif\ifdesign\designtrue
+\newif\ifNbE\NbEtrue
+\newif\ifevaluation\evaluationtrue
+\newif\ifmetatheory\metatheorytrue
+\newif\ifrelatedWork\relatedWorktrue
 
 % -----------------------------------------------------------------------------
 % Document
@@ -213,9 +213,9 @@ tree : μ (Σ {'Leaf   ▹ Const Nat,
 \Ni The row underlying the \R{tree} type is a row of type operators, permitted by \Rome's higher-order capabilities. We can abstract over such rows to do powerful metaprogramming. For example, we can simulate the deriving of a functor typeclass instance: 
 
 \begin{rosi}
-type Functor : (⋆ → ⋆) → ⋆
+type Functor : (* → *) → *
 type Functor f = ∀ a b. (a → b) → f a → f b
-fmapΣ : ∀ z : R[⋆ → ⋆]. Π (Functor ＠ z) → Functor (Σ z)
+fmapΣ : ∀ z : R[* → *]. Π (Functor ＠ z) → Functor (Σ z)
 \end{rosi}
 
 The syntax $\forall z : \RowK {\TypeK \to \TypeK}$ quantifies a \emph{row variable} $z$ containing type operators at kind $\TypeK \to \TypeK$. The syntax \R{Functor} \R{＠ z} denotes the mapping of the \R{Functor} type operator over row $z$---that is, the application of \R{Functor} to each operator in $z$. The type of \R{fmapΣ} states that, given a record of \R{fmap} instances at type \R{Π (Functor} \R{＠ z)}, we can give a \R{Functor} instance for \R{Σ z}. This is analogous to components of Haskell's \emph{Deriving Functor} machinery~\citep{Laarhoven07}, but without resort to Haskell meta-programming (\ala{} GHC internals~\citep{GhcAPI} or Template Haskell~\cite{SheardJ02}).
@@ -227,7 +227,7 @@ The type of \R{fmapΣ} is \emph{not} in normal form. Expanding the \R{Functor} t
 
 
 \begin{rosi}
-fmapΣ : ∀ z : R[⋆ → ⋆].
+fmapΣ : ∀ z : R[* → *].
         Π ((λ f. ∀ a b. 
             (a → b) → f a → f b) ＠ z) →
         ∀ a b. (a → b) → (Σ z) a → (Σ z) b 
@@ -285,7 +285,8 @@ eval : μ (Σ BoolF) → Σ {'True ▹ ⊤ , 'False ▹ ⊤}
 Observe first that $\mu$, the least fixed-point type operator in \Rome, expects its input to be canonically $\lambda$-bound, otherwise the types of term constants such as \R{out} \R{:} \R{μ BoolF} \R{→} \R{BoolF (μ BoolF)} cannot compute. As \R{Σ BoolF} has kind $\TypeK \to \TypeK$ in an empty context, this \emph{should} be the case. But then the expression \R{Σ BoolF} must (in-line and) normalize to: 
 
 \begin{rosi}
-λ b. Σ {'True ▹ ⊤ , 'False ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
+λ b. Σ {'True ▹ ⊤ , 'False ▹ ⊤ , 
+        'If ▹ b × b × b , 'Or ▹ b × b}  
 \end{rosi}
 
 \Ni Hence canonicalization requires a sort of commutativitity of record $\Infix{\Pi}$ and variant $\Infix{\Sigma}$ formers over binders in rows.
@@ -318,7 +319,8 @@ row LamF = {'Lam ▹ λ x. x ,
 Using row polymorphism and the \emph{row containment} predicates \R{BoolF < y} and \R{LamF < (y  ∖  BoolF)}, we specify that \R{desugar} can operate on any row $z$ that includes at least the \R{BoolF} fields and, once those fields are removed, still contains the \R{LamF} fields. This formulation provides a powerful abstraction, enabling \R{desugar} to process any AST that incorporates Boolean constructors.
 
 \begin{rosi}
-desugar : ∀ z : R[⋆ → ⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
+desugar : ∀ z : R[* → *]. BoolF < z, 
+          LamF < (z ∖ BoolF) ⇒
           μ (Σ z) → μ (Σ (z ∖ BoolF))  
 \end{rosi}
 

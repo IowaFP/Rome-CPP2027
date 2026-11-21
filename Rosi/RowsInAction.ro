@@ -1,40 +1,6 @@
 -- ============================================================================
--- Section 2: Rows in Action
--- ----------------------------------------------------------------------------
--- 
--- Section 2 only describes Rosi types, but this document gives terms to 
--- each type using Rosi's highly expressive forms of label-generic programming.
--- Some syntax in the paper differs from Rosi syntax here, as:
--- 1. I use some pseudo-syntax for clarity in the text, such as:
---   - I write "row Point = ..." rather than "type Point = ...", 
---     just to emphasize that what's being introduced is a row.
---   - I write a × b instead of Pair a b, and a × b × c instead of Triple a b c
---   - I write ⊤ instead of Unit
--- 3. I leave maps implicit here, e.g., Π (Functor z) instead of 
---    Π (Functor $ z), as in the text.
--- 2. Rosi has a *lot* of syntactic sugar for more ergonomic programming, 
---    such as:
---    - left-hand arguments; 
---    - equi-recursive type construction; 
---    - inferred types; and
---    - implicit type quantification. 
---    There is also a lot of sugar I am not using, such as ('Foo: bar)
---    for variant construction, and ('Foo: a → M) for variant elimination.
---    
--- ----------------------------------------------------------------------------
--- To run:
--- 
--- 1. make sure you have downloaded Rosi (github.com/IowaFP/Rosi).
--- 2. cabal install Rosi to somewhere in your $PATH
--- 2. Run 
---    rosi RowsInAction.ro
--- 
--- Note that: Definitions in Base are the target of elaboration of syntactic
--- sugar so it is crucial that it be included.
--- 
--- ============================================================================
 -- Imports
-
+-- 
 -- Ro.Base defines:
 -- - Bool, True, False, ite, or
 -- - Unit, tt 
@@ -86,7 +52,6 @@ fmapΣ d @a @b f = ana #(λ X. X a) (λ l v. inj (l := d.l f v))
 -- ============================================================================
 -- Desugaring Booleans --- BoolF, eval, and desugarOr
 -- ============================================================================
-
 -------------------------------------------------------------------------------
 -- Defining Boolean formulae and Booleans
 
@@ -97,7 +62,6 @@ type BoolF = {'True ▹ Const Unit , 'False ▹ Const Unit ,
 -------------------------------------------------------------------------------
 -- Boolean formulae evaluation
 
--- evaluating bools
 eval : μ (Σ BoolF) → Bool
 eval = fix (λ eval. 
       (case 'True (const true)) 
@@ -111,19 +75,19 @@ eval = fix (λ eval.
                   (eval p.'2))))
 
 -------------------------------------------------------------------------------
--- Desugaring "Or" statements
-
 -- We can verify that 
 --   Σ BoolF ≡ λ b. Σ {'True ▹ ⊤ , 'False ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
--- bye checking if:
---   _ : (Σ BoolF) b → Σ {'True ▹ ⊤ , 'False ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b} 
--- type checks under the identity.
-checkΣBoolF : (Σ BoolF) b → 
-              Σ {'True ▹ Unit , 
-                 'False ▹ Unit , 
-                 'If ▹ Triple b b b , 
-                 'Or ▹ Pair b b}
+-- by checking if the following term type-checks
+
+checkΣBoolF : μ (Σ BoolF) → 
+              μ (Σ {'True ▹ Const Unit , 
+                    'False ▹ Const Unit , 
+                    'If ▹ λ b. Triple b b b , 
+                    'Or ▹ λ b. Pair b b})
 checkΣBoolF = id
+
+-------------------------------------------------------------------------------
+-- Desugaring "Or" statements
 
 type Or : R[⋆ → ⋆]
 type Or = {'Or ▹ λ b. Pair b b}
@@ -136,12 +100,15 @@ type Or = {'Or ▹ λ b. Pair b b}
   -- | (case 'If ?) -- (λ p. inj ('If ▹ p))
   -- | (case 'Or ?))
 
+-------------------------------------------------------------------------------
 -- We can verify that 
 --     BoolF ∖ Or
 --   = {'True  ▹ const Unit, 
 --      'False  ▹ const Unit, 
 --      'If ▹ λ b. b × b × b}
-checkBoolFOr : Π ((BoolF ∖ Or) a) → Π {'True ▹ Unit, 'False ▹ Unit, 'If ▹ Triple a a a}
+-- by checking if the following term type-checks
+
+checkBoolFOr : μ (Π (BoolF ∖ Or)) → μ (Π {'True ▹ Const Unit, 'False ▹ Const Unit, 'If ▹ λ b. Triple b b b})
 checkBoolFOr = id
 
 -- ============================================================================
