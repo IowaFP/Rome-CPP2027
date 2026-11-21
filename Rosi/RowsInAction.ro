@@ -1,35 +1,57 @@
 -- ============================================================================
 -- Section 2: Rows in Action
+-- ----------------------------------------------------------------------------
 -- 
+-- Section 2 only describes Rosi types, but this document gives terms to 
+-- each type using Rosi's highly expressive forms of label-generic programming.
+-- Some syntax in the paper differs from Rosi syntax here, as:
+-- 1. I use some pseudo-syntax for clarity in the text, such as:
+--   - I write "row Point = ..." rather than "type Point = ...", 
+--     just to emphasize that what's being introduced is a row.
+--   - I write a × b instead of Pair a b, and a × b × c instead of Triple a b c
+--   - I write ⊤ instead of Unit
+-- 3. I leave maps implicit here, e.g., Π (Functor z) instead of 
+--    Π (Functor $ z), as in the text.
+-- 2. Rosi has a *lot* of syntactic sugar for more ergonomic programming, 
+--    such as:
+--    - left-hand arguments; 
+--    - equi-recursive type construction; 
+--    - inferred types; and
+--    - implicit type quantification. 
+--    There is also a lot of sugar I am not using, such as ('Foo: bar)
+--    for variant construction, and ('Foo: a → M) for variant elimination.
+--    
+-- ----------------------------------------------------------------------------
 -- To run:
+-- 
 -- 1. make sure you have downloaded Rosi (github.com/IowaFP/Rosi).
--- 2. Cabal install Rosi to somewhere in your $PATH
+-- 2. cabal install Rosi to somewhere in your $PATH
 -- 2. Run 
---    rosi -i <path/to/Rosi/rolib> RowsInAction.ro
--- where <path/to/...> is the path to your Rosi installation's `rolib` folder,
--- which houses Ro.Base. Note that:
--- 1. Definitions in Ro.Base are the target of elaboration of syntactic sugar
---    so it is crucial that it be included.
--- 2. The path is specified in Unix forward-slash format, even if on Windows.
---    E.g., my path 
---      C:\Users\Ahube\Rosi\rolib
---    is
---      /c/Users/ahube/Rosi/rolib 
+--    rosi RowsInAction.ro
+-- 
+-- Note that: Definitions in Base are the target of elaboration of syntactic
+-- sugar so it is crucial that it be included.
+-- 
+-- ============================================================================
+-- Imports
 -- ============================================================================
 
 import Ro.Base 
 
--- -----------------------------------------------------------------------------
--- Some basic types and type constructors, some of which
--- are already defined in Ro.Base
+-- ============================================================================
+-- Some basic types and type constructors
+-- ============================================================================
+-------------------------------------------------------------------------------
+-- Identity type and function
 
--- Identity type 
 type Id : * → *
 type Id x = x
 
--- identity function
 id : t → t
 id x = x
+
+-------------------------------------------------------------------------------
+-- Constant type and function
 
 -- Const type operator
 type Const : ⋆ → ⋆ → ⋆
@@ -39,6 +61,9 @@ type Const = λ a x. a
 const : t → u → t
 const x y = x
 
+-------------------------------------------------------------------------------
+-- The Unit Type
+
 -- The unit type as empty record
 type Unit : ⋆
 type Unit = Π {} 
@@ -46,7 +71,9 @@ type Unit = Π {}
 tt : Unit
 tt = prj ('l := λ x. x)
 
--- Nats 
+-------------------------------------------------------------------------------
+-- The Nat Type
+
 type NatF : ⋆ → ⋆
 type NatF n = Σ {'Zero ▹ Unit , 'Succ ▹ n }
 
@@ -61,7 +88,9 @@ zero = (inj ('Zero ▹ tt))
 suc : Nat → Nat
 suc n = inj ('Succ ▹ n)
 
--- Pairs and triples 
+-------------------------------------------------------------------------------
+-- Pairs and triples
+
 type Pair : ⋆ → ⋆ → ⋆
 type Pair x y =  Π {'1 ▹ x, '2 ▹ y}
 
@@ -75,18 +104,9 @@ pair x y = ('1 ▹ x, '2 ▹ y)
 triple : x → y → z → Triple x y z
 triple x y z = ('1 ▹ x, '2 ▹ y, '3 ▹ z)
 
--- Destructors
-fst : {'1 ▹ a} < z ⇒ Π z → a
-fst p = sel p '1
-
-snd : {'2 ▹ a} < z ⇒ Π z → a
-snd p = sel p '2
-
-thd : {'3 ▹ a} < z ⇒ Π z → a
-thd p = sel p '3
-
--- -----------------------------------------------------------------------------
+-- ============================================================================
 -- Points
+-- ============================================================================
 
 type Point : R[⋆]
 type Point = {'x ▹ Nat , 'y ▹ Nat}
@@ -94,12 +114,9 @@ type Point = {'x ▹ Nat , 'y ▹ Nat}
 -- constructor
 point x y = ('x ▹ x, 'y ▹ y)
 
--- accessors
-getx p = p.'x
-gety p = p.'y
-
--- -----------------------------------------------------------------------------
+-- ============================================================================
 -- Trees
+-- ============================================================================
 
 type TreeF : R[⋆ → ⋆]
 type TreeF = {'Leaf ▹ Const Nat, 'Branch ▹ λ tree. Pair tree tree}
@@ -114,8 +131,9 @@ leaf n = inj ('Leaf ▹ n)
 branch : Tree → Tree → Tree
 branch l r = inj ('Branch ▹ pair l r)
 
--- -----------------------------------------------------------------------------
--- Functors and fmapΣ
+-- ============================================================================
+-- Reducting Rows --- the Functor type and fmapΣ
+-- ============================================================================
 
 type Functor : (⋆ → ⋆) → ⋆
 type Functor f = forall a b. (a → b) → f a → f b
@@ -123,8 +141,12 @@ type Functor f = forall a b. (a → b) → f a → f b
 fmapΣ : forall z : R[⋆ → ⋆]. Π (Functor z) → Functor (Σ z)
 fmapΣ d @a @b f = ana #(λ X. X a) (λ l v. inj (l := d.l f v))
 
--- -----------------------------------------------------------------------------
--- BoolF and complements
+-- ============================================================================
+-- Desugaring Booleans --- BoolF, eval, and desugarOr
+-- ============================================================================
+
+-------------------------------------------------------------------------------
+-- Defining Boolean formulae and Booleans
 
 type BoolF : R[⋆ → ⋆]
 type BoolF = {'T ▹ Const Unit , 'F ▹ Const Unit , 
@@ -140,6 +162,9 @@ true = inj ('T := tt)
 false : {'F ▹ Unit} < z ⇒ Σ z 
 false = inj ('F := tt)
 
+-------------------------------------------------------------------------------
+-- Boolean formulae evaluation
+
 -- eliminators, for use in defining eval
 ite : Bool → a → a → a 
 ite b x y = match b
@@ -154,12 +179,15 @@ eval = fix (λ eval.
       (case 'T (const true)) 
     | (case 'F (const false))
     | (case 'If (λ p. ite 
-                  (eval (fst p)) 
-                  (eval (snd p)) 
-                  (eval (thd p))))
+                  (eval p.'1) 
+                  (eval p.'3) 
+                  (eval p.'3)))
     | (case 'Or (λ p. or
-                  (eval (fst p)) 
-                  (eval (snd p)))))
+                  (eval p.'1) 
+                  (eval p.'2))))
+
+-------------------------------------------------------------------------------
+-- Desugaring "Or" statements
 
 -- We can verify that 
 --   Σ BoolF ≡ λ b. Σ {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
@@ -176,9 +204,36 @@ checkΣBoolF = id
 type Or : R[⋆ → ⋆]
 type Or = {'Or ▹ λ b. Pair b b}
 
-desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
-desugarOr =  fix (λ desugar. 
-    (case 'T (inj true)) 
-  | (case 'F (inj false))
-  | (case 'If ?) -- (λ p. inj ('If ▹ p))
-  | (case 'Or ?))
+-- desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
+-- desugarOr = ? 
+--  fix (λ desugar. 
+  --   (case 'T (inj true)) 
+  -- | (case 'F (inj false))
+  -- | (case 'If ?) -- (λ p. inj ('If ▹ p))
+  -- | (case 'Or ?))
+
+-- We can verify that 
+--     BoolF ∖ Or
+--   = {'T  ▹ const Unit, 
+--      'F  ▹ const Unit, 
+--      'If ▹ λ b. b × b × b}
+checkBoolFOr : Π ((BoolF ∖ Or) a) → Π {'T ▹ Unit, 'F ▹ Unit, 'If ▹ Triple a a a}
+checkBoolFOr = id
+
+-- ============================================================================
+-- Predicates and Containment --- LamF and desugar
+-- ============================================================================
+-------------------------------------------------------------------------------
+-- The AST for lambda expressions
+
+type LamF : R[⋆ → ⋆]
+type LamF = {'Lam ▹ λ x. x , 
+             'App ▹ λ x. Pair x x , 
+             'Var ▹ Const Nat}
+
+-------------------------------------------------------------------------------
+-- Desugaring boolean formulae to Lambda expressions
+
+desugar : forall z : R[⋆ → ⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
+          μ (Σ z) → μ (Σ (z ∖ BoolF))
+desugar = ?          

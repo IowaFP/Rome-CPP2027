@@ -189,7 +189,7 @@ point : Π {'x ▹ Nat , 'y ▹ Nat}
 Dually, the operator $\Sigma$ constructs a variant from a row, where labels describe constructor names and types describe constructor inputs. For example,  a binary tree type can be specified as a recursive variant: 
 
 \begin{rosi}
-tree : μ (Σ {'Leaf   ▹ const Nat, 
+tree : μ (Σ {'Leaf   ▹ Const Nat, 
              'Branch ▹ λ tree. tree × tree})
 \end{rosi}
 
@@ -232,14 +232,14 @@ fmapΣ : ... → ∀ a b. (a → b) → Σ (z ? a) → Σ (z ? b)
 This type is in normal form, but there is \emph{potential} computation waiting: all we need is a proper value for the row variable $z$. Consider when $z$ is the row underlying the tree functor. Then the return type is:
 
 \begin{rosi}
-fmapΣ : ... → Σ ({'Leaf ▹ const Nat, 
+fmapΣ : ... → Σ ({'Leaf ▹ Const Nat, 
                    'Branch ▹ λ t. t × t} ? b)
 \end{rosi}
 
 \Ni Expanding the flap metanotation yields:
 \begin{rosi}
 fmapΣ : ... → Σ ((λ f. f b) ＠  
-               {'Leaf ▹ const Nat, 'Branch ▹ λ t. t × t})
+               {'Leaf ▹ Const Nat, 'Branch ▹ λ t. t × t})
 \end{rosi}
 \Ni which maps and $\beta$-reduces to: 
 
@@ -255,7 +255,7 @@ fmapΣ : ... → Σ {'Leaf ▹ Nat, 'Branch ▹ b × b}
 Consider a Boolean AST realized by the row of type operators \R{BoolF}, which has constructors for truth, falsity, conditionals, and disjunction.
 
 \begin{rosi} 
-row BoolF = {'T ▹ const ⊤ , 'F ▹ const ⊤ , 
+row BoolF = {'T ▹ Const ⊤ , 'F ▹ Const ⊤ , 
               'If ▹ λ b. b × b × b , 'Or ▹ λ b. b × b}  
 \end{rosi}
 
@@ -284,8 +284,8 @@ desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
 
 \begin{rosi}
   BoolF ∖ Or
-= {'T  ▹ const Unit, 
-   'F  ▹ const Unit, 
+= {'T  ▹ Const ⊤, 
+   'F  ▹ Const ⊤, 
    'If ▹ λ b. b × b × b}
 \end{rosi}
 
@@ -293,15 +293,15 @@ desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
 Perhaps instead we wish to desugar \emph{all} Boolean constructs to the untyped $\lambda$-calculus: 
 
 \begin{rosi}
-row LamF  = {'Lam ▹ λ x. x , 
-             'App ▹ λ x. x × x , 
-             'Var ▹ const Nat}
+row LamF = {'Lam ▹ λ x. x , 
+            'App ▹ λ x. x × x , 
+            'Var ▹ Const Nat}
 \end{rosi}
 
 Using row polymorphism and the \emph{row containment} predicates \R{BoolF < y} and \R{LamF < (y  ∖  BoolF)}, we specify that \R{desugar} can operate on any row $z$ that includes at least the \R{BoolF} fields and, once those fields are removed, still contains the \R{LamF} fields. This formulation provides a powerful abstraction, enabling \R{desugar} to process any AST that incorporates Boolean constructors.
 
 \begin{rosi}
-desugar : ∀ z : R[⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
+desugar : ∀ z : R[⋆ → ⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
           μ (Σ z) → μ (Σ (z ∖ BoolF))  
 \end{rosi}
 
