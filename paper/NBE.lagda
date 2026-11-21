@@ -255,20 +255,20 @@ fmapΣ : ... → Σ {'Leaf ▹ Nat, 'Branch ▹ b × b}
 Consider a Boolean AST realized by the row of type operators \R{BoolF}, which has constructors for truth, falsity, conditionals, and disjunction.
 
 \begin{rosi} 
-row BoolF = {'T ▹ Const ⊤ , 'F ▹ Const ⊤ , 
+row BoolF = {'True ▹ Const ⊤ , 'False ▹ Const ⊤ , 
               'If ▹ λ b. b × b × b , 'Or ▹ λ b. b × b}  
 \end{rosi}
 
 We specify an evaluation function as taking the least fixed-point of the variant constructed by \R{BoolF} and returning a variant that is either the true or false case.
 
 \begin{rosi}
-eval : μ (Σ BoolF) → Σ {'T ▹ ⊤ , 'F ▹ ⊤}
+eval : μ (Σ BoolF) → Σ {'True ▹ ⊤ , 'False ▹ ⊤}
 \end{rosi}
 
 Observe first that $\mu$, the least fixed-point type operator in \Rome, expects its input to be canonically $\lambda$-bound, otherwise the types of term constants such as \R{out} \R{:} \R{μ BoolF} \R{→} \R{BoolF (μ BoolF)} cannot compute. As \R{Σ BoolF} has kind $\TypeK \to \TypeK$ in an empty context, this \emph{should} be the case. But then the expression \R{Σ BoolF} must (in-line and) normalize to: 
 
 \begin{rosi}
-λ b. Σ {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
+λ b. Σ {'True ▹ ⊤ , 'False ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
 \end{rosi}
 
 \Ni Hence canonicalization requires a sort of commutativitity of record $\Infix{\Pi}$ and variant $\Infix{\Sigma}$ formers over binders in rows.
@@ -284,8 +284,8 @@ desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
 
 \begin{rosi}
   BoolF ∖ Or
-= {'T  ▹ Const ⊤, 
-   'F  ▹ Const ⊤, 
+= {'True  ▹ Const ⊤, 
+   'False  ▹ Const ⊤, 
    'If ▹ λ b. b × b × b}
 \end{rosi}
 

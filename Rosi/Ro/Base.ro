@@ -88,24 +88,24 @@ pack f x = x
 type Bool : *
 type Bool = Σ { 'True 'False := Unit }
 
-True : Bool
-True = 'True: tt
+true : Bool
+true = 'True: tt
 
-False : Bool
-False = 'False: tt
+false : Bool
+false = 'False: tt
 
 if : Bool → t → t → t
 if = 'True: u → (\t1 t2. t1)
    | 'False: u → (\t1 t2. t2)
 
 not : Bool → Bool
-not b = if b False True
+not b = if b false true
 
 and : Bool → Bool → Bool
-and b = if b id (const False)
+and b = if b id (const false)
 
 or : Bool → Bool → Bool
-or b = if b (const True) id
+or b = if b (const true) id
 
 xor : Bool → Bool → Bool
 xor b = if b not id
@@ -144,10 +144,10 @@ eqS : forall z : R[*]. Π (Eq z) → Eq (Σ z)
 eqS d v =  ana #(λX. X)
                (λ l y. match v
                        ( l: x → d.l x y
-                       | otherwise → False))
+                       | otherwise → false))
 
 eqP : Fold z ⇒ Π (Eq z) → Eq (Π z)
-eqP d r = fold #(λt. t) (λl x. d.l r.l x) and True
+eqP d r = fold #(λt. t) (λl x. d.l r.l x) and true
 
 -- Branching is derivable
 branch : (Σ x → t) → (Σ y → t) → Σ (x + y) → t
@@ -188,10 +188,10 @@ maybeSigma : Σ (Maybe* z) → Maybe (Σ z)
 maybeSigma = ana #Maybe (λk. maybe Nothing (Just . k:))
 
 isJust : Maybe a → Bool
-isJust = maybe False (const True)
+isJust = maybe false (const true)
 
 isJusts : Fold z ⇒ Π (Maybe* z) → Bool
-isJusts = fold #Maybe (const isJust) and True
+isJusts = fold #Maybe (const isJust) and true
 
 fromJust : Maybe a → a
 fromJust = fromMaybe (fix id)
@@ -219,3 +219,34 @@ either f g = (case 'Left f | case 'Right g)
 
 sorry : forall a. a
 sorry = fix (\x. x)
+
+-------------------------------------------------------------------------------
+-- Pairs and triples
+
+type Pair : * → * → *
+type Pair t u = (t, u)
+
+pair : t → u → (t, u)
+pair x y = (x, y)
+
+type Triple : * → * → * → *
+type Triple t u v = (t, u, v)
+
+triple : t → u → v → (t, u, v)
+triple x y z = (x, y) ++ ('3 := z)
+
+
+-------------------------------------------------------------------------------
+-- Nats
+
+type NatF : * → *
+type NatF n = Σ { 'Zero := Unit, 'Succ := n}
+
+type Nat : *
+type Nat = μ NatF
+
+zero : Nat
+zero = 'Zero: tt
+
+succ : Nat → Nat
+succ = 'Succ:

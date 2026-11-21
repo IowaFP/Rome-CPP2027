@@ -34,75 +34,17 @@
 -- 
 -- ============================================================================
 -- Imports
+
+-- Ro.Base defines:
+-- - Bool, True, False, ite, or
+-- - Unit, tt 
+-- - Const, const
+-- - Id, id 
+-- - Nat, zero, succ
+-- - Pairs, Triples, pair, triple
 -- ============================================================================
 
 import Ro.Base 
-
--- ============================================================================
--- Some basic types and type constructors
--- ============================================================================
--------------------------------------------------------------------------------
--- Identity type and function
-
-type Id : * → *
-type Id x = x
-
-id : t → t
-id x = x
-
--------------------------------------------------------------------------------
--- Constant type and function
-
--- Const type operator
-type Const : ⋆ → ⋆ → ⋆
-type Const = λ a x. a
-
--- const function
-const : t → u → t
-const x y = x
-
--------------------------------------------------------------------------------
--- The Unit Type
-
--- The unit type as empty record
-type Unit : ⋆
-type Unit = Π {} 
-
-tt : Unit
-tt = prj ('l := λ x. x)
-
--------------------------------------------------------------------------------
--- The Nat Type
-
-type NatF : ⋆ → ⋆
-type NatF n = Σ {'Zero ▹ Unit , 'Succ ▹ n }
-
-type Nat : ⋆
-type Nat = μ NatF
-
--- N.b. Rosi has implicit In/Out coercions, making it behave, effectively,
--- as an equi-recursive type system.
-zero : Nat 
-zero = (inj ('Zero ▹ tt))
-
-suc : Nat → Nat
-suc n = inj ('Succ ▹ n)
-
--------------------------------------------------------------------------------
--- Pairs and triples
-
-type Pair : ⋆ → ⋆ → ⋆
-type Pair x y =  Π {'1 ▹ x, '2 ▹ y}
-
-type Triple  : ⋆ → ⋆ → ⋆ → ⋆
-type Triple x y z = Π {'1 ▹ x, '2 ▹ y , '3 ▹ z}
-
--- Constructors
-pair : x → y → Pair x y
-pair x y = ('1 ▹ x, '2 ▹ y)
-
-triple : x → y → z → Triple x y z
-triple x y z = ('1 ▹ x, '2 ▹ y, '3 ▹ z)
 
 -- ============================================================================
 -- Points
@@ -149,36 +91,18 @@ fmapΣ d @a @b f = ana #(λ X. X a) (λ l v. inj (l := d.l f v))
 -- Defining Boolean formulae and Booleans
 
 type BoolF : R[⋆ → ⋆]
-type BoolF = {'T ▹ Const Unit , 'F ▹ Const Unit , 
+type BoolF = {'True ▹ Const Unit , 'False ▹ Const Unit , 
               'If ▹ λ b. Triple b b b , 'Or ▹ λ b. Pair b b}  
-
-type Bool : ⋆
-type Bool =  Σ {'T ▹ Unit , 'F ▹ Unit}
-
--- constructors
-true : {'T ▹ Unit} < z ⇒ Σ z 
-true = inj ('T := tt)
-
-false : {'F ▹ Unit} < z ⇒ Σ z 
-false = inj ('F := tt)
 
 -------------------------------------------------------------------------------
 -- Boolean formulae evaluation
 
--- eliminators, for use in defining eval
-ite : Bool → a → a → a 
-ite b x y = match b
-  (case 'T (λ t. x) | case 'F (λ t. y))
-
-or : Bool → Bool → Bool
-or a b = ite a true b
-
 -- evaluating bools
 eval : μ (Σ BoolF) → Bool
 eval = fix (λ eval. 
-      (case 'T (const true)) 
-    | (case 'F (const false))
-    | (case 'If (λ p. ite 
+      (case 'True (const true)) 
+    | (case 'False (const false))
+    | (case 'If (λ p. if 
                   (eval p.'1) 
                   (eval p.'3) 
                   (eval p.'3)))
@@ -190,13 +114,13 @@ eval = fix (λ eval.
 -- Desugaring "Or" statements
 
 -- We can verify that 
---   Σ BoolF ≡ λ b. Σ {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
+--   Σ BoolF ≡ λ b. Σ {'True ▹ ⊤ , 'False ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
 -- bye checking if:
---   _ : (Σ BoolF) b → Σ {'T ▹ ⊤ , 'F ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b} 
+--   _ : (Σ BoolF) b → Σ {'True ▹ ⊤ , 'False ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b} 
 -- type checks under the identity.
 checkΣBoolF : (Σ BoolF) b → 
-              Σ {'T ▹ Unit , 
-                 'F ▹ Unit , 
+              Σ {'True ▹ Unit , 
+                 'False ▹ Unit , 
                  'If ▹ Triple b b b , 
                  'Or ▹ Pair b b}
 checkΣBoolF = id
@@ -207,17 +131,17 @@ type Or = {'Or ▹ λ b. Pair b b}
 -- desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
 -- desugarOr = ? 
 --  fix (λ desugar. 
-  --   (case 'T (inj true)) 
-  -- | (case 'F (inj false))
+  --   (case 'True (inj true)) 
+  -- | (case 'False (inj false))
   -- | (case 'If ?) -- (λ p. inj ('If ▹ p))
   -- | (case 'Or ?))
 
 -- We can verify that 
 --     BoolF ∖ Or
---   = {'T  ▹ const Unit, 
---      'F  ▹ const Unit, 
+--   = {'True  ▹ const Unit, 
+--      'False  ▹ const Unit, 
 --      'If ▹ λ b. b × b × b}
-checkBoolFOr : Π ((BoolF ∖ Or) a) → Π {'T ▹ Unit, 'F ▹ Unit, 'If ▹ Triple a a a}
+checkBoolFOr : Π ((BoolF ∖ Or) a) → Π {'True ▹ Unit, 'False ▹ Unit, 'If ▹ Triple a a a}
 checkBoolFOr = id
 
 -- ============================================================================
@@ -234,6 +158,6 @@ type LamF = {'Lam ▹ λ x. x ,
 -------------------------------------------------------------------------------
 -- Desugaring boolean formulae to Lambda expressions
 
-desugar : forall z : R[⋆ → ⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
-          μ (Σ z) → μ (Σ (z ∖ BoolF))
-desugar = ?          
+-- desugar : forall z : R[⋆ → ⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
+--           μ (Σ z) → μ (Σ (z ∖ BoolF))
+-- desugar = ?          
