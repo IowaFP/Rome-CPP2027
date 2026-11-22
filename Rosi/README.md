@@ -4,6 +4,10 @@ Section 2 describes many Rosi types; [RowsInAction.ro](./RowsInAction.ro) is a
 Rosi file that gives terms to each type using Rosi's highly expressive forms 
 of label-generic programming.
 
+## Background
+I would recommend reading through parts of our unpublished manuscript on System Rωμ, 
+[Abstracting Extensible Recursive Functions](https://arxiv.org/abs/2410.11742), to learn about Rosi's term structure.
+
 ## Installation and Usage
 To run the code:
 
@@ -20,7 +24,7 @@ To run the code:
 
 Note that many definitions in [Ro.Base](./Ro/Base.ro) are the target of 
 elaboration of Rosi's syntactic sugar, so it is crucial that `Ro.Base` 
-be included. It is imperative that you include the base library included in this repository, as it differs from Rosi's native [Ro.Base](https://github.com/IowaFP/Rosi/blob/main/rolib/Ro/Base.ro) library.
+be included. It is imperative that you include the base library (and `Data.Nat`) included in this repository, as it differs from Rosi's native [Ro.Base](https://github.com/IowaFP/Rosi/blob/main/rolib/Ro/Base.ro) library.
 
 ## Differences
 
@@ -30,9 +34,9 @@ Some syntax in the paper differs from Rosi syntax here, as:
     just to emphasize that what's being introduced is a row.
   - I write a × b instead of Pair a b, and a × b × c instead of Triple a b c
   - I write ⊤ instead of Unit
-3. I leave maps implicit here, e.g., Π (Functor z) instead of 
+2. I leave maps implicit here, e.g., Π (Functor z) instead of 
    Π (Functor $ z), as in the text.
-2. Rosi has a *lot* of syntactic sugar for more ergonomic programming, 
+3. Rosi has a *lot* of syntactic sugar for more ergonomic programming, 
    such as:
    - left-hand arguments; 
    - equi-recursive type construction; 
@@ -40,4 +44,5 @@ Some syntax in the paper differs from Rosi syntax here, as:
    - implicit type quantification. 
    There is also a lot of sugar I am not using, such as ('Foo: bar)
    for variant construction, and ('Foo: a → M) for variant elimination.
+
    

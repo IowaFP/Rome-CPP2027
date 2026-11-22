@@ -8,9 +8,18 @@
 -- - Id, id 
 -- - Nat, zero, succ
 -- - Pairs, Triples, pair, triple
+-- Data.Nat defines:
+--  - Nat, zero, succ
+-- N.B. these def'ns must come from precisely these modules, as desugaring 
+-- entails that
+--   - 0 ↦ Data.Nat.zero,
+--   - 1 ↦ Data.Nat.succ Data.Nat.zero, and 
+--   - p.'x ↦ Ro.Base.sel 'x p ↦ (prj p) / 'x 
+-- and so forth. That is, much syntax elaborates to definitions in these
+-- modules.
 -- ============================================================================
 
-import Ro.Base 
+import Ro.Base, Data.Nat
 
 -- ============================================================================
 -- Points
@@ -26,9 +35,11 @@ point x y = ('x ▹ x, 'y ▹ y)
 -- Trees
 -- ============================================================================
 
+-- The functor of binary trees with natural leaves
 type TreeF : R[⋆ → ⋆]
-type TreeF = {'Leaf ▹ Const Nat, 'Branch ▹ λ tree. Pair tree tree}
+type TreeF = {'Leaf ▹ Const Nat, 'Branch ▹ λ tree. (tree, tree)}
 
+-- Trees as the LFP of TreeF
 type Tree : ⋆
 type Tree = μ (Σ TreeF)
 
@@ -43,21 +54,23 @@ branch l r = inj ('Branch ▹ pair l r)
 -- Reducting Rows --- the Functor type and fmapΣ
 -- ============================================================================
 
+-- Functor f is the def'n of fmap
 type Functor : (⋆ → ⋆) → ⋆
 type Functor f = forall a b. (a → b) → f a → f b
 
+-- If each label in z has an fmap instantiation, then Σ z is functorial
 fmapΣ : forall z : R[⋆ → ⋆]. Π (Functor z) → Functor (Σ z)
-fmapΣ d @a @b f = ana #(λ X. X a) (λ l v. inj (l := d.l f v))
+fmapΣ d @a @b f = ana #(λ X. X a) (λ l v. inj (l ▹ d.l f v))
 
 -- ============================================================================
 -- Desugaring Booleans --- BoolF, eval, and desugarOr
 -- ============================================================================
 -------------------------------------------------------------------------------
--- Defining Boolean formulae and Booleans
+-- Defining Boolean formulae
 
 type BoolF : R[⋆ → ⋆]
 type BoolF = {'True ▹ Const Unit , 'False ▹ Const Unit , 
-              'If ▹ λ b. Triple b b b , 'Or ▹ λ b. Pair b b}  
+              'If ▹ λ b. (b, b, b) , 'Or ▹ λ b. (b, b)}  
 
 -------------------------------------------------------------------------------
 -- Boolean formulae evaluation
@@ -75,41 +88,26 @@ eval = fix (λ eval.
                   (eval p.'2))))
 
 -------------------------------------------------------------------------------
--- We can verify that 
---   Σ BoolF ≡ λ b. Σ {'True ▹ ⊤ , 'False ▹ ⊤ , 'If ▹ b × b × b , 'Or ▹ b × b}  
--- by checking if the following term type-checks
-
-checkΣBoolF : μ (Σ BoolF) → 
-              μ (Σ {'True ▹ Const Unit , 
-                    'False ▹ Const Unit , 
-                    'If ▹ λ b. Triple b b b , 
-                    'Or ▹ λ b. Pair b b})
-checkΣBoolF = id
-
--------------------------------------------------------------------------------
 -- Desugaring "Or" statements
 
 type Or : R[⋆ → ⋆]
-type Or = {'Or ▹ λ b. Pair b b}
+type Or = {'Or ▹ λ b. (b, b)}
 
--- desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
--- desugarOr = ? 
---  fix (λ desugar. 
-  --   (case 'True (inj true)) 
-  -- | (case 'False (inj false))
-  -- | (case 'If ?) -- (λ p. inj ('If ▹ p))
-  -- | (case 'Or ?))
-
--------------------------------------------------------------------------------
--- We can verify that 
---     BoolF ∖ Or
---   = {'True  ▹ const Unit, 
---      'False  ▹ const Unit, 
---      'If ▹ λ b. b × b × b}
--- by checking if the following term type-checks
-
-checkBoolFOr : μ (Π (BoolF ∖ Or)) → μ (Π {'True ▹ Const Unit, 'False ▹ Const Unit, 'If ▹ λ b. Triple b b b})
-checkBoolFOr = id
+desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
+desugarOr = 
+ fix (λ desugar. 
+    (case 'True (const (inj true))) 
+  | (case 'False (const (inj false)))
+  | (case 'If (λ p. 
+                inj ('If ▹ triple 
+                              (desugar p.'1) 
+                              (desugar p.'2) 
+                              (desugar p.'3)))) 
+  | (case 'Or (λ p. 
+                 inj ('If ▹ triple
+                               (desugar p.'1)
+                               (inj true)
+                               (desugar p.'2)))))
 
 -- ============================================================================
 -- Predicates and Containment --- LamF and desugar
@@ -119,12 +117,123 @@ checkBoolFOr = id
 
 type LamF : R[⋆ → ⋆]
 type LamF = {'Lam ▹ λ x. x , 
-             'App ▹ λ x. Pair x x , 
+             'App ▹ λ x. (x, x) , 
              'Var ▹ Const Nat}
+
+-- Constructors (defined generically as co-algebras)
+var : forall z : R[⋆ → ⋆]. {'Var ▹ Const Nat} < z ⇒ Nat → (Σ z) a
+var n = inj ('Var ▹ n)
+
+app : forall z : R[⋆ → ⋆]. {'App ▹ λ a. (a, a)} < z ⇒ a → a → (Σ z) a
+app x y = inj ('App ▹ pair x y)
+
+lam : forall z : R[⋆ → ⋆]. {'Lam ▹ λ a. a} < z ⇒ a → (Σ z) a
+lam x = inj ('Lam ▹ x)
 
 -------------------------------------------------------------------------------
 -- Desugaring boolean formulae to Lambda expressions
+-- 
+-- ... is tricky, and the reasons why are detailed in a separate manuscript
+-- [Hubers et al 2025]. The gist is, we can't branch on recursive 
+-- eliminators. That is,
+-- the term (f | g) is ill-typed, given:
+-- - f : μ (Σ a) → c 
+-- - g : μ (Σ b) → c 
+-- So, instead work first with F-Algebras, then tie
+-- the recursive knot at the last minute. That is, write:
+-- - f : (Σ a) c → c 
+-- - g : (Σ b) c → c 
+-- then the branch handles cases in both a and b
+--   (f | g) : Σ (a + b) c → c 
+-- and so the catamorphism gives 
+--   cata d (f | g) : μ (Σ (a + b)) → c
+-- where d is evidence that (a + b) is functorial.
 
--- desugar : forall z : R[⋆ → ⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
---           μ (Σ z) → μ (Σ (z ∖ BoolF))
--- desugar = ?          
+-- To review, an F-Algebra is of the form:
+type FAlg : (⋆ → ⋆) → ⋆ → ⋆
+type FAlg f a = f a → a 
+
+-- F-Algebras formed from variants may be fused simply by variant branching
+branchAlg : forall x y z : R[⋆ → ⋆]. 
+            x + y ~ z ⇒
+            FAlg (Σ x) a → 
+            FAlg (Σ y) a → 
+            FAlg (Σ z) a
+branchAlg f g = f | g 
+
+-- The catamorphism ties the recursive knot.
+-- N.b. the standard catamorphism requires evidence that f is functorial;
+-- a Mendler catamorphism, for Mendler F-Algebras of the form:
+--   type MAlg f a = ∀ x. (x → a) → f x → x
+-- does not require functorial evidence, and is in practice more flexible.
+-- But the F-Alg def'n is much simpler, and so we use it here.
+cata : forall f : ⋆ → ⋆. 
+       Functor f → 
+       FAlg f a → 
+       μ f → a 
+cata fmap ϕ = fix (λ cata x. ϕ (fmap cata x))
+
+-------------------------------------------------------------------------------
+-- Desugaring boolean formulae to Lambda expressions, as F-Algebras
+
+-- The desugaring algebra for Boolean formulae
+desugarB : LamF < z ⇒ FAlg (Σ BoolF) (μ (Σ z))
+desugarB = fix (λ desugar. 
+    -- λ x y. x
+    (case 'True  (const (lam (lam (var 1)))))
+    -- λ x y. y    
+  | (case 'False (const (lam (lam (var 0)))))    
+    -- λ a b c. (a b) c      
+  | (case 'If    (λ p.  
+                  (app 
+                    (app 
+                      p.'1 
+                      p.'2)
+                    p.'3)))
+    -- λ a b. (a true) b                    
+  | (case 'Or  (λ p. 
+                (app 
+                  (app 
+                    (p.'1) 
+                    (lam (lam (var 1))))
+                  (p.'2)))))
+
+-- Next, in order to write desugar as an F-Algebra,
+-- we also need to know how to map over each field in (z ∖ BoolF). 
+-- That is, desugarAlg needs an argument of type
+--   Π (Functor (z ∖ BoolF))
+-- Or, equivalently:
+--  Functor (Σ (z ∖ BoolF)).
+-- This is necessary to map over the remaining fields in z, which aren't 
+-- in BoolF, to desugar subdata that may contain fields in BoolF.
+-- In the definition below, we have:
+--   desugarB : FAlg (Σ BoolF) (μ (Σ (z ∖ BoolF)))
+-- which handles the BoolF cases, and 
+--   fmap (desugar . inj) : FAlg (Σ (z ∖ BoolF)) (μ (Σ (z ∖ BoolF))) 
+-- Which handles the cases *not* in BoolF. Since
+--   BoolF + (z ∖ BoolF) ~ z,
+-- this handles the totality of cases.
+desugarAlg : forall z : R[⋆ → ⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
+             Functor (Σ (z ∖ BoolF)) → 
+             FAlg (Σ z) (μ (Σ (z ∖ BoolF)))
+desugarAlg fmap = fix (λ desugar. desugarB | fmap (desugar . inj))
+
+-------------------------------------------------------------------------------
+-- Finally, we tie the recursive knot as a catamorphism to get desugar in full.
+-- 
+-- N.b. For the reasons discussed above, this definition differs from the text
+-- in that it requires evidence that z is functorial. The point in the text 
+-- is to show the type (z ∖ BoolF) is a *neutral* complement. Functorality is 
+-- an orthogonal concern relevant only to the term definition, and omitted to -- save space and cognitive bandwidth.
+
+desugar : forall z : R[⋆ → ⋆]. BoolF < z, LamF < (z ∖ BoolF) ⇒
+          Π (Functor z) → 
+          μ (Σ z) → (μ (Σ (z ∖ BoolF)))
+desugar d = cata (fmapΣ d) (desugarAlg (fmapΣ (prj d)))
+
+-- ============================================================================
+-- Works Cited
+-- ============================================================================
+-- - Alex Hubers, Apoorv Ingle, Andrew Marmaduke, J. Garrett Morris.
+--   Abstracting Extensible Recursive Functions. 2025. 
+--   https://arxiv.org/pdf/2410.11742

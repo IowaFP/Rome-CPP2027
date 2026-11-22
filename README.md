@@ -36,4 +36,11 @@ If you are using [AucTeX](https://www.gnu.org/software/auctex/), add the followi
 
 which will add "LagdaLaTeX" as an option when building (C-c C-C). 
 
+## Background
+You can learn more about:
+- Rosi via our [github documentation](https://github.com/IowaFP/Rosi);
+- The *Rose* family of type systems via our POPL'19 publication [Abstracting Extensible Data Types](https://dl.acm.org/doi/epdf/10.1145/3290325);
+- System Rω, the predecessor of Rωμ, via our ICFP '23 publication [Generic Programming with Extensible Data Types](https://arxiv.org/abs/2307.08759); and
+- System Rωμ via our unpublished manuscript [Abstracting Extensible Recursive Functions](https://arxiv.org/abs/2410.11742).
+
 

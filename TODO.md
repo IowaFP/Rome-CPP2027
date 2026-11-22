@@ -37,6 +37,7 @@
 - [ ] Implement copy changes
 - [ ] Add citations to Zenodo & github
 - [ ] Add hyperlinks for each claim to public repo
+- [ ] Add Π (Functor (z ∖ BoolF)) to desugar example?
 
 # Code 
 - [x] Change semantic helpers to be <$>, <Π>, etc

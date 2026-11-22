@@ -1,0 +1,15 @@
+import Ro.Base
+-------------------------------------------------------------------------------
+-- Nats
+
+type NatF : * → *
+type NatF n = Σ { 'Zero := Unit, 'Succ := n}
+
+type Nat : *
+type Nat = μ NatF
+
+zero : Nat
+zero = 'Zero: tt
+
+succ : Nat → Nat
+succ = 'Succ:

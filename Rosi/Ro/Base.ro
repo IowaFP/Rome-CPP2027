@@ -234,19 +234,3 @@ type Triple t u v = (t, u, v)
 
 triple : t → u → v → (t, u, v)
 triple x y z = (x, y) ++ ('3 := z)
-
-
--------------------------------------------------------------------------------
--- Nats
-
-type NatF : * → *
-type NatF n = Σ { 'Zero := Unit, 'Succ := n}
-
-type Nat : *
-type Nat = μ NatF
-
-zero : Nat
-zero = 'Zero: tt
-
-succ : Nat → Nat
-succ = 'Succ:
