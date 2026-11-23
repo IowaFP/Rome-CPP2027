@@ -125,12 +125,12 @@ cong-$⟦⟧≈ f F v ((V₂ ∖ V₁) {nr}) rel-f (eq , rel₂ , rel₁) =
 -- Congruence over complement
 
 ∈Row→∈L≈ : ∀ {Δ : KEnv} {κ : Kind} {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
-              l ∈Row P → l ∈L (⇑ᵣ (reifyRow' n P))
+              l ∈Row P → l ∈L (⇑ᵣ (reifyRow⃗ n P))
 ∈Row→∈L≈ {n = n} (fzero , refl) = Here
 ∈Row→∈L≈ {n = n} (fsuc i , eq) = There (∈Row→∈L≈ (i , eq))
 
 ∈L→∈Row≈ : ∀ {Δ : KEnv} {κ : Kind} {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
-              l ∈L (⇑ᵣ (reifyRow' n P)) → l ∈Row P
+              l ∈L (⇑ᵣ (reifyRow⃗ n P)) → l ∈Row P
 ∈L→∈Row≈ {n = suc n} Here = fzero , refl
 ∈L→∈Row≈ {n = suc n} (There ev) with ∈L→∈Row≈ ev 
 ... | i , eq = (fsuc i) , eq
@@ -138,11 +138,11 @@ cong-$⟦⟧≈ f F v ((V₂ ∖ V₁) {nr}) rel-f (eq , rel₂ , rel₁) =
 cong-compl⟦⟧≈ : ∀ {Δ : KEnv} {κ : Kind} {n m : ℕ} 
                 {P : Fin n → Label × SemType Δ κ}
                 {Q : Fin m → Label × SemType Δ κ} →
-                ⟦ ⇑ᵣ (reifyRow' n P) ⟧≈ᵣ (n , P) → 
-                ⟦ ⇑ᵣ (reifyRow' m Q) ⟧≈ᵣ (m , Q) → 
-                ⟦ ⇑ᵣ (reifyRow' n P) ∖s ⇑ᵣ (reifyRow' m Q) ⟧≈ᵣ compl P Q
+                ⟦ ⇑ᵣ (reifyRow⃗ n P) ⟧≈ᵣ (n , P) → 
+                ⟦ ⇑ᵣ (reifyRow⃗ m Q) ⟧≈ᵣ (m , Q) → 
+                ⟦ ⇑ᵣ (reifyRow⃗ n P) ∖s ⇑ᵣ (reifyRow⃗ m Q) ⟧≈ᵣ compl P Q
 cong-compl⟦⟧≈ {n = zero} {P = P} {Q} P≈ Q≈ = tt
-cong-compl⟦⟧≈ {n = suc n} {m} {P = P} {Q} P≈ Q≈ with P fzero .fst ∈Row? Q | P fzero .fst ∈L? ⇑ᵣ (reifyRow' m Q) 
+cong-compl⟦⟧≈ {n = suc n} {m} {P = P} {Q} P≈ Q≈ with P fzero .fst ∈Row? Q | P fzero .fst ∈L? ⇑ᵣ (reifyRow⃗ m Q) 
 ... | yes p | yes q = cong-compl⟦⟧≈ (P≈ .snd) Q≈
 ... | yes p | no q = ⊥-elim (q (∈Row→∈L≈ p))
 ... | no p | yes q = ⊥-elim (p (∈L→∈Row≈ q))
@@ -179,7 +179,7 @@ sound-Σ : ∀ {nl : NotLabel κ₁} →
 map-apply : ∀ {Δ₂ : KEnv} {κ₁ : Kind}{κ₂ : Kind}
               (n : ℕ) (P : Fin n → Label × KripkeFunction Δ₁ κ₁ κ₂) → 
                (φ : Renaming Δ₁ Δ₂) → 
-               (rel : ⟦ ⇑ᵣ (reifyRow' n P) ⟧≈ᵣ (n , P)) → 
+               (rel : ⟦ ⇑ᵣ (reifyRow⃗ n P) ⟧≈ᵣ (n , P)) → 
                (v : Type Δ₂ κ₁) (V : SemType Δ₂ κ₁) → 
                (rel-v : ⟦ v ⟧≈ V) → 
              ⟦ map (map₂ (_·_ (`λ (` Z · weakenₜ v))))
@@ -219,12 +219,12 @@ map-apply (suc n) P φ (rel-fzero , rel-fsuc) v V rel-v =
 -- checking in sound-Π later.
 
 map-Π : ∀ {nl : NotLabel κ} (n : ℕ) (P : Fin n → Label × SemType Δ R[ κ ]) → 
-        (rel : ⟦ ⇑ᵣ (reifyRow' n P) ⟧≈ᵣ (n , P)) → 
-        ⟦ map (map₂ (_·_ (Π {notLabel = nl}))) (⇑ᵣ (reifyRow' n P)) ⟧≈ᵣ (n ,  λ i → P i .fst , ⟨Π⟩ (P i .snd))
+        (rel : ⟦ ⇑ᵣ (reifyRow⃗ n P) ⟧≈ᵣ (n , P)) → 
+        ⟦ map (map₂ (_·_ (Π {notLabel = nl}))) (⇑ᵣ (reifyRow⃗ n P)) ⟧≈ᵣ (n ,  λ i → P i .fst , ⟨Π⟩ (P i .snd))
 
 map-Σ : ∀ {nl : NotLabel κ} (n : ℕ) (P : Fin n → Label × SemType Δ R[ κ ]) → 
-        (rel : ⟦ ⇑ᵣ (reifyRow' n P) ⟧≈ᵣ (n , P)) → 
-        ⟦ map (map₂ (_·_ (Σ {notLabel = nl}))) (⇑ᵣ (reifyRow' n P)) ⟧≈ᵣ (n ,  λ i → P i .fst , ⟨Σ⟩ (P i .snd))
+        (rel : ⟦ ⇑ᵣ (reifyRow⃗ n P) ⟧≈ᵣ (n , P)) → 
+        ⟦ map (map₂ (_·_ (Σ {notLabel = nl}))) (⇑ᵣ (reifyRow⃗ n P)) ⟧≈ᵣ (n ,  λ i → P i .fst , ⟨Σ⟩ (P i .snd))
 
 --------------------------------------------------------------------------------
 -- Consistency of Π and ⟨Π⟩ definition
@@ -622,10 +622,10 @@ fund-⟦⟧≈ᵣ ((l , τ) ∷ xs) e = (refl , fund-⟦⟧≈ τ e ) , fund-⟦
 
 fund-⟦⟧≈-map-app : ∀ {Δ₂ : KEnv} {κ₁ : Kind} (n : ℕ) (P : Fin n → Label × SemType Δ₂ κ₁) →  
                 (τ₁ : Type Δ₁ (κ₁ `→ κ₂)) → 
-                (rel : ⟦ ⇑ᵣ (reifyRow' n P) ⟧≈ᵣ (n , P)) → 
+                (rel : ⟦ ⇑ᵣ (reifyRow⃗ n P) ⟧≈ᵣ (n , P)) → 
                 {σ : Substitution Δ₁ Δ₂} → {η : SemEnv Δ₁ Δ₂} → 
                 ⟦ σ ⟧≈ₑ η → 
-                ⟦ map (map₂ (_·_ (sub σ τ₁))) (⇑ᵣ (reifyRow' n P)) ⟧≈ᵣ (n , (λ x → P x .fst , ⟦ τ₁ ⟧ₜ η id (P x .snd)))
+                ⟦ map (map₂ (_·_ (sub σ τ₁))) (⇑ᵣ (reifyRow⃗ n P)) ⟧≈ᵣ (n , (λ x → P x .fst , ⟦ τ₁ ⟧ₜ η id (P x .snd)))
 
 fund-⟦⟧≈-map-app zero P _ _ _ = tt
 fund-⟦⟧≈-map-app (suc n) P τ₁ (rel-fzero , rel-fsuc) {σ} e =
@@ -732,7 +732,7 @@ fund-⟦⟧≈ (ρ₂ ∖ ρ₁) {σ} {η} e | row (n , P) oP | ih with ⟦ ρ�
     (eq-∖ (ih .fst) (ih' .fst)) 
     (eq-trans 
       (eq-compl {ozs = fromWitness (ordered-∖s {xs = ⇑ᵣ (reifyRow (n , P))}
-                {ys = ⇑ᵣ (reifyRow (m , Q))} (⇑ₒ {ρ = reifyRow' n P} (reifyRowOrdered {ρ = n , P} oP)))}) 
+                {ys = ⇑ᵣ (reifyRow (m , Q))} (⇑ₒ {ρ = reifyRow⃗ n P} (reifyRowOrdered {ρ = n , P} oP)))}) 
       (eq-row (reify-⟦⟧≈ᵣ (cong-compl⟦⟧≈ (ih .snd) (ih' .snd))))) , 
   refl-⟦⟧≈ᵣ (cong-compl⟦⟧≈ (ih .snd) (ih' .snd))
 ... | c ∖ c₁   | ih' = eq-∖ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))

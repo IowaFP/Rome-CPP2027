@@ -72,17 +72,17 @@ open import Rome.Types.Equivalence
 ↻-∖s-∖v : ∀ {κ : Kind} {n m}
           (P : Fin n → Label × SemType Δ κ) → 
           (Q : Fin m → Label × SemType Δ κ) → 
-          reifyRow' n P ∖s reifyRow' m Q ≡
+          reifyRow⃗ n P ∖s reifyRow⃗ m Q ≡
           reifyRow (compl P Q)
 ↻-∖s-∖v {n = zero} P Q = refl
 ↻-∖s-∖v {n = suc n} {m} P Q with 
-  P fzero .fst ∈L? reifyRow' m Q | P fzero .fst ∈Row? Q 
+  P fzero .fst ∈L? reifyRow⃗ m Q | P fzero .fst ∈Row? Q 
 ... | yes p                      | yes q = ↻-∖s-∖v (P ∘ fsuc) Q
 ... | yes p                      | no  q = ⊥-elim (q (In p))
   where
     In : ∀ {l} {m} {κ : Kind}  
             {Q : Fin m → Label × SemType Δ κ} → 
-            l ∈L reifyRow' m Q → 
+            l ∈L reifyRow⃗ m Q → 
             l ∈Row Q
     In {l} {m = suc m} Here = fzero , refl
     In {m = suc m} (There ev) = fsuc (In ev .fst) ,  In ev .snd
@@ -91,7 +91,7 @@ open import Rome.Types.Equivalence
     In : ∀ {l} {m} {κ : Kind} 
            {Q : Fin m → Label × SemType Δ κ} → 
            l ∈Row Q → 
-           l ∈L reifyRow' m Q
+           l ∈L reifyRow⃗ m Q
     In {l} {m = suc m} (fzero , refl) = Here
     In {l} {m = suc m} (fsuc i , eq) = There (In (i , eq))
     

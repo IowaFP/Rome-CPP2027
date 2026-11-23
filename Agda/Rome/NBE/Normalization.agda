@@ -31,13 +31,13 @@ reifyKripkeNE : {Δ : KEnv} {κ₁ : Kind} {κ₂ : Kind} →
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
 reifyKripkeNE F = `λ (reify (F S (` Z)))
 
-reifyRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → RowLiteral (NormalType Δ κ)
-reifyRow' zero P    = []
-reifyRow' (suc n) P with P fzero
-... | (l , τ) = (l , reify τ) ∷ reifyRow' n (P ∘ fsuc)
+reifyRow⃗ : (n : ℕ) → (Fin n → Label × SemType Δ κ) → RowLiteral (NormalType Δ κ)
+reifyRow⃗ zero P    = []
+reifyRow⃗ (suc n) P with P fzero
+... | (l , τ) = (l , reify τ) ∷ reifyRow⃗ n (P ∘ fsuc)
 
 reifyRow : Row (SemType Δ κ) → RowLiteral (NormalType Δ κ)
-reifyRow (n , P) = reifyRow' n P
+reifyRow (n , P) = reifyRow⃗ n P
 
 reifyRowOrdered : ∀ {Δ : KEnv} {κ : Kind} {ρ : Row (SemType Δ κ)} → OrderedRow ρ →  Ordered (reifyRow ρ)
 reifyRowOrdered' : ∀ {Δ : KEnv} {κ : Kind} (n : ℕ) → (P : Fin n → Label × SemType Δ κ) → 
