@@ -44,7 +44,17 @@ We borrow some notation and conventions from HoTT, e.g. we write:
 - `_⁻¹` for sym; and
 - `_○_` for trans
 
-**But**, we do *not* presume univalence in any form, nor is this a cubical Agda development.
+**But**, we do *not* presume univalence in any form, nor is this a cubical Agda development. To facilitate wide reuse of syntax like `_○_` for transitivity and `_⁻¹` for symmetry across propositional equality, homotopy, and type equivalence, we create a typeclass for Groupoid and Order syntax in:
+
+```agda
+open import Rome.Prelude.Groupoids public
+```
+
+We also add some functionality for Homotopies in:
+
+```agda 
+open import Rome.Prelude.Homotopies public
+``` 
 
 The modules `Levels` and `Sets`
 
@@ -76,7 +86,7 @@ We also define some generalized variables, e.g., Δ for kinding envs and κ for 
 open import Rome.Kinds.GVars public
 ```
 
-That syntactic kind equality is decidable (§6) is defined in: 
+That syntactic kind equality is decidable (§7.3) is defined in: 
 
 ```agda 
 open import Rome.Kinds.Properties.Decidability public
@@ -136,13 +146,13 @@ open import Rome.NormalTypes.Properties.Renaming public
 open import Rome.NormalTypes.Properties.Substitution public
 ``` 
 
-That normal type equality (§7) is decidable is defined in: 
+That normal type equality (§7.5) is decidable is defined in: 
 
 ```agda 
 open import Rome.NormalTypes.Properties.Decidability public
 ``` 
 
-Canonicity of normal forms (§7) is given in: 
+Canonicity of normal forms (§7.1) is given in: 
 
 ```agda 
 open import Rome.Metatheory.Canonicity public
