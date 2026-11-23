@@ -35,9 +35,10 @@
 - [x] Expand on PER and other properties of consistency/soundness relations
 - [ ] Outline intended changes to draft in response to reviewer feedback
 - [ ] Implement copy changes
-- [ ] Add citations to Zenodo & github
-- [ ] Add hyperlinks for each claim to public repo
-- [ ] Add Π (Functor (z ∖ BoolF)) to desugar example?
+- [x] Add citations to Zenodo & github
+- [x] Add hyperlinks for each claim to public repo
+- [x] **Refactor README.lagda.md** to reference new section numbers, titles, and locations
+- [ ] Trim back down to 13 pages
 
 # Code 
 - [x] Change semantic helpers to be <$>, <Π>, etc
@@ -55,7 +56,6 @@
 - [x] ~~In response to cranky reviewer: Prove strong normalization.~~
   - (It is not true.)
 - [x] Use ωmap instead of fromWitness (foo (toWitness)) etc in text
-- [ ] **Refactor README.lagda.md** to reference new section numbers, titles, and locations
 
 # elsewhere
 - [ ] Update github.com/IowaFP/ROmega to acccommate changes to syntax made in the code here
