@@ -9,7 +9,7 @@ open import Rome.Types.Substitution
 
 open import Rome.NormalTypes.Syntax
 open import Rome.NormalTypes.Renaming
-open import Rome.NormalTypes.NBE.Normalization
+open import Rome.NBE.Normalization
 
 open import Rome.Metatheory.NBE.Soundness
 open import Rome.Types.Equivalence

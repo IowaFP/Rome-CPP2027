@@ -17,9 +17,9 @@ open import Rome.NormalTypes.Syntax
 open import Rome.NormalTypes.Renaming 
 open import Rome.NormalTypes.Properties.Renaming
 
-open import Rome.NormalTypes.NBE.Syntax
-open import Rome.NormalTypes.NBE.Renaming
-open import Rome.NormalTypes.NBE.Normalization
+open import Rome.NBE.Syntax
+open import Rome.NBE.Renaming
+open import Rome.NBE.Normalization
 
 
 open import Rome.Types.Equivalence
@@ -228,7 +228,7 @@ ren-⟦⟧≈ᵣ' : ∀ {Δ₁ : KEnv} {Δ₂ : KEnv} {κ : Kind}
 ↻-ren-⇑-reify-∖ : ∀ (r : Renaming Δ₁ Δ₂) (V₂ V₁ : SemRow Δ₁ (λ Δ → SemType Δ κ) R[ κ ]) →
                 ⟦ ⇑ (reify V₂) ⟧≈ V₂ →
                 ⟦ ⇑ (reify V₁) ⟧≈ V₁ →  
-                (ev : notRowLiteral V₂ or notRowLiteral V₁) → 
+                (ev : NotRowLiteral V₂ or NotRowLiteral V₁) → 
                 renₜ r (⇑ (reify ((V₂ ∖ V₁) {ev}))) ≡ₜ ⇑ (reify ((renSem r V₂ ∖ renSem r V₁) {nrRenSem' r V₂ V₁ ev}))
 ↻-ren-⇑-reify :  ∀ (r : Renaming Δ₁ Δ₂) (V : SemRow Δ₁ (λ Δ → SemType Δ κ) R[ κ ]) →
                 ⟦ ⇑ (reify V) ⟧≈ V →

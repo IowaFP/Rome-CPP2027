@@ -9,13 +9,14 @@
 \usepackage{centernot}      % center negation over symbols
 \usepackage{enumitem}       % customize list layouts
 \usepackage{ifthen}         % conditional logic in macros
-\usepackage{listings}       % source code formatting
-%\usepackage[cache=false]{minted}         % Pygments syntax highlighting
 \usepackage{minted}         % Pygments syntax highlighting
 \usepackage{newunicodechar} % define Unicode chars in TeX
 \usepackage{stmaryrd}       % extra math/logic symbols
 \usepackage{subcaption}     % subfigures and subcaptions
 \usepackage{xspace}         % smart spaces after macros
+\usepackage{xparse}         % for better conditional formatting of \newcommands
+\usepackage{tikz}           % Diagrams
+\usepackage{tikz-cd}        % Commutative Diagrams
 
 % -----------------------------------------------------------------------------
 % Configured packages
@@ -126,7 +127,6 @@
 % Document
 
 \begin{document}
-\InlineOn{}
 
 \maketitle
 
@@ -156,7 +156,7 @@ Row types map labels to types, and are used to \emph{structurally} type records 
 % Introduction
 
 % \section{Link test}
-% Here is a link where the text and the route differ \Link{Types.Syntax}{Types}. Here is a link to source \Source{Types}. Here is an anchored linked to the definition \Name{Types.Syntax}{Type}. Here is an Agda-formatted link to \DType{\Name{Types.Syntax}{Type}}.
+% Here is a link where the text and the route differ \Link{Types.Syntax}{Types}. Here is a link to source \Source{Types}. Here is an anchored linked to the definition \Name{Types.Syntax}{Type}. Here is an Agda-formatted link to \Datatype[Types.Syntax]{Type}.
 
 \section{Introduction}
 \label{sec:intro}
@@ -199,7 +199,7 @@ Our artifact is free and available on Github~\citep{GithubArtifact} for quick br
 \label{sec:rows-in-action}
 \ifrowsInAction
 
-We begin by illustrating some of the novel type computation features in \Rome. Code excerpts are formatted \ala{} \Rosi, an experimental implementation of System \Rome.~\citep{Rosi}
+We begin by illustrating some of the novel type computation features in \Rome. Code excerpts are formatted \ala{} \Rosi~\citep{Rosi}, an experimental implementation of \Rome. The corresponding \Rosi{} terms are given in full \href{\RosiCode}{online}~\citep{GithubArtifact}.
 
 \paragraph{Row types} Rows in \Rome{} are a type-level representation of record fields and variant constructors.  A \emph{row} is simply an association of labels to types, like so:
 \begin{rosi} 
@@ -334,7 +334,7 @@ desugar : ∀ z : R[* → *]. BoolF < z,
           μ (Σ z) → μ (Σ (z ∖ BoolF))  
 \end{rosi}
 
-While this example demonstrates no new forms of \emph{row computation}, it highlights that with each additional row operator comes (possibly many) new \emph{neutral} forms: the types !z! \R{∖ BoolF} and \R{BoolF ∖ z} each may not reduce without a row literal value for $z$.
+While this example demonstrates no new forms of \emph{row computation}, it highlights that with each additional row operator comes (possibly many) new \emph{neutral} forms: the types \R{z ∖ BoolF} and \R{BoolF ∖ z} each may not reduce without a row literal value for $z$.
 \fi
 
 % -----------------------------------------------------------------------------
@@ -349,11 +349,10 @@ This section defines the \Rome{} type system. \Cref{fig:kinding} gives the kindi
 \subsection{Kind Syntax}
 \input{figures/syntax-types}
 
-\AH{Check Agda documentation for what the inline command is, again... I imagine I can get a fair bit of mileage at least with the basic examples.}
 \Cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. We have highlighted the syntax that extends System \Fome in \cref{fig:syntax-types}. Labels (i.e., record field and variant constructor names) live at the type level, and are classified by kind $\LabK$. Rows of kind $\kappa$ are classified by $\RowK \kappa$. When possible, we use $\phi$ for type functions, $\rho$ for types of row kind, and $\xi$ for types of label kind. 
 
  % \Source{Kinds.Syntax}
- \paragraph{Mechanized Representations \SourceP{Kinds.Syntax}} The types \DType{\Name{Kinds.Syntax}{Kind}} and \DType{\Name{Kinds.Syntax}{KEnv}} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
+ \paragraph{Mechanized Representations \SourceP{Kinds.Syntax}} The types \Datatype[Kinds.Syntax]{Kind} and \Datatype[Kinds.Syntax]{KEnv} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -488,7 +487,7 @@ Care must be taken that the instantiation of variable labels does not introduce 
 Lastly, the syntax $\Mapp \phi \rho$ maps the type operator $\phi$ across a row $\rho$, and the syntax $\rho_2 \Compl \rho_1$ denotes the \emph{row complement} of $\rho_{2}$ by $\rho_{1}$, analogous to set complements.
 
 \paragraph{Mechanized Representations \SourceP{Types.Syntax}}
-Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a \emph{normal form}, and hence the \DType{\Name{Types.Syntax}{Pred}} type generalizes over both via the \Var{Ty} parameter. For example, predicates on \DType{\Name{Types.Syntax}{Type}}s are described by \DType{Pred} \Symbol{(}\DType{Type} \GVar{Δ} \Constructor{R[}\GVar{κ}\Constructor{]}\Symbol{)}.
+Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a \emph{normal form}, and hence the \Datatype[Types.Syntax]{Pred} type generalizes over both via the \Var{Ty} parameter. For example, predicates on \Datatype[Types.Syntax]{Type}s are described by \Datatype{Pred} \Symbol{(}\Datatype{Type} \GVar{Δ} \Constructor{R[}\GVar{κ}\Constructor{]}\Symbol{)}.
 
 \begin{AgdaAlign}
 \begin{code} %
@@ -514,7 +513,7 @@ Our mechanization is \emph{intrinsic}, meaning types are indexed by context and 
 \end{code}
 
 % TODO[Agda-inline][The Ordered stuff... agda uses a different font]
-The type synonym \Function{\Name{Types.Syntax}{RowLiteral}} defines row literals as lists of label-type associations; like with \DType{Pred}, this definition may be reused for normal forms, and so is parameterized by \Var{Ty}. The predicate \Function{\Name{Types.Syntax}{Ordered}} \Var{xs} asserts that the row literal \Var{xs} is well-ordered on labels. The function \Function{\Name{Types.Syntax}{ordered?}} witnesses that this predicate is decidable.
+The type synonym \Function[Types.Syntax]{RowLiteral} defines row literals as lists of label-type associations; like with \Datatype{Pred}, this definition may be reused for normal forms, and so is parameterized by \Var{Ty}. The predicate \Function[Types.Syntax]{Ordered} \Var{xs} asserts that the row literal \Var{xs} is well-ordered on labels. The function \Function[Types.Syntax]{ordered?} witnesses that this predicate is decidable.
 
 
 \begin{code}[hide]%
@@ -745,7 +744,7 @@ The type synonym \Function{\Name{Types.Syntax}{RowLiteral}} defines row literals
 \AgdaKeyword{where}\<%
 \end{code}
 
-Two sets of \DType{Type} constructors are interesting. First, we restrict the formation of \Constructor{\AName{Types.Syntax}{Type.Π}{Π}} and \Constructor{\AName{Types.Syntax}{Type.Σ}{Σ}} to just kinds that do not yield label-valued rows.
+Two sets of \Datatype{Type} constructors are interesting. First, we restrict the formation of \Constructor[Types.Syntax][Type.Π]{Π} and \Constructor[Types.Syntax][Type.Σ]{Σ} to just kinds that do not yield label-valued rows.
 
 \begin{code} %
 \>[2][@{}l@{\AgdaIndent{1}}]%
@@ -782,9 +781,9 @@ Two sets of \DType{Type} constructors are interesting. First, we restrict the fo
 \end{code}
 \end{AgdaAlign}
 
-\Ni The \Function{\Name{Kinds.Syntax}{NotLabel}} $\kappa$ predicate computes to \Term{\Name[Data]{Empty}{⊥}} when $\kappa \in \mathcal K$ (see \cref{fig:kinding}) and \Term{\Name[Agda]{Builtin.Unit}{⊤}} otherwise, making it \emph{irrelevant}. Hence congruence over $\Pi$ and $\Sigma$ may be defined without regard for this evidence. That is, we have \Constructor{Π} \Symbol{\{}\Var{nl₁}\Symbol{\}} \Var{ρ₁} \DType{≡} \Constructor{Π} \Symbol{\{}\Var{nl₂}\Symbol{\}} \Var{ρ₂} iff \Var{ρ₁} \DType{≡} \Var{ρ₂} (\Function{\Name{Types.Syntax}{cong-Π}}).
+\Ni The \Function[Kinds.Syntax]{NotLabel} $\kappa$ predicate computes to \Term{\Name[Data]{Empty}{⊥}} when $\kappa \in \mathcal K$ (see \cref{fig:kinding}) and \Term{\Name[Agda]{Builtin.Unit}{⊤}} otherwise, making it \emph{irrelevant}. Hence congruence over $\Pi$ and $\Sigma$ may be defined without regard for this evidence. That is, we have \Constructor{Π} \Symbol{\{}\Var{nl₁}\Symbol{\}} \Var{ρ₁} \Datatype{≡} \Constructor{Π} \Symbol{\{}\Var{nl₂}\Symbol{\}} \Var{ρ₂} iff \Var{ρ₁} \Datatype{≡} \Var{ρ₂} (\Function[Types.Syntax]{cong-Π}).
 
-Second, The constructor \Constructor{\AName{Types.Syntax}{Type.⦅\Underscore⦆}{⦅\Underscore⦆}} for row literal types is guarded by the predicate \Function{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}.
+Second, The constructor \Constructor[Types.Syntax][Type.⦅\Underscore⦆]{⦅\Underscore⦆} for row literal types is guarded by the predicate \Function{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}.
 
 \begin{code}%
 %
@@ -811,14 +810,13 @@ Second, The constructor \Constructor{\AName{Types.Syntax}{Type.⦅\Underscore⦆
 \end{code}
 
 % \AH{Space permitting, put (sections of) NotLabel and Ordered into a figure to demonstrate how one needs squashing and the other doesn't.}
-\Ni Unlike with \Function{NotLabel} $\kappa$, the \Function{Ordered} \Var{xs} predicate is not trivially irrelevant, nor does it compute to \DType{⊤} or \DType{⊥} on closed terms. However, it is decidable, as witnessed by the function \Function{ordered?} \Var{xs}. In turn, it can be \emph{squashed} via the Agda Standard Library's~\citep{AgdaStdLib} \Type{\Name[Relation]{Nullary.Decidable.Core}{True}} operator, which computes to \DType{⊤} when \Var{xs} is well-ordered and \DType{⊥} otherwise. This reproduces the same desirable properties of the \Function{NotLabel} predicate. In particular, we have that \Constructor{⦅} \Var{xs} \Constructor{⦆} \Var{ω}$_{xs}$ \DType{≡} \Constructor{⦅} \Var{ys} \Constructor{⦆} \Var{ω}$_{ys}$ iff \Var{xs} \DType{≡} \Var{ys} (\Function{\Name{Types.Syntax}{cong-⦅\Underscore⦆}}).
+\Ni Unlike with \Function{NotLabel} $\kappa$, the \Function{Ordered} \Var{xs} predicate is not trivially irrelevant, nor does it compute to \Datatype{⊤} or \Datatype{⊥} on closed terms. However, it is decidable, as witnessed by the function \Function{ordered?} \Var{xs}. In turn, it can be \emph{squashed} via the Agda Standard Library's~\citep{AgdaStdLib} \Type{\Name[Relation]{Nullary.Decidable.Core}{True}} operator, which computes to \Datatype{⊤} when \Var{xs} is well-ordered and \Datatype{⊥} otherwise. This reproduces the same desirable properties of the \Function{NotLabel} predicate. In particular, we have that \Constructor{⦅} \Var{xs} \Constructor{⦆} \Var{ω}$_{xs}$ \Datatype{≡} \Constructor{⦅} \Var{ys} \Constructor{⦆} \Var{ω}$_{ys}$ iff \Var{xs} \Datatype{≡} \Var{ys} (\Function[Types.Syntax]{cong-⦅\Underscore⦆}).
 
 \subsection{Type Equivalence and Reduction}
 \label{sec:type-equivalence}
 
-\InlineOff{}
+
 \input{figures/equivalence}
-\InlineOn{}
 
 We define reduction on types by directing the type equivalence judgment $\TEqvJ \Delta \tau {\upsilon} \kappa$ (\cref{fig:equivalence}) from left to right. The full equivalence relation is the congruence closure of \cref{fig:equivalence} plus rules for reflexivity, symmetry, and transitivity. 
 
@@ -855,11 +853,11 @@ The interesting rules describe row complement computation and the interplay of $
     {\kappa_1 \to \kappa_2}}} 
 \end{align*}
 \end{small}
-% #LINK[to derivation]
-\Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it (\Function{\Name{Types.Properties.Derivable}{eq-Πλ}}). 
+
+\Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it (\Function[Types.Properties.Derivable]{eq-Πλ}). 
 
 \paragraph{Mechanized Representations \SourceP{Types.Equivalence}}
-Equivalence on predicates and types is represented mechanically by the typed relations (\DType{\AName{Types.Equivalence}{\Underscore≡ₜ\Underscore}{≡ₜ}}) and (\DType{\AName{Types.Equivalence}{\Underscore≡ₚ\Underscore}{≡ₚ}}).
+Equivalence on predicates and types is represented mechanically by the typed relations (\Datatype[Types.Equivalence][\Underscore≡ₜ\Underscore]{≡ₜ}) and (\Datatype[Types.Equivalence][\Underscore≡ₚ\Underscore]{≡ₚ}).
 
 \begin{AgdaAlign}
 \begin{code}%
@@ -918,10 +916,6 @@ Normalization reduces applications and maps except when a variable blocks comput
 
 We distinguish singleton rows $\{\LabTy n \Normal \tau\}$ with neutral labels from row literals $\RowIx i 0 m {\LabTy {\ell_i} {\Normal {\tau_i}}}$ with literal labels $\ell_i$. A row is otherwise an inert map $\Mapp \phi n$ or the complement of two rows $\Normal{\tau_2} \Compl \Normal{\tau_1}$. We require in the kinding of normal row complements \kruleNF{$\Compl$} that one (or both) rows are not literal, otherwise the complement would compute. By consequence of $\eta$-expansion, records and variants need only be formed at kind $\TypeK$. The remaining normal type syntax and normal kinding rules do not differ from their counterparts in \cref{fig:syntax-types} and \cref{fig:kinding}.
 
-% =============================================================================
-% WIP[Adding links to source] Stopping for now, Start back up from here. 
-% =============================================================================
-
 \paragraph{Mechanized representations \SourceP{NormalTypes.Syntax}} Normal and neutral types are represented intrinsically as the following types.
 
 \begin{AgdaAlign}
@@ -959,16 +953,14 @@ We distinguish singleton rows $\{\LabTy n \Normal \tau\}$ with neutral labels fr
 \end{code}
 \end{AgdaAlign}
 
-\Ni Predicates on \DType{NormalType}s are described by \DType{Pred} \Symbol{(}\DType{NormalType} \GVar{Δ} \Constructor{R[}\GVar{κ}\Constructor{]}\Symbol{)}, and, likewise, row literals of \DType{NormalType}s are described by \Type{RowLiteral} \Symbol{(}\DType{NormalType} \GVar{Δ} \GVar{κ}\Symbol{)}.
+\Ni Predicates on \Datatype[NormalTypes.Syntax]{NormalType}s are described by \Datatype{Pred} \Symbol{(}\Datatype{NormalType} \GVar{Δ} \Constructor{R[}\GVar{κ}\Constructor{]}\Symbol{)}, and, likewise, row literals of \Datatype{NormalType}s are described by \Type{RowLiteral} \Symbol{(}\Datatype{NormalType} \GVar{Δ} \GVar{κ}\Symbol{)}.
 
-Just as with the \DType{Type} syntax, some constructors require predicate constraints. Promotion of a neutral type $n$ to a normal type via the constructor \Constructor{ne} is guarded by the predicate \Type{Ground} $\kappa$, which computes to $\top$ when $\kappa \in \{ \TypeK , \LabK \}$ and $\bot$ otherwise. Likewise, the construction of the row complement $\rho_{2} \Compl \rho_{1}$ is guarded by a predicate \Type{True} \Symbol{(} \Function{notRowLiterals?} $\rho_{2}$ $\rho_{1}$ \Symbol{)} asserting that at most one of the operands is a row literal. This predicate is designed to avoid the explicit negation $\neg$ (\Function{RowLiteral} $\rho_{2}$ $\wedge$ \Function{RowLiteral} $\rho_{1}$), which does not compute on closed terms to the empty or unit type.
+Just as with the \Datatype{Type} syntax, some constructors require predicate constraints. Promotion of a neutral type $n$ to a normal type via the constructor \Constructor[NormalTypes.Syntax][NormalType.ne]{ne} is guarded by the predicate \Function[Kinds.Syntax]{Ground} $\kappa$, which computes to $\top$ when $\kappa \in \{ \TypeK , \LabK \}$ and $\bot$ otherwise. Likewise, the construction of the row complement $\rho_{2} \Compl \rho_{1}$ is guarded by a predicate \Type{True} \Symbol{(}\Function{notRowLiterals?} $\rho_{2}$ $\rho_{1}$\Symbol{)} asserting that at most one of the operands is a row literal. The predicates \Function[NormalTypes.Syntax][NotRowLiteralNF]{NotRowLiteral} and \Function[NormalTypes.Syntax][notRowLiteralNFs?]{notRowLiterals?} are (admittedly awkwardly) stated in negated form to avoid the explicit negation \Function{¬} (\Function{IsRowLiteral} \Var{ρ₂} $\wedge$ \Function{IsRowLiteral} \Var{ρ₁}), which does not compute on closed terms to the empty or unit type.
 
-% #[LINK][to embedding def, embed_omega]
-% #[LINK][to typeclass]
-\Cref{fig:embedding} defines an embedding of normal $\Infix{\Embed}$ and neutral types $\Infix{\Embed_{ne}}$  back to type syntax, which can be used as a reference for the mechanized constructor names for \DType{Type}s, \DType{NeutralType}s, and \DType{NormalType}s. The definitions $\Embed_{\pi}$ and $\Embed_{\rho}$ map embedding over the types contained in predicates and row literals; we use a typeclass so that the symbol $\Infix{\Embed}$ hereafter applies to rows, predicates, and neutral types alike.
 
-% #[LINK][to ωmap][to True in Agda stdlib]
-We must also prove, via $\Embed_{\omega}$, that embedding preserves ordering. Some bookkeeping is necessary, as the evidence of the row's well-ordering ($\omega$) is squashed. However, since the \Function{Ordered} predicate is decidable (via \Function{ordered?}), we can reproduce evidence, and vice versa: The function \Function{toWitness} converts $\omega$ \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)} into evidence of type \Function{Ordered} \Var{xs}, with \Function{fromWitness} its inverse. This operation is packaged into \Function{ωmap} for convenience.
+\Cref{fig:embedding} defines an embedding of normal (\Function[NormalTypes.Syntax][⇑ₜ]{⇑}) and neutral types (\Function[NormalTypes.Syntax][⇑ₙₑ]{⇑ₙₑ}) back to \Datatype{Type} syntax, which can be used as a reference for the mechanized constructor names for \Datatype{Type}s, \Datatype{NeutralType}s, and \Datatype{NormalType}s. The definitions \Function[NormalTypes.Syntax][⇑ₚ]{⇑ₚ} and \Function[NormalTypes.Syntax][⇑ᵣ]{⇑ᵣ} map embedding over the types contained in predicates and row literals; we use a \ALink{NormalTypes.Syntax}{EmbedTC.⇑}{typeclass} so that the symbol \Typeclass{⇑} hereafter applies to rows, predicates, and neutral types alike.
+
+We must also prove, via \Function[NormalTypes.Syntax][⇑ₒ]{⇑ₒ}, that embedding preserves ordering. Some bookkeeping is necessary, as the evidence of the row's well-ordering (\Var{ω} \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}) is squashed. However, since the \Function{Ordered} predicate is decidable (via \Function{ordered?}), we can reproduce evidence, and vice versa: The function \Function{\Name[Relation]{Nullary.Decidable.Core}{toWitness}} converts $\omega$ \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)} into evidence of type \Function{Ordered} \Var{xs}, with \Function{\Name[Relation]{Nullary.Decidable.Core}{fromWitness}} its inverse. This bookkeeping is packaged into the helper \Function[Types.Syntax]{ωmap} for convenience, which produces (squashed) evidence that \Var{ys} is well-ordered provided (i) (squashed) evidence that \Var{xs} is well-ordered, and (ii) a map of type \Function{Ordered} \Var{xs} \Symbol{→} \Function{Ordered} \Var{ys}. % \Function{True} (\Function{ordered?} \Var{ys}) provided a map of type (\Function{Ordered} \Var{xs} \Symbol{→} \Function{Ordered} \Var{ys}) and a witness of type \Function{True} (\Function{ordered?} \Var{xs}).
 
 \begin{figure}
 \begin{AgdaAlign}
@@ -980,9 +972,7 @@ We must also prove, via $\Embed_{\omega}$, that embedding preserves ordering. So
 \>[0][@{}l@{\AgdaIndent{0}}]%
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.Types.Syntax}\AgdaSpace{}%
-\AgdaKeyword{hiding}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{ωmap}\AgdaSymbol{)}\<%
+\AgdaModule{Rome.Types.Syntax}\<%
 \\
 %
 \>[2]\AgdaKeyword{import}\AgdaSpace{}%
@@ -1214,38 +1204,6 @@ We must also prove, via $\Embed_{\omega}$, that embedding preserves ordering. So
 \AgdaSymbol{(}\AgdaFunction{ωmap}\AgdaSpace{}%
 \AgdaFunction{⇑ₒ}\AgdaSpace{}%
 \AgdaBound{ω}\AgdaSymbol{)}\<%
-\\
-\>[2][@{}l@{\AgdaIndent{0}}]%
-\>[4]\AgdaKeyword{where}\<%
-\\
-\>[4][@{}l@{\AgdaIndent{0}}]%
-\>[6]\AgdaFunction{ωmap}\AgdaSpace{}%
-\AgdaSymbol{:}%
-\>[462I]\AgdaSymbol{(}\AgdaFunction{Ordered}\AgdaSpace{}%
-\AgdaBound{xs}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{Ordered}\AgdaSpace{}%
-\AgdaGeneralizable{ys}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\<%
-\\
-\>[.][@{}l@{}]\<[462I]%
-\>[13]\AgdaFunction{True}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{ordered?}\AgdaSpace{}%
-\AgdaBound{xs}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{True}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{ordered?}\AgdaSpace{}%
-\AgdaGeneralizable{ys}\AgdaSymbol{)}\<%
-\\
-%
-\>[6]\AgdaFunction{ωmap}\AgdaSpace{}%
-\AgdaBound{f}\AgdaSpace{}%
-\AgdaBound{d}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaFunction{fromWitness}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{f}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{toWitness}\AgdaSpace{}%
-\AgdaBound{d}\AgdaSymbol{))}\<%
 \end{code}
 \begin{code}[hide]%
 %
@@ -1272,7 +1230,7 @@ Reaping the benefits of intrinsic syntax while dodging the downfalls is largely 
 
 \subsection{Renamings}
 
-A \Type{Renaming} is a function mapping type variables in environment $\Delta_1$ to environment $\Delta_2$. The function \Term{ren} renames an input \DType{Type} $\tau$ according to an input \Type{Renaming}.
+A \Type[Types.Renaming]{Renaming} is a function mapping type variables in environment $\Delta_1$ to environment $\Delta_2$. As our variables are De Bruijn indices and not named, this is "renaming" in spirit. More accurate is to say that the function \Term[Types.Renaming][renₜ]{ren} \emph{reassigns} each free variable (i.e., an index into a kind in environment $\Delta_1$) in the input type $\tau$ to a kind in environment $\Delta_2$.
 
 \begin{AgdaAlign}
 \begin{code}[hide]%
@@ -1355,11 +1313,11 @@ A \Type{Renaming} is a function mapping type variables in environment $\Delta_1$
 \end{code}
 \end{AgdaAlign}
 
-Renaming is defined as one would expect for normal and neutral types, row literals, and predicates; we use a typeclass to permit the name \TC{ren} to operate over each.
+Renaming is defined as one would expect for normal and neutral types, row literals, and predicates; we use a \ALink{Types.Renaming}{RenamingTC.ren}{typeclass} to permit the name \Typeclass{ren} to operate over each.
 
 \subsection{Substitutions} 
 
-A \Type{Substitution} substitutes in parallel by mapping type variables in environment $\Delta_1$ to types in $\Delta_2$. The function $\Infix{\Sub{\Dash}{\Dash}}$ substitutes all type variables in input \DType{Type} $\tau$ according to an input \Type{Substitution}.
+A \Type[Types.Substitution]{Substitution} substitutes in parallel by mapping type variables in environment $\Delta_1$ to types well-kinded by $\Delta_2$. The function \Function[Types.Substitution][subₜ]{\Underscore[\Underscore]ₛ} substitutes all free variables in input type $\tau$ according to an input substitution.
 
 \begin{AgdaAlign}
 \begin{code}[hide]%
@@ -1447,10 +1405,10 @@ A \Type{Substitution} substitutes in parallel by mapping type variables in envir
 \end{code}
 \end{AgdaAlign}
 
-\Ni Like with renaming, we introduce a typeclass so that the syntax \Field{\Underscore{}[\Underscore{}]ₛ} operates over types, neutral and normal types, rows, and predicates.
+\Ni Like with renaming, we introduce a typeclass so that the syntax \Typeclass[Types.Substitution][\Underscore[\Underscore]ₛ]{\Underscore{}[\Underscore{}]ₛ} operates over types, neutral and normal types, rows, and predicates.
 
 \AH{Rephrase this as per comment from reviewer.}
-While each \Type{Substitution} is a total function, not all variables are changed. In particular, the \DType{Type} constructor \Constructor{`} constructs a \DType{Type} from a \DType{TVar}, fixing each type variable. This constructor forms the \emph{identity substitution} over types.
+While each \Type{Substitution} is a total function, not all variables are changed. In particular, the \Datatype{Type} constructor \Constructor[Types.Syntax][Type.`]{`} constructs a \Datatype{Type} from a \Datatype[Kinds.Syntax]{TVar}, fixing each type variable. This constructor forms the \emph{identity substitution} over types (\Function[Types.Properties.Substitution]{sub-id}).
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -1509,13 +1467,40 @@ While each \Type{Substitution} is a total function, not all variables are change
 \label{sec:NbE}
 \ifNbE
 
+% #TODO[Move this to ./figures]
+\begin{figure}
+\begin{tikzpicture}[
+  nbedomain/.style={draw, rounded corners=6pt, minimum height=2.2em, inner xsep=8pt, align=center},
+  sem/.style={nbedomain, fill=blue!6, draw=blue!45!black},
+  fn/.style={->, >=stealth, thick},
+  comp/.style={->, >=stealth, thick, double}
+]
+  \node[sem]       (sem) at (3.2, 2.4) {\Datatype[NBE.Syntax]{SemType}};
+  \node[nbedomain] (ty)  at (0, 0)   {\Datatype[Types.Syntax]{Type}};
+  \node[nbedomain] (ne)  at (3.2, 0) {\Datatype[NormalTypes.Syntax]{NeutralType}};
+  \node[nbedomain] (no)  at (6.6, 0) {\Datatype[NormalTypes.Syntax]{NormalType}};
+
+  \draw[fn] (ty)  -- node[above left]        {\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}}    (sem);
+  \draw[fn] (ne)  -- node[right, pos=0.45]  {\Function[NBE.Normalization]{reflect}} (sem);
+  \draw[fn] (sem) -- node[above right]       {\Function[NBE.Normalization]{reify}}   (no);
+
+  \draw[comp, dashed] (ne) to[bend left=18]
+    node[above] {\Function[NBE.Normalization]{reify} $\circ$ \Function[NBE.Normalization]{reflect}} (no);
+
+  \draw[comp] (ty) to[bend right=22]
+    node[below] {\Function[NBE.Normalization][⇓ₜ]{⇓} $=$ \Function[NBE.Normalization]{reify} $\circ$ \Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}} (no);
+\end{tikzpicture}
+\caption{Normalization by Evaluation: reflection, reification, and evaluation}
+\label{fig:nbe}
+\end{figure}
+
 % #LINK[to reflection, reification, evaluation, and normalization? Maybe not. They come soon.]
 % #TODO[] Or, Maybe change this text to:
-% We declare (i) the syntax of \DType{Type}s, (ii) the syntax of \DType{NormalType}s and \DType{NeutralType}s, and (iii) an embedded domain of semantic types. From there we produce (i) a reflection from neutral to semantic types, (ii) a reification from semantic types to normal types, and (iii) an evaluation from types to semantic types. It follows...
+% We declare (i) the syntax of \Datatype{Type}s, (ii) the syntax of \Datatype{NormalType}s and \Datatype{NeutralType}s, and (iii) an embedded domain of semantic types. From there we produce (i) a reflection from neutral to semantic types, (ii) a reification from semantic types to normal types, and (iii) an evaluation from types to semantic types. It follows...
 % #TODO[Visual] Maybe borrow from "Type Theory in Type Theory" and make a little graph diagram?
-Normalization by evaluation consists of three key domains and three functions over these domains. We declare (i) \DType{Type}, the syntax of types; (ii) \DType{NormalType} and \DType{NeutralType}, the syntax of normal and neutral types; and (iii) \DType{SemType}, an embedded domain of semantic types. From there we (i) \Function{\Name{NormalTypes.NBE.Normalization}{reflect}} neutral types to semantic types; (ii) \Function{\Name{NormalTypes.NBE.Normalization}{reify}} from semantic types to normal types; and (iii) evaluate (\Function{\AName{NormalTypes.NBE.Normalization}{⟦\Underscore⟧ₜ}{⟦\Underscore⟧}}) types into semantic types. It follows that normalization (\Function{\AName{NormalTypes.NBE.Normalization}{⇓ₜ}{⇓}}) of a type $\tau$ is the composition of reification after evaluation of $\tau$.
+Normalization by evaluation \SourceP{NBE.Normalization} consists of three key domains and three functions over these domains. We declare (i) \Datatype{Type}, the syntax of types; (ii) \Datatype{NormalType} and \Datatype{NeutralType}, the syntax of normal and neutral types; and (iii) \Datatype{SemType}, an embedded domain of semantic types. From there we (i) \Function[NBE.Normalization]{reflect} neutral types to semantic types; (ii) \Function[NBE.Normalization]{reify} from semantic types to normal types; and (iii) evaluate (\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}) types into semantic types. It follows that normalization (\Function[NBE.Normalization][⇓ₜ]{⇓}) of a type $\tau$ is the composition of reification after evaluation of $\tau$.\cref{fig:nbe}
 
-\subsection{Residualizing Semantics \SourceP{NormalTypes.NBE.Syntax}}
+\subsection{Residualizing Semantics}
 \label{sec:residual-semantics}
 
 We define our semantic domain in Agda recursively over the syntax of kinds. Our semantics is \emph{residualizing}~\citep{Lindley05} because we distinguish \emph{values} in the semantic domain (functions and rows) from \emph{residual values} (unbound variables, applications with a variable in head position, and normal forms) at ground kind. Hence semantic types are residual values at type and label kind.
@@ -1656,12 +1641,12 @@ We define our semantic domain in Agda recursively over the syntax of kinds. Our 
 \>[6]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}%
-\>[678I]\AgdaFunction{Renaming}\AgdaSpace{}%
+\>[656I]\AgdaFunction{Renaming}\AgdaSpace{}%
 \AgdaBound{Δ₁}\AgdaSpace{}%
 \AgdaBound{Δ₂}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[678I][@{}l@{\AgdaIndent{0}}]%
+\>[656I][@{}l@{\AgdaIndent{0}}]%
 \>[16]\AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaBound{Δ₂}\AgdaSpace{}%
 \AgdaBound{κ₁}\AgdaSpace{}%
@@ -1691,7 +1676,7 @@ We define our semantic domain in Agda recursively over the syntax of kinds. Our 
 \AgdaFunction{⊥}\<%
 \end{code}
 
-Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are canonically $\lambda$-bound, and hence our definition of \DType{SemType} needn't account for the evaluation of arrow-kinded variables. Contrast our definition with that of \citet{ChapmanKNW19}, for which the evaluation of e.g. variable \Var{v} $:$ $\TypeK \to \TypeK$ is \Function{left} \Symbol{(}\Constructor{`} \Var{v}\Symbol{)}: 
+Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are canonically $\lambda$-bound, and hence our definition of \Datatype{SemType} needn't account for the evaluation of arrow-kinded variables. Contrast our definition with that of \citet{ChapmanKNW19}, for which the evaluation of e.g. variable \Var{v} $:$ $\TypeK \to \TypeK$ is \Function{left} \Symbol{(}\Constructor{`} \Var{v}\Symbol{)}: 
 
 \begin{code}%
 %
@@ -1799,13 +1784,13 @@ Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are ca
 \AgdaInductiveConstructor{suc}\AgdaSpace{}%
 \AgdaBound{n}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}%
-\>[764I]\AgdaSymbol{λ}\AgdaSpace{}%
+\>[742I]\AgdaSymbol{λ}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaSpace{}%
 \AgdaInductiveConstructor{fzero}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{a}\<%
 \\
-\>[764I][@{}l@{\AgdaIndent{0}}]%
+\>[742I][@{}l@{\AgdaIndent{0}}]%
 \>[26]\AgdaSymbol{;}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{fsuc}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
@@ -1840,7 +1825,7 @@ Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are ca
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\AgdaSpace{}%
+\AgdaModule{Rome.NBE}\AgdaSpace{}%
 \AgdaKeyword{hiding}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaSymbol{;}\AgdaSpace{}%
@@ -1867,13 +1852,13 @@ Not all row-kinded semantic types are row literals. We must account for \emph{in
 \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}\$\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[799I]\AgdaFunction{KripkeFunction}\AgdaSpace{}%
+\>[777I]\AgdaFunction{KripkeFunction}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaGeneralizable{κ₁}\AgdaSpace{}%
 \AgdaGeneralizable{κ₂}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[799I][@{}l@{\AgdaIndent{0}}]%
+\>[777I][@{}l@{\AgdaIndent{0}}]%
 \>[12]\AgdaDatatype{NeutralType}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{R[}}\AgdaSpace{}%
@@ -1887,7 +1872,7 @@ Not all row-kinded semantic types are row literals. We must account for \emph{in
 \AgdaOperator{\AgdaInductiveConstructor{]}}\<%
 \end{code}
 
-The Kripke function argument has both a negative occurence and a non-strictly positive occurence of \DType{SemType}, and so Agda rejects this definition (correctly) as ill-founded. We recover a well-founded definition following a subtle encoding trick found in \citet{AllaisBM13}. For the negative occurrence, it is sufficient to instead quantify over \emph{neutral type} arguments; for the non-strictly positive occurrence, we parameterize \Type{SemRow} by a functor $\mathcal T$ \Symbol{:} \DType{KEnv} $\to$ \Prim{Set}, which serves as a placeholder for \DType{SemType} $(\text{--})$ $\kappa$. 
+The Kripke function argument has both a negative occurence and a non-strictly positive occurence of \Datatype{SemType}, and so Agda rejects this definition (correctly) as ill-founded. We recover a well-founded definition following a subtle encoding trick found in \citet{AllaisBM13}. For the negative occurrence, it is sufficient to instead quantify over \emph{neutral type} arguments; for the non-strictly positive occurrence, we parameterize \Type{SemRow} by a functor $\mathcal T$ \Symbol{:} \Datatype{KEnv} $\to$ \Prim{Set}, which serves as a placeholder for \Datatype{SemType} $(\text{--})$ $\kappa$. 
 
 \begin{figure}
 \begin{code}[hide]%
@@ -1913,11 +1898,13 @@ The Kripke function argument has both a negative occurence and a non-strictly po
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE.Syntax}\AgdaSpace{}%
+\AgdaModule{Rome.NBE.Syntax}\AgdaSpace{}%
 \AgdaKeyword{hiding}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaDatatype{SemRow}\AgdaSpace{}%
 \AgdaSymbol{;}\AgdaSpace{}%
-\AgdaFunction{SemType}\AgdaSymbol{)}\<%
+\AgdaFunction{SemType}\AgdaSpace{}%
+\AgdaSymbol{;}\AgdaSpace{}%
+\AgdaFunction{NotRowLiteral}\AgdaSymbol{)}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
@@ -1940,7 +1927,7 @@ The Kripke function argument has both a negative occurence and a non-strictly po
 %
 \>[2]\AgdaFunction{NotRowLiteral}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[842I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[822I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Δ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{𝒯}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -1949,7 +1936,7 @@ The Kripke function argument has both a negative occurence and a non-strictly po
 \AgdaPrimitive{Set}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[842I]%
+\>[.][@{}l@{}]\<[822I]%
 \>[18]\AgdaDatatype{SemRow}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaBound{𝒯}\AgdaSpace{}%
@@ -1970,7 +1957,7 @@ The Kripke function argument has both a negative occurence and a non-strictly po
 \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}\$\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[862I]\AgdaSymbol{(∀}%
+\>[842I]\AgdaSymbol{(∀}%
 \>[14]\AgdaSymbol{\{}\AgdaBound{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaFunction{Renaming}\AgdaSpace{}%
@@ -1987,7 +1974,7 @@ The Kripke function argument has both a negative occurence and a non-strictly po
 \AgdaBound{Δ₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[862I][@{}l@{\AgdaIndent{0}}]%
+\>[842I][@{}l@{\AgdaIndent{0}}]%
 \>[12]\AgdaDatatype{NeutralType}\AgdaSpace{}%
 \AgdaBound{Δ₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{R[}}\AgdaSpace{}%
@@ -2007,14 +1994,14 @@ The Kripke function argument has both a negative occurence and a non-strictly po
 \>[4]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}▹\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[886I]\AgdaSymbol{\{}\AgdaBound{κ}\AgdaSymbol{\}}\AgdaSpace{}%
+\>[866I]\AgdaSymbol{\{}\AgdaBound{κ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaDatatype{NeutralType}\AgdaSpace{}%
 \AgdaBound{Δ₁}\AgdaSpace{}%
 \AgdaInductiveConstructor{L}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[886I]%
+\>[.][@{}l@{}]\<[866I]%
 \>[12]\AgdaBound{𝒯}\AgdaSpace{}%
 \AgdaBound{Δ₁}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -2028,7 +2015,7 @@ The Kripke function argument has both a negative occurence and a non-strictly po
 %
 \>[4]\AgdaInductiveConstructor{row}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[901I]\AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
+\>[881I]\AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Row}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{𝒯}\AgdaSpace{}%
@@ -2038,7 +2025,7 @@ The Kripke function argument has both a negative occurence and a non-strictly po
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[901I]%
+\>[.][@{}l@{}]\<[881I]%
 \>[10]\AgdaDatatype{SemRow}\AgdaSpace{}%
 \AgdaBound{Δ₁}\AgdaSpace{}%
 \AgdaBound{𝒯}\AgdaSpace{}%
@@ -2049,7 +2036,7 @@ The Kripke function argument has both a negative occurence and a non-strictly po
 %
 \>[4]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}∖\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[916I]\AgdaSymbol{(}\AgdaBound{ρ₂}\AgdaSpace{}%
+\>[896I]\AgdaSymbol{(}\AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaBound{ρ₁}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{SemRow}\AgdaSpace{}%
@@ -2060,7 +2047,7 @@ The Kripke function argument has both a negative occurence and a non-strictly po
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[916I]%
+\>[.][@{}l@{}]\<[896I]%
 \>[10]\AgdaSymbol{\{}\AgdaBound{nr}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{NotRowLiteral}\AgdaSpace{}%
@@ -2115,7 +2102,7 @@ The Kripke function argument has both a negative occurence and a non-strictly po
 \label{fig:SemRow}
 \end{figure}
 
-The constructors in \cref{fig:SemRow} specify inert maps, singleton rows with neutral label, row literals, and inert row complements. As in the syntax, we require predicates that row literals are well-ordered and row complements have at most one row literal. Finally, we adjust the definition of \DType{SemType} $\Delta$ \Constructor{R[} $\kappa$ \Constructor{]} accordingly so that $\mathcal T =$ \DType{SemType} $(\text{--})$ $\kappa$.
+The constructors in \cref{fig:SemRow} specify inert maps, singleton rows with neutral label, row literals, and inert row complements. As in the syntax, we require predicates that row literals are well-ordered and row complements have at most one row literal. Finally, we adjust the definition of \Datatype{SemType} $\Delta$ \Constructor{R[} $\kappa$ \Constructor{]} accordingly so that $\mathcal T =$ \Datatype{SemType} $(\text{--})$ $\kappa$.
 \begin{code}[hide]%
 %
 \>[2]\AgdaFunction{SemType}\AgdaSpace{}%
@@ -2170,7 +2157,7 @@ The constructors in \cref{fig:SemRow} specify inert maps, singleton rows with ne
 %
 \>[2]\AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaBound{Δ₁}%
-\>[992I]\AgdaSymbol{(}\AgdaBound{κ₁}\AgdaSpace{}%
+\>[972I]\AgdaSymbol{(}\AgdaBound{κ₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{`→}}\AgdaSpace{}%
 \AgdaBound{κ₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -2182,7 +2169,7 @@ The constructors in \cref{fig:SemRow} specify inert maps, singleton rows with ne
 \AgdaBound{Δ₂}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[992I][@{}l@{\AgdaIndent{0}}]%
+\>[972I][@{}l@{\AgdaIndent{0}}]%
 \>[14]\AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaBound{Δ₂}\AgdaSpace{}%
 \AgdaBound{κ₁}\AgdaSpace{}%
@@ -2222,11 +2209,11 @@ The constructors in \cref{fig:SemRow} specify inert maps, singleton rows with ne
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE.Syntax}\AgdaSpace{}%
+\AgdaModule{Rome.NBE.Syntax}\AgdaSpace{}%
 \AgdaSymbol{;}\AgdaSpace{}%
 \AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE.Renaming}\<%
+\AgdaModule{Rome.NBE.Renaming}\<%
 \end{code}
 \begin{figure}
 \begin{code}%
@@ -2331,7 +2318,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{ρ₁}%
-\>[1092I]\AgdaBound{ρ₂}\AgdaSpace{}%
+\>[1072I]\AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{SemRow}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
@@ -2346,13 +2333,13 @@ Reflection asserts that neutral forms have semantic representations. We define r
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[1092I][@{}l@{\AgdaIndent{0}}]%
+\>[1072I][@{}l@{\AgdaIndent{0}}]%
 \>[21]\AgdaSymbol{(}\AgdaBound{nr}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
-\AgdaFunction{notRowLiteral}\AgdaSpace{}%
+\AgdaFunction{NotRowLiteral}\AgdaSpace{}%
 \AgdaBound{ρ₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{or}}\AgdaSpace{}%
-\AgdaFunction{notRowLiteral}\AgdaSpace{}%
+\AgdaFunction{NotRowLiteral}\AgdaSpace{}%
 \AgdaBound{ρ₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaFunction{notRowLiteralNF}\AgdaSpace{}%
@@ -2368,7 +2355,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{ρ₁}%
-\>[1123I]\AgdaBound{ρ₂}\AgdaSpace{}%
+\>[1103I]\AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{SemRow}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
@@ -2383,13 +2370,13 @@ Reflection asserts that neutral forms have semantic representations. We define r
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[1123I][@{}l@{\AgdaIndent{0}}]%
+\>[1103I][@{}l@{\AgdaIndent{0}}]%
 \>[21]\AgdaSymbol{(}\AgdaBound{nr}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
-\AgdaFunction{notRowLiteral}\AgdaSpace{}%
+\AgdaFunction{NotRowLiteral}\AgdaSpace{}%
 \AgdaBound{ρ₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{or}}\AgdaSpace{}%
-\AgdaFunction{notRowLiteral}\AgdaSpace{}%
+\AgdaFunction{NotRowLiteral}\AgdaSpace{}%
 \AgdaBound{ρ₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaFunction{notRowLiteralNF}\AgdaSpace{}%
@@ -2403,13 +2390,13 @@ Reflection asserts that neutral forms have semantic representations. We define r
 %
 \>[2]\AgdaFunction{reifyRow}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[1151I]\AgdaFunction{Row}\AgdaSpace{}%
+\>[1131I]\AgdaFunction{Row}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
 \AgdaGeneralizable{κ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[1151I]%
+\>[.][@{}l@{}]\<[1131I]%
 \>[13]\AgdaFunction{RowLiteral}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaDatatype{NormalType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
@@ -2418,7 +2405,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
 %
 \>[2]\AgdaFunction{reifyRow⃗}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[1160I]\AgdaSymbol{(}\AgdaBound{n}\AgdaSpace{}%
+\>[1140I]\AgdaSymbol{(}\AgdaBound{n}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{ℕ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -2432,7 +2419,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
 \AgdaGeneralizable{κ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[1160I]%
+\>[.][@{}l@{}]\<[1140I]%
 \>[14]\AgdaFunction{RowLiteral}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaDatatype{NormalType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
@@ -2442,7 +2429,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
 %
 \>[2]\AgdaFunction{reifyRowOrdered⃗}%
 \>[20]\AgdaSymbol{:}%
-\>[1176I]\AgdaSymbol{(}\AgdaBound{n}\AgdaSpace{}%
+\>[1156I]\AgdaSymbol{(}\AgdaBound{n}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{ℕ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -2458,7 +2445,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
 \AgdaGeneralizable{κ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[1176I]%
+\>[.][@{}l@{}]\<[1156I]%
 \>[22]\AgdaFunction{OrderedRow}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{n}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
@@ -2912,7 +2899,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
 
 Reification asserts that semantic values have syntactic representations. The definition of reification is a little more involved (\cref{fig:reification}). The first two equations are expected ($\tau$ is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion. Here we see why we choose to interpret functions with a Kripke flavor, as the weakening renaming \Constructor{S} is crucial to permitting $\phi$ to operate over the just-introduced type variable \Constructor{` Z}. The remaining equations describe the reification of the four row cases. In the $\Mapp \phi \tau$ case, we must reify the neutral Kripke function $\phi$ analogously to the reification of type operators. We reify row literals effectively by mapping reification over the contents of each semantic row, reconstructing a list as we go along. A straightforward definition of \Function{reifyRow} might attempt to induct over the \Type{Row} argument's length (its first component), which Agda's termination checker rejects. This is because the recursive call in the successor case will be over $(n , P \circ \text{fsuc})$, where the second component is not structurally smaller. We bypass this restriction by instead recursing over the curried form \Function{reifyRow}$^{\to}$. In both the row literal and row complement case, some bookkeeping is necessary to ensure that (respectively) reification respects row orderedness and reification does not produce row literals from inert rows.
 
-Finally, The \DType{NormalType} constructor \Constructor{ne} stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence the composition of reflection and reification effectively $\eta$-expands neutral types.
+Finally, The \Datatype{NormalType} constructor \Constructor{ne} stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence the composition of reflection and reification effectively $\eta$-expands neutral types.
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -2936,7 +2923,7 @@ Finally, The \DType{NormalType} constructor \Constructor{ne} stipulates that we 
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\AgdaSpace{}%
+\AgdaModule{Rome.NBE}\AgdaSpace{}%
 \AgdaKeyword{hiding}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{η-norm}\AgdaSymbol{)}\<%
 \end{code}
@@ -3003,7 +2990,7 @@ Finally, The \DType{NormalType} constructor \Constructor{ne} stipulates that we 
 \label{sec:evaluation}
 \ifevaluation
 
-Our next task is to \emph{evaluate} terms of type \DType{Type} $\Delta$ $\kappa$ into the semantic domain at type \Type{SemType} $\Delta$ $\kappa$. This component of the normalization algorithm implements row computation. We proceed by defining semantic helpers that reduce \DType{SemType} arguments.
+Our next task is to \emph{evaluate} terms of type \Datatype{Type} $\Delta$ $\kappa$ into the semantic domain at type \Type{SemType} $\Delta$ $\kappa$. This component of the normalization algorithm implements row computation. We proceed by defining semantic helpers that reduce \Datatype{SemType} arguments.
 
 \begin{code}[hide]%
 \>[0]\AgdaKeyword{module}\AgdaSpace{}%
@@ -3022,14 +3009,14 @@ Our next task is to \emph{evaluate} terms of type \DType{Type} $\Delta$ $\kappa$
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE.Syntax}\AgdaSpace{}%
+\AgdaModule{Rome.NBE.Syntax}\AgdaSpace{}%
 \AgdaKeyword{hiding}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{ε}\AgdaSymbol{)}\<%
 \\
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE.Normalization}\AgdaSpace{}%
+\AgdaModule{Rome.NBE.Normalization}\AgdaSpace{}%
 \AgdaKeyword{using}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{reflect}\AgdaSpace{}%
 \AgdaSymbol{;}\AgdaSpace{}%
@@ -3044,7 +3031,7 @@ Our next task is to \emph{evaluate} terms of type \DType{Type} $\Delta$ $\kappa$
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE.Renaming}\<%
+\AgdaModule{Rome.NBE.Renaming}\<%
 \\
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
@@ -3070,7 +3057,7 @@ We define semantic application straightforwardly as Agda application under the i
 \begin{code}%
 %
 \>[2]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⟨·⟩\AgdaUnderscore{}}}%
-\>[1599I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[1579I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaGeneralizable{κ₁}\AgdaSpace{}%
@@ -3082,7 +3069,7 @@ We define semantic application straightforwardly as Agda application under the i
 \AgdaGeneralizable{κ₁}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[1599I][@{}l@{\AgdaIndent{0}}]%
+\>[1579I][@{}l@{\AgdaIndent{0}}]%
 \>[9]\AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
 \AgdaGeneralizable{κ₂}\<%
@@ -3101,14 +3088,14 @@ We define semantic application straightforwardly as Agda application under the i
 \Ni Semantic application implements $\beta$-reduction. 
 
 \paragraph{Semantic mapping}
-We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row may take. The functions \Function{orderedMap₂} and \Function{notRowLiteral\$} are bookkeeping that assert our orderedness and row literal predicates are preserved by semantic mapping.
+We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row may take. The functions \Function{orderedMap₂} and \Function{NotRowLiteral\$} are bookkeeping that assert our orderedness and row literal predicates are preserved by semantic mapping.
 
 \begin{AgdaAlign}
 \begin{code}%
 %
 \>[2]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⟨\$⟩\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[1619I]\AgdaFunction{SemType}\AgdaSpace{}%
+\>[1599I]\AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaGeneralizable{κ₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{`→}}\AgdaSpace{}%
@@ -3121,7 +3108,7 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[1619I][@{}l@{\AgdaIndent{0}}]%
+\>[1599I][@{}l@{\AgdaIndent{0}}]%
 \>[11]\AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{R[}}\AgdaSpace{}%
@@ -3130,7 +3117,7 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \end{code}
 \begin{code}[hide]%
 %
-\>[2]\AgdaFunction{notRowLiteral\$}\AgdaSpace{}%
+\>[2]\AgdaFunction{NotRowLiteral\$}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Δ}\AgdaSpace{}%
@@ -3166,18 +3153,18 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \AgdaSymbol{→}\<%
 \\
 \>[2][@{}l@{\AgdaIndent{0}}]%
-\>[16]\AgdaFunction{notRowLiteral}\AgdaSpace{}%
+\>[16]\AgdaFunction{NotRowLiteral}\AgdaSpace{}%
 \AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{or}}\AgdaSpace{}%
-\AgdaFunction{notRowLiteral}\AgdaSpace{}%
+\AgdaFunction{NotRowLiteral}\AgdaSpace{}%
 \AgdaBound{ρ₁}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
-\AgdaFunction{notRowLiteral}\AgdaSpace{}%
+\AgdaFunction{NotRowLiteral}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{F}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟨\$⟩}}\AgdaSpace{}%
 \AgdaBound{ρ₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{or}}\AgdaSpace{}%
-\AgdaFunction{notRowLiteral}\AgdaSpace{}%
+\AgdaFunction{NotRowLiteral}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{F}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟨\$⟩}}\AgdaSpace{}%
 \AgdaBound{ρ₁}\AgdaSymbol{)}\<%
@@ -3204,7 +3191,7 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \\
 %
 \>[2]\AgdaBound{F}%
-\>[1698I]\AgdaOperator{\AgdaFunction{⟨\$⟩}}\AgdaSpace{}%
+\>[1678I]\AgdaOperator{\AgdaFunction{⟨\$⟩}}\AgdaSpace{}%
 \AgdaInductiveConstructor{row}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{n}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
@@ -3220,7 +3207,7 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \AgdaOperator{\AgdaFunction{∘}}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
 \\
-\>[.][@{}l@{}]\<[1698I]%
+\>[.][@{}l@{}]\<[1678I]%
 \>[4]\AgdaSymbol{(}\AgdaFunction{orderedMap₂}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{F}\AgdaSpace{}%
 \AgdaFunction{id}\AgdaSymbol{)}\AgdaSpace{}%
@@ -3228,7 +3215,7 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \\
 %
 \>[2]\AgdaBound{F}%
-\>[1716I]\AgdaOperator{\AgdaFunction{⟨\$⟩}}\AgdaSpace{}%
+\>[1696I]\AgdaOperator{\AgdaFunction{⟨\$⟩}}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∖}}\AgdaSpace{}%
 \AgdaBound{ρ₁}\AgdaSymbol{)}\AgdaSpace{}%
@@ -3242,8 +3229,8 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \AgdaOperator{\AgdaFunction{⟨\$⟩}}\AgdaSpace{}%
 \AgdaBound{ρ₁}\AgdaSymbol{))}\<%
 \\
-\>[.][@{}l@{}]\<[1716I]%
-\>[4]\AgdaSymbol{\{}\AgdaFunction{notRowLiteral\$}\AgdaSpace{}%
+\>[.][@{}l@{}]\<[1696I]%
+\>[4]\AgdaSymbol{\{}\AgdaFunction{NotRowLiteral\$}\AgdaSpace{}%
 \AgdaBound{nr}\AgdaSymbol{\}}\<%
 \\
 %
@@ -3267,7 +3254,7 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \end{code}
 \begin{code}[hide]%
 %
-\>[2]\AgdaFunction{notRowLiteral\$}\AgdaSpace{}%
+\>[2]\AgdaFunction{NotRowLiteral\$}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{F}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{F}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -3282,7 +3269,7 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \AgdaInductiveConstructor{tt}\<%
 \\
 %
-\>[2]\AgdaFunction{notRowLiteral\$}\AgdaSpace{}%
+\>[2]\AgdaFunction{NotRowLiteral\$}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{F}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{F}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -3297,7 +3284,7 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \AgdaInductiveConstructor{tt}\<%
 \\
 %
-\>[2]\AgdaFunction{notRowLiteral\$}\AgdaSpace{}%
+\>[2]\AgdaFunction{NotRowLiteral\$}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{F}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{F}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -3314,7 +3301,7 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \>[0]\<%
 \\
 %
-\>[2]\AgdaCatchallClause{\AgdaFunction{notRowLiteral\$}}\AgdaSpace{}%
+\>[2]\AgdaCatchallClause{\AgdaFunction{NotRowLiteral\$}}\AgdaSpace{}%
 \AgdaCatchallClause{\AgdaSymbol{\{}}\AgdaCatchallClause{\AgdaArgument{F}}\AgdaSpace{}%
 \AgdaCatchallClause{\AgdaSymbol{=}}\AgdaSpace{}%
 \AgdaCatchallClause{\AgdaBound{F}}\AgdaCatchallClause{\AgdaSymbol{\}}}\AgdaSpace{}%
@@ -3329,7 +3316,7 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \AgdaInductiveConstructor{tt}\<%
 \\
 %
-\>[2]\AgdaCatchallClause{\AgdaFunction{notRowLiteral\$}}\AgdaSpace{}%
+\>[2]\AgdaCatchallClause{\AgdaFunction{NotRowLiteral\$}}\AgdaSpace{}%
 \AgdaCatchallClause{\AgdaSymbol{\{}}\AgdaCatchallClause{\AgdaArgument{F}}\AgdaSpace{}%
 \AgdaCatchallClause{\AgdaSymbol{=}}\AgdaSpace{}%
 \AgdaCatchallClause{\AgdaBound{F}}\AgdaCatchallClause{\AgdaSymbol{\}}}\AgdaSpace{}%
@@ -3344,7 +3331,7 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \AgdaInductiveConstructor{tt}\<%
 \\
 %
-\>[2]\AgdaCatchallClause{\AgdaFunction{notRowLiteral\$}}\AgdaSpace{}%
+\>[2]\AgdaCatchallClause{\AgdaFunction{NotRowLiteral\$}}\AgdaSpace{}%
 \AgdaCatchallClause{\AgdaSymbol{\{}}\AgdaCatchallClause{\AgdaArgument{F}}\AgdaSpace{}%
 \AgdaCatchallClause{\AgdaSymbol{=}}\AgdaSpace{}%
 \AgdaCatchallClause{\AgdaBound{F}}\AgdaCatchallClause{\AgdaSymbol{\}}}\AgdaSpace{}%
@@ -3442,13 +3429,13 @@ The mapping of $\phi$ over a complement is distributive, following rule \errule{
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaBound{τ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}%
-\>[1870I]\AgdaOperator{\AgdaFunction{if}}\AgdaSpace{}%
+\>[1850I]\AgdaOperator{\AgdaFunction{if}}\AgdaSpace{}%
 \AgdaBound{l}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{In?}}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{then}}\<%
 \\
-\>[.][@{}l@{}]\<[1870I]%
+\>[.][@{}l@{}]\<[1850I]%
 \>[18]\AgdaSymbol{(}\AgdaBound{n}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
@@ -3474,7 +3461,7 @@ The mapping of $\phi$ over a complement is distributive, following rule \errule{
 \begin{code}[hide]%
 %
 \>[2]\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE.Normalization}\AgdaSpace{}%
+\AgdaModule{Rome.NBE.Normalization}\AgdaSpace{}%
 \AgdaSymbol{as}\AgdaSpace{}%
 \AgdaModule{Normalization}\<%
 \\
@@ -3544,7 +3531,7 @@ We define a semantic version of the flap operator as follows. This definition is
 %
 \>[2]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⟨?⟩\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[1939I]\AgdaFunction{SemType}\AgdaSpace{}%
+\>[1919I]\AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{R[}}\AgdaSpace{}%
 \AgdaGeneralizable{κ₁}\AgdaSpace{}%
@@ -3553,7 +3540,7 @@ We define a semantic version of the flap operator as follows. This definition is
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[1939I][@{}l@{\AgdaIndent{0}}]%
+\>[1919I][@{}l@{\AgdaIndent{0}}]%
 \>[11]\AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
 \AgdaGeneralizable{κ₁}\AgdaSpace{}%
@@ -3722,14 +3709,14 @@ The defining equations for the reduction of $\Pi$ is given below. The logic for 
 \AgdaString{"impossible"}\<%
 \end{code}
  
-Recall that we may only construct record types in normal form at kind $\TypeK$, and so for the case that $\kappa = \TypeK$ we simply reify the input and construct the record via the \DType{NormalType} constructor \Constructor{Pi}. We exclude the case that $\kappa = \LabK$ because it is impossible (recall that in the \DType{Type} syntax, we restrict the formation of the $\Pi$ constructor to just non-label kinds.) 
+Recall that we may only construct record types in normal form at kind $\TypeK$, and so for the case that $\kappa = \TypeK$ we simply reify the input and construct the record via the \Datatype{NormalType} constructor \Constructor{Pi}. We exclude the case that $\kappa = \LabK$ because it is impossible (recall that in the \Datatype{Type} syntax, we restrict the formation of the $\Pi$ constructor to just non-label kinds.) 
 
 Next, when applying \Function{⟨Π⟩} to a function, we expand the semantic $\lambda$-binding outwards. Thereafter, we apply rule \errule{assoc$_\Pi$} to explain how \Function{⟨Π⟩} operates on a single operand. We implement rule \errule{$\Pi$} directly in the last equation: the application of \Function{⟨Π⟩} to a row-kinded input $\rho$ is simply the mapping of \Function{⟨Π⟩}  over $\rho$.
 
 These two rules characterize the computational interaction of $\Pi$ and $\Sigma$ with higher-order and nested rows. We implement row computation via our semantic helpers. The fact that the semantic helpers resemble their syntactic equational rules, modulo some plumbing, is a desirable feature of our implementation.
 
 \paragraph{Evaluation}
-A semantic environment maps type variables to semantic types. The identity environment, which fixes the meaning of variables, is given as the composition of reflection and \Constructor{`}. Evaluation (\cref{fig:evaluation}) maps \DType{Type}s to semantic types, given a suitable semantic environment.
+A semantic environment maps type variables to semantic types. The identity environment, which fixes the meaning of variables, is given as the composition of reflection and \Constructor{`}. Evaluation (\cref{fig:evaluation}) maps \Datatype{Type}s to semantic types, given a suitable semantic environment.
 
 
 \begin{code}%
@@ -4006,7 +3993,7 @@ A semantic environment maps type variables to semantic types. The identity envir
 \\
 %
 \>[2]\AgdaOperator{\AgdaFunction{⟦}}%
-\>[2275I]\AgdaOperator{\AgdaInductiveConstructor{⦅}}\AgdaSpace{}%
+\>[2255I]\AgdaOperator{\AgdaInductiveConstructor{⦅}}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⦆}}\AgdaSpace{}%
 \AgdaBound{ω}\AgdaSpace{}%
@@ -4015,7 +4002,7 @@ A semantic environment maps type variables to semantic types. The identity envir
 \>[18]\AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{row}\<%
 \\
-\>[.][@{}l@{}]\<[2275I]%
+\>[.][@{}l@{}]\<[2255I]%
 \>[4]\AgdaSymbol{(}\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧ᵣ}}\AgdaSpace{}%
@@ -4033,14 +4020,14 @@ A semantic environment maps type variables to semantic types. The identity envir
 \\
 \>[4][@{}l@{\AgdaIndent{0}}]%
 \>[6]\AgdaOperator{\AgdaFunction{⟦\AgdaUnderscore{}⟧ᵣ}}%
-\>[2289I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[2269I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{RowLiteral}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaDatatype{Type}\AgdaSpace{}%
 \AgdaGeneralizable{Δ₁}\AgdaSpace{}%
 \AgdaGeneralizable{κ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[2289I][@{}l@{\AgdaIndent{0}}]%
+\>[2269I][@{}l@{\AgdaIndent{0}}]%
 \>[12]\AgdaFunction{SemEnv}\AgdaSpace{}%
 \AgdaGeneralizable{Δ₁}\AgdaSpace{}%
 \AgdaGeneralizable{Δ₂}\AgdaSpace{}%
@@ -4085,7 +4072,7 @@ A semantic environment maps type variables to semantic types. The identity envir
 %
 \>[6]\AgdaOperator{\AgdaFunction{⟦\AgdaUnderscore{}⟧ₒ}}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[2325I]\AgdaSymbol{\{}\AgdaBound{ρ}\AgdaSpace{}%
+\>[2305I]\AgdaSymbol{\{}\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{RowLiteral}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaDatatype{Type}\AgdaSpace{}%
@@ -4093,7 +4080,7 @@ A semantic environment maps type variables to semantic types. The identity envir
 \AgdaGeneralizable{κ}\AgdaSymbol{)\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2325I]%
+\>[.][@{}l@{}]\<[2305I]%
 \>[13]\AgdaFunction{Ordered}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
@@ -4116,7 +4103,7 @@ A semantic environment maps type variables to semantic types. The identity envir
 \begin{code}[hide]%
 %
 \>[6]\AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE.Normalization}\AgdaSpace{}%
+\AgdaModule{Rome.NBE.Normalization}\AgdaSpace{}%
 \AgdaSymbol{as}\AgdaSpace{}%
 \AgdaModule{Normalization}\<%
 \\
@@ -4144,7 +4131,7 @@ A semantic environment maps type variables to semantic types. The identity envir
 \\
 %
 \>[6]\AgdaOperator{\AgdaFunction{⟦\AgdaUnderscore{}⟧ₒ}}%
-\>[2362I]\AgdaSymbol{\{}\AgdaArgument{ρ}\AgdaSpace{}%
+\>[2342I]\AgdaSymbol{\{}\AgdaArgument{ρ}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{l₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
@@ -4161,7 +4148,7 @@ A semantic environment maps type variables to semantic types. The identity envir
 \AgdaBound{η}\AgdaSpace{}%
 \AgdaKeyword{with}\<%
 \\
-\>[2362I][@{}l@{\AgdaIndent{0}}]%
+\>[2342I][@{}l@{\AgdaIndent{0}}]%
 \>[12]\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧ᵣ}}\AgdaSpace{}%
@@ -4306,7 +4293,7 @@ A semantic environment maps type variables to semantic types. The identity envir
 \end{figure}
 
 
-We describe only the interesting cases of evaluation. The first equation states that variables evaluate to their meaning in environment $\eta$. As desired, the equations for application \Constructor{\Underscore{}·\Underscore{}}, row complement \Constructor{\Underscore{}∖\Underscore{}}, record and variant operators \Constructor{Π} and \Constructor{Σ}, and mapping \Constructor{\Underscore{}\$\Underscore{}} defer to the semantic helpers defined in this section. (The operation \Function{⟨∖⟩′} is the semantic complement operator for row literals lifted to \DType{SemRow}s.) Evaluation of labeled singletons must check if the label is a neutral variable $n$ or label literal $\ell$, making sure to only construct row literals with literal labels. The evaluation of row literals $\Infix{\Sem{\Dash}_{\rho}}$ is effectively inverse to \Function{reifyRow} (\cref{fig:reification}). In each case, we employ our smart constructors for semantic row literals. We have an obligation to prove that evaluation preserves the ordering evidence $\omega$, which is performed by the auxiliary lemma $\Infix{\SemO{\Dash}}$ denoting ordered row literal evidence to ordered semantic row evidence.
+We describe only the interesting cases of evaluation. The first equation states that variables evaluate to their meaning in environment $\eta$. As desired, the equations for application \Constructor{\Underscore{}·\Underscore{}}, row complement \Constructor{\Underscore{}∖\Underscore{}}, record and variant operators \Constructor{Π} and \Constructor{Σ}, and mapping \Constructor{\Underscore{}\$\Underscore{}} defer to the semantic helpers defined in this section. (The operation \Function{⟨∖⟩′} is the semantic complement operator for row literals lifted to \Datatype{SemRow}s.) Evaluation of labeled singletons must check if the label is a neutral variable $n$ or label literal $\ell$, making sure to only construct row literals with literal labels. The evaluation of row literals $\Infix{\Sem{\Dash}_{\rho}}$ is effectively inverse to \Function{reifyRow} (\cref{fig:reification}). In each case, we employ our smart constructors for semantic row literals. We have an obligation to prove that evaluation preserves the ordering evidence $\omega$, which is performed by the auxiliary lemma $\Infix{\SemO{\Dash}}$ denoting ordered row literal evidence to ordered semantic row evidence.
 
 \paragraph{Normalization} Finally, normalization in the NbE approach is simply the composition of reification after evaluation.  
 
@@ -4333,7 +4320,7 @@ We describe only the interesting cases of evaluation. The first equation states 
 \AgdaFunction{idEnv}\AgdaSymbol{)}\<%
 \end{code}
 
-\Ni Similar definitions can be given for the evaluation and normaliation of predicates and row literals, which we express via the typeclass methods \Symbol{\TC{⟦\Underscore{}⟧}} and \Symbol{\TC{⇓}}, respectively.
+\Ni Similar definitions can be given for the evaluation and normaliation of predicates and row literals, which we express via the typeclass methods \Symbol{\Typeclass{⟦\Underscore{}⟧}} and \Symbol{\Typeclass{⇓}}, respectively.
 \fi
 
 % -----------------------------------------------------------------------------
@@ -4371,7 +4358,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 %
 \>[2]\AgdaFunction{arrow-canonicity}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[2511I]\AgdaSymbol{(}\AgdaBound{f}\AgdaSpace{}%
+\>[2491I]\AgdaSymbol{(}\AgdaBound{f}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
@@ -4380,7 +4367,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 \AgdaGeneralizable{κ₂}\AgdaSymbol{))}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2511I]%
+\>[.][@{}l@{}]\<[2491I]%
 \>[21]\AgdaFunction{Σ[}\AgdaSpace{}%
 \AgdaBound{τ}\AgdaSpace{}%
 \AgdaFunction{∈}\AgdaSpace{}%
@@ -4412,7 +4399,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 \begin{code}%
 %
 \>[2]\AgdaFunction{row-canonicity-∅}%
-\>[2536I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[2516I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
@@ -4422,7 +4409,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[2536I][@{}l@{\AgdaIndent{0}}]%
+\>[2516I][@{}l@{\AgdaIndent{0}}]%
 \>[20]\AgdaFunction{Σ[}\AgdaSpace{}%
 \AgdaBound{xs}\AgdaSpace{}%
 \AgdaFunction{∈}\AgdaSpace{}%
@@ -4511,7 +4498,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 %
 \>[2]\AgdaFunction{label-canonicity-∅}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[2603I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[2583I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{l}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
@@ -4519,7 +4506,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 \AgdaInductiveConstructor{L}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2603I]%
+\>[.][@{}l@{}]\<[2583I]%
 \>[23]\AgdaFunction{Σ[}\AgdaSpace{}%
 \AgdaBound{ℓ}\AgdaSpace{}%
 \AgdaFunction{∈}\AgdaSpace{}%
@@ -4576,7 +4563,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\<%
+\AgdaModule{Rome.NBE}\<%
 \end{code}
 \emph{Stability} asserts that embedding $\Infix{\Embed}$ is right-inverse to normalization $\Infix{\Norm}$:
 
@@ -4615,7 +4602,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 %
 \>[2]\AgdaFunction{idempotency}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[2661I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[2641I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
@@ -4623,7 +4610,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 \AgdaGeneralizable{κ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2661I]%
+\>[.][@{}l@{}]\<[2641I]%
 \>[16]\AgdaSymbol{((}\AgdaField{⇑}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{∘}}\AgdaSpace{}%
 \AgdaField{⇓}\AgdaSymbol{)}\AgdaSpace{}%
@@ -4655,7 +4642,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 %
 \>[2]\AgdaFunction{surjectivity}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[2688I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[2668I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
@@ -4663,7 +4650,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 \AgdaGeneralizable{κ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2688I]%
+\>[.][@{}l@{}]\<[2668I]%
 \>[17]\AgdaFunction{Σ[}\AgdaSpace{}%
 \AgdaBound{υ}\AgdaSpace{}%
 \AgdaFunction{∈}\AgdaSpace{}%
@@ -4713,7 +4700,7 @@ In any context an arrow-kinded type is canonically $\lambda$-bound:
 \AgdaSymbol{;}\AgdaSpace{}%
 \AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\<%
+\AgdaModule{Rome.NBE}\<%
 \end{code} 
 \begin{code}%
 %
@@ -4788,7 +4775,7 @@ We prove soundness via a logical relation $(\approx)$ on semantic types that spe
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\AgdaSpace{}%
+\AgdaModule{Rome.NBE}\AgdaSpace{}%
 \AgdaKeyword{hiding}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{renKripke}\AgdaSymbol{)}\<%
 \\
@@ -4807,12 +4794,12 @@ We prove soundness via a logical relation $(\approx)$ on semantic types that spe
 %
 \>[2]\AgdaFunction{renKripke}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[2771I]\AgdaFunction{Renaming}\AgdaSpace{}%
+\>[2751I]\AgdaFunction{Renaming}\AgdaSpace{}%
 \AgdaGeneralizable{Δ₁}\AgdaSpace{}%
 \AgdaGeneralizable{Δ₂}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2771I]%
+\>[.][@{}l@{}]\<[2751I]%
 \>[14]\AgdaFunction{KripkeFunction}\AgdaSpace{}%
 \AgdaGeneralizable{Δ₁}\AgdaSpace{}%
 \AgdaGeneralizable{κ₁}\AgdaSpace{}%
@@ -4863,7 +4850,7 @@ We prove soundness via a logical relation $(\approx)$ on semantic types that spe
 \\
 \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaSymbol{∀}%
-\>[2807I]\AgdaSymbol{\{}\AgdaBound{Δ₂}\AgdaSpace{}%
+\>[2787I]\AgdaSymbol{\{}\AgdaBound{Δ₂}\AgdaSpace{}%
 \AgdaBound{Δ₃}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{r₁}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -4871,7 +4858,7 @@ We prove soundness via a logical relation $(\approx)$ on semantic types that spe
 \AgdaBound{Δ₁}\AgdaSpace{}%
 \AgdaBound{Δ₂}\AgdaSymbol{)}\<%
 \\
-\>[.][@{}l@{}]\<[2807I]%
+\>[.][@{}l@{}]\<[2787I]%
 \>[6]\AgdaSymbol{(}\AgdaBound{r₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Renaming}\AgdaSpace{}%
@@ -5008,7 +4995,7 @@ The relation is defined compositionally in the cases where $\kappa = \TypeK$, $\
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\<%
+\AgdaModule{Rome.NBE}\<%
 \\
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
@@ -5176,14 +5163,14 @@ Some plumbing is necessary in the case that we are equating two inert maps $\Map
 \AgdaInductiveConstructor{yes}\AgdaSpace{}%
 \AgdaInductiveConstructor{refl}\AgdaSpace{}%
 \AgdaSymbol{=}%
-\>[3012I]\AgdaFunction{UniformNE}\AgdaSpace{}%
+\>[2992I]\AgdaFunction{UniformNE}\AgdaSpace{}%
 \AgdaBound{φ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{×}}\AgdaSpace{}%
 \AgdaFunction{UniformNE}\AgdaSpace{}%
 \AgdaBound{ψ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{×}}\<%
 \\
-\>[.][@{}l@{}]\<[3012I]%
+\>[.][@{}l@{}]\<[2992I]%
 \>[19]\AgdaFunction{PointEqualNE-≈}\AgdaSpace{}%
 \AgdaBound{φ}\AgdaSpace{}%
 \AgdaBound{ψ}\AgdaSpace{}%
@@ -5202,7 +5189,7 @@ Some plumbing is necessary in the case that we are equating two inert maps $\Map
 \AgdaFunction{⊥}\<%
 \end{code}
 
-\Ni Kind equality is decidable $\Infix{\equiv_k}$, which lets us relate inert maps only when the domains of $\phi$ and $\psi$ (that is, $\kappa_{1}$ and $\kappa_1'$) are equivalent. The predicates \Function{UniformNE} and \Function{PointEqualNE-≈} are entirely analogous to \Function{Uniform} and \Function{PointEqual-≈} except that they describe Kripke functions in which the domain is a \DType{NeutralType} rather than \DType{SemType}. 
+\Ni Kind equality is decidable $\Infix{\equiv_k}$, which lets us relate inert maps only when the domains of $\phi$ and $\psi$ (that is, $\kappa_{1}$ and $\kappa_1'$) are equivalent. The predicates \Function{UniformNE} and \Function{PointEqualNE-≈} are entirely analogous to \Function{Uniform} and \Function{PointEqual-≈} except that they describe Kripke functions in which the domain is a \Datatype{NeutralType} rather than \Datatype{SemType}. 
 
 Finally, we relate row literals of equal length by a pointwise relation of their contents.
 
@@ -5331,7 +5318,7 @@ Towards proving the fundamental lemma, we observe some crucial properties of the
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\AgdaSpace{}%
+\AgdaModule{Rome.NBE}\AgdaSpace{}%
 \AgdaKeyword{renaming}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{idEnv}\AgdaSpace{}%
 \AgdaSymbol{to}\AgdaSpace{}%
@@ -5376,7 +5363,7 @@ Towards proving the fundamental lemma, we observe some crucial properties of the
 %
 \>[2]\AgdaFunction{reflect-≈}%
 \>[13]\AgdaSymbol{:}%
-\>[3140I]\AgdaSymbol{\{}\AgdaBound{ν₁}\AgdaSpace{}%
+\>[3120I]\AgdaSymbol{\{}\AgdaBound{ν₁}\AgdaSpace{}%
 \AgdaBound{ν₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{NeutralType}\AgdaSpace{}%
@@ -5384,7 +5371,7 @@ Towards proving the fundamental lemma, we observe some crucial properties of the
 \AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[3140I]%
+\>[.][@{}l@{}]\<[3120I]%
 \>[15]\AgdaBound{ν₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≡}}\AgdaSpace{}%
 \AgdaBound{ν₂}\AgdaSpace{}%
@@ -5408,7 +5395,7 @@ Towards proving the fundamental lemma, we observe some crucial properties of the
 %
 \>[2]\AgdaFunction{reify-≈}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[3158I]\AgdaSymbol{\{}\AgdaBound{V₁}\AgdaSpace{}%
+\>[3138I]\AgdaSymbol{\{}\AgdaBound{V₁}\AgdaSpace{}%
 \AgdaBound{V₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SemType}\AgdaSpace{}%
@@ -5416,7 +5403,7 @@ Towards proving the fundamental lemma, we observe some crucial properties of the
 \AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[3158I]%
+\>[.][@{}l@{}]\<[3138I]%
 \>[12]\AgdaBound{V₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{≈}}\AgdaSpace{}%
 \AgdaBound{V₂}\AgdaSpace{}%
@@ -5620,8 +5607,8 @@ The fundamental lemma for the soundness relation states that equivalent types ev
 \begin{code}%
 %
 \>[2]\AgdaFunction{fund-≈}%
-\>[3280I]\AgdaSymbol{:}%
-\>[3281I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[3260I]\AgdaSymbol{:}%
+\>[3261I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{η₁}\AgdaSpace{}%
 \AgdaBound{η₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -5629,7 +5616,7 @@ The fundamental lemma for the soundness relation states that equivalent types ev
 \AgdaGeneralizable{Δ₁}\AgdaSpace{}%
 \AgdaGeneralizable{Δ₂}\AgdaSymbol{\}}\<%
 \\
-\>[.][@{}l@{}]\<[3281I]%
+\>[.][@{}l@{}]\<[3261I]%
 \>[11]\AgdaSymbol{\{}\AgdaBound{τ₁}\AgdaSpace{}%
 \AgdaBound{τ₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -5650,7 +5637,7 @@ The fundamental lemma for the soundness relation states that equivalent types ev
 \AgdaBound{τ₂}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[3280I][@{}l@{\AgdaIndent{0}}]%
+\>[3260I][@{}l@{\AgdaIndent{0}}]%
 \>[10]\AgdaOperator{\AgdaField{⟦}}\AgdaSpace{}%
 \AgdaBound{τ₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaField{⟧}}\AgdaSpace{}%
@@ -5675,7 +5662,7 @@ Soundness follows from the fundamental lemma in the identity semantic environmen
 \>[2]\AgdaFunction{soundness}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[3312I]\AgdaSymbol{\{}\AgdaBound{τ₁}\AgdaSpace{}%
+\>[3292I]\AgdaSymbol{\{}\AgdaBound{τ₁}\AgdaSpace{}%
 \AgdaBound{τ₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
@@ -5683,7 +5670,7 @@ Soundness follows from the fundamental lemma in the identity semantic environmen
 \AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[3312I]%
+\>[.][@{}l@{}]\<[3292I]%
 \>[16]\AgdaBound{τ₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≡ₜ}}\AgdaSpace{}%
 \AgdaBound{τ₂}\AgdaSpace{}%
@@ -5732,7 +5719,7 @@ Soundness follows from the fundamental lemma in the identity semantic environmen
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\<%
+\AgdaModule{Rome.NBE}\<%
 \end{code}
 \begin{code}%
 %
@@ -5803,7 +5790,7 @@ We define a logical relation for consistency $\LRC{\Dash}{\Dash}$ by relating ty
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\<%
+\AgdaModule{Rome.NBE}\<%
 \\
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
@@ -5927,7 +5914,7 @@ We define a logical relation for consistency $\LRC{\Dash}{\Dash}$ by relating ty
 \AgdaBound{V}\AgdaSymbol{)}\<%
 \end{code}
 
-That a type $\tau$ is equivalent to an inert map $\Mapp \phi n$ requires the identification of some equivalent type $\Mapp f {\Embed\, n}$ such that $f$ is related to $\phi$. Of course, $\phi$ is not a \DType{SemType} (its domain is a neutral type), and so the definition \Function{SoundKripkeNE} mirrors the logic above for relating functional types modulo a neutral domain argument.
+That a type $\tau$ is equivalent to an inert map $\Mapp \phi n$ requires the identification of some equivalent type $\Mapp f {\Embed\, n}$ such that $f$ is related to $\phi$. Of course, $\phi$ is not a \Datatype{SemType} (its domain is a neutral type), and so the definition \Function{SoundKripkeNE} mirrors the logic above for relating functional types modulo a neutral domain argument.
 
 \begin{code}%
 %
@@ -6099,13 +6086,13 @@ For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with
 \>[4][@{}l@{\AgdaIndent{0}}]%
 \>[6]\AgdaOperator{\AgdaFunction{⟦\AgdaUnderscore{}⟧≈ᵣ\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[3568I]\AgdaFunction{RowLiteral}\AgdaSpace{}%
+\>[3548I]\AgdaFunction{RowLiteral}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaDatatype{Type}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
 \AgdaBound{κ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[3568I]%
+\>[.][@{}l@{}]\<[3548I]%
 \>[15]\AgdaFunction{Row}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
@@ -6125,7 +6112,7 @@ For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with
 \\
 %
 \>[6]\AgdaOperator{\AgdaFunction{⟦}}%
-\>[3585I]\AgdaBound{x}\AgdaSpace{}%
+\>[3565I]\AgdaBound{x}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaBound{xs}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧≈ᵣ}}\AgdaSpace{}%
@@ -6135,7 +6122,7 @@ For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}\<%
 \\
-\>[.][@{}l@{}]\<[3585I]%
+\>[.][@{}l@{}]\<[3565I]%
 \>[8]\AgdaSymbol{(}\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧≈₂}}\AgdaSpace{}%
@@ -6204,7 +6191,7 @@ The consistency relation observes properties analogous to the soundness relation
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\AgdaSpace{}%
+\AgdaModule{Rome.NBE}\AgdaSpace{}%
 \AgdaKeyword{hiding}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{idEnv}\AgdaSymbol{)}\<%
 \\
@@ -6245,7 +6232,7 @@ The consistency relation observes properties analogous to the soundness relation
 \begin{code}%
 %
 \>[2]\AgdaFunction{reflect-⟦⟧≈}%
-\>[3660I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[3640I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
@@ -6258,7 +6245,7 @@ The consistency relation observes properties analogous to the soundness relation
 \AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[3660I][@{}l@{\AgdaIndent{0}}]%
+\>[3640I][@{}l@{\AgdaIndent{0}}]%
 \>[15]\AgdaBound{τ}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≡ₜ}}\AgdaSpace{}%
 \AgdaField{⇑}\AgdaSpace{}%
@@ -6283,7 +6270,7 @@ The consistency relation observes properties analogous to the soundness relation
 %
 \>[2]\AgdaFunction{reify-⟦⟧≈}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[3683I]\AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
+\>[3663I]\AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
@@ -6295,7 +6282,7 @@ The consistency relation observes properties analogous to the soundness relation
 \AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[3683I]%
+\>[.][@{}l@{}]\<[3663I]%
 \>[14]\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
 \AgdaBound{τ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧≈}}\AgdaSpace{}%
@@ -6382,7 +6369,7 @@ We pointwise relate syntactic substitutions with semantic environments.
 \>[2][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\AgdaSpace{}%
+\AgdaModule{Rome.NBE}\AgdaSpace{}%
 \AgdaKeyword{renaming}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{idEnv}\AgdaSpace{}%
 \AgdaSymbol{to}\AgdaSpace{}%
@@ -6420,7 +6407,7 @@ The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is
 \begin{code}%
 %
 \>[2]\AgdaFunction{fund-⟦⟧≈}%
-\>[3760I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[3740I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -6428,7 +6415,7 @@ The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is
 \AgdaGeneralizable{Δ₁}\AgdaSpace{}%
 \AgdaGeneralizable{κ}\AgdaSymbol{)}\<%
 \\
-\>[3760I][@{}l@{\AgdaIndent{0}}]%
+\>[3740I][@{}l@{\AgdaIndent{0}}]%
 \>[12]\AgdaSymbol{\{}\AgdaBound{σ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Substitution}\AgdaSpace{}%
@@ -6569,7 +6556,7 @@ Consistency implies \emph{completeness}, which is dual to soundness. The derivat
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\<%
+\AgdaModule{Rome.NBE}\<%
 \\
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
@@ -6584,7 +6571,7 @@ Consistency implies \emph{completeness}, which is dual to soundness. The derivat
 %
 \>[2]\AgdaFunction{completeness}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[3850I]\AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
+\>[3830I]\AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaBound{υ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
@@ -6592,7 +6579,7 @@ Consistency implies \emph{completeness}, which is dual to soundness. The derivat
 \AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[3850I]%
+\>[.][@{}l@{}]\<[3830I]%
 \>[17]\AgdaField{⇓}\AgdaSpace{}%
 \AgdaBound{τ}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≡}}\AgdaSpace{}%
@@ -6685,7 +6672,7 @@ It is easy enough to implement a syntactic decidability check ($\equiv?$) on the
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Rome.NormalTypes.NBE}\<%
+\AgdaModule{Rome.NBE}\<%
 \\
 %
 \>[2]\AgdaKeyword{open}\AgdaSpace{}%
@@ -6768,7 +6755,7 @@ Existing formalizations of row calculi with type-level computation differ in bot
 
 \paragraph{Elaboration-based approaches}
 
-\Citet{Chlipala10} describes \emph{featherweight Ur}, a language with type-level records and an elaboration into Coq. The development does not provide a normalization procedure for Ur's own definitional equality. Instead, the author conjectures that a terminating and confluent procedure could be given. More recently, \Citet{TooheyCJX26} give an elaboration semantics for $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. In contrast, our normalizer operates directly on higher-order rows and must account explicitly for row computation. Moreover, their proof relies on a logical relation for normalization that lives in \DType{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms.
+\Citet{Chlipala10} describes \emph{featherweight Ur}, a language with type-level records and an elaboration into Coq. The development does not provide a normalization procedure for Ur's own definitional equality. Instead, the author conjectures that a terminating and confluent procedure could be given. More recently, \Citet{TooheyCJX26} give an elaboration semantics for $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. In contrast, our normalizer operates directly on higher-order rows and must account explicitly for row computation. Moreover, their proof relies on a logical relation for normalization that lives in \Datatype{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms.
 
 \subsection{NbE and Intrinsic Mechanization}
 
@@ -6776,7 +6763,7 @@ Existing formalizations of row calculi with type-level computation differ in bot
 Our NbE construction follows the intrinsic syntax and logical-relation techniques of \Citet{ChapmanKNW19}, who in turn build on \Citet{AllaisBM13}. As in those works, the choice of normal and neutral forms determines whether reflection, reification, and renaming are stable under intrinsic indexing. For $\Rome$, this choice must additionally account for neutral labels, inert maps, ordered row literals, and residual complements.
 
 \paragraph{Dependent type theories}
-Normalization by evaluation has also been mechanized in Agda for substantially richer type theories, particularly dependent type theory \citep{Abel13,AbelC14,AbelAHPMSS19}. These developments address challenges that are largely orthogonal to ours, such as explicit substitutions and the transport of context and type indices through dependent syntax. We focus instead on the interaction between higher-order row computation and the semantic invariants required by reification. Pinning down a precise treatment of explicit substitutions is still ongoing research. \Citet{AltenkirchK16B} use quotient inductive-inductive types (via postulating constructors and eliminators), while \Citet{ChenNFT26} investigate this approach in Cubical Agda, where higher inductive types are supported by the ambient theory. In $\Rome$, the term--type--kind stratification allows us to retain ordinary inductive syntax and propositional equality throughout the development. This keeps normalization executable and avoids features forbade by the trusted !--safe! flag.
+Normalization by evaluation has also been mechanized in Agda for substantially richer type theories, particularly dependent type theory \citep{Abel13,AbelC14,AbelAHPMSS19}. These developments address challenges that are largely orthogonal to ours, such as explicit substitutions and the transport of context and type indices through dependent syntax. We focus instead on the interaction between higher-order row computation and the semantic invariants required by reification. Pinning down a precise treatment of explicit substitutions is still ongoing research. \Citet{AltenkirchK16B} use quotient inductive-inductive types (via postulating constructors and eliminators), while \Citet{ChenNFT26} investigate this approach in Cubical Agda, where higher inductive types are supported by the ambient theory. In $\Rome$, the term--type--kind stratification allows us to retain ordinary inductive syntax and propositional equality throughout the development. This keeps normalization executable and avoids features forbade by the trusted \emph{--safe} flag.
 \fi
 
 % \clearpage

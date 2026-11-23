@@ -7,7 +7,7 @@ open import Rome.Kinds
 open import Rome.Types
 open import Rome.Types.Equivalence
 open import Rome.NormalTypes
-open import Rome.NormalTypes.NBE
+open import Rome.NBE
 open import Rome.Metatheory.NBE.Consistency
 open ≡ₜ-Reasoning
 

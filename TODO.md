@@ -55,6 +55,7 @@
 - [x] ~~In response to cranky reviewer: Prove strong normalization.~~
   - (It is not true.)
 - [x] Use ωmap instead of fromWitness (foo (toWitness)) etc in text
+- [ ] **Refactor README.lagda.md** to reference new section numbers, titles, and locations
 
 # elsewhere
 - [ ] Update github.com/IowaFP/ROmega to acccommate changes to syntax made in the code here

@@ -14,9 +14,9 @@ open import Rome.Types.Renaming
 open import Rome.NormalTypes.Syntax
 open import Rome.NormalTypes.Renaming
 open import Rome.NormalTypes.Properties.Renaming as NTypeProps
-open import Rome.NormalTypes.NBE.Syntax
-open import Rome.NormalTypes.NBE.Renaming
-open import Rome.NormalTypes.NBE.Normalization
+open import Rome.NBE.Syntax
+open import Rome.NBE.Renaming
+open import Rome.NBE.Normalization
 
 --------------------------------------------------------------------------------
 -- Soundness relation on semantic types
@@ -196,8 +196,8 @@ reify-≈ᵣ : ∀ {Δ : KEnv} {κ : Kind}
 ↻-ren-reify-∖ : ∀ {Δ₁ : KEnv} {Δ₁ : KEnv} {κ : Kind} → 
                 (r : Renaming Δ₁ Δ₂) {V₂ V₁ V₄ V₃ : SemType Δ₁ R[ κ ]} → 
                 V₂ ≈ V₄ → V₁ ≈ V₃ → 
-                {nr₁ : notRowLiteral V₂ or notRowLiteral V₁} → 
-                {nr₂ : notRowLiteral V₄ or notRowLiteral V₃} → 
+                {nr₁ : NotRowLiteral V₂ or NotRowLiteral V₁} → 
+                {nr₂ : NotRowLiteral V₄ or NotRowLiteral V₃} → 
                 ren r (reify ((V₂ ∖ V₁) {nr₁})) ≡ reify (renSem r ((V₄ ∖ V₃) {nr₂}))
 
 ↻-ren-reify : ∀ {Δ₁ : KEnv} {Δ₁ : KEnv} {κ : Kind}

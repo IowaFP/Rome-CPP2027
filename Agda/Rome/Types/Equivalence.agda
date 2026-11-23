@@ -9,8 +9,8 @@ open import Rome.Types.Substitution
 open import Rome.Types.Renaming
 
 open import Rome.NormalTypes.Syntax
-open import Rome.NormalTypes.NBE.Syntax
-open import Rome.NormalTypes.NBE.Normalization
+open import Rome.NBE.Syntax
+open import Rome.NBE.Normalization
 
 
 

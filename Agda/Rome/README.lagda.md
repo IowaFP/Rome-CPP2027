@@ -150,13 +150,13 @@ open import Rome.NormalTypes.Properties.Canonicity public
 
 ## Semantic Domain (§5) 
 
-The semantic domains and Normalization by Evaluation (NbE) machinery is all defined in `NormalTypes.NBE`.
+The semantic domains and Normalization by Evaluation (NbE) machinery is all defined in `NBE`.
 
 The syntax and renaming (§5.1) of semantic types are defined in: 
 
 ```agda 
-open import Rome.NormalTypes.NBE.Syntax public
-open import Rome.NormalTypes.NBE.Renaming public
+open import Rome.NBE.Syntax public
+open import Rome.NBE.Renaming public
 ```
 
 ### Normalization by Evaluation (§5--§6)
@@ -164,7 +164,7 @@ open import Rome.NormalTypes.NBE.Renaming public
 Reflection (§5.2), reification (§5.3), and evaluation (§6) are defined in: 
 
 ```agda 
-open import Rome.NormalTypes.NBE.Normalization public
+open import Rome.NBE.Normalization public
 ``` 
 
 ## Metatheory (§7)

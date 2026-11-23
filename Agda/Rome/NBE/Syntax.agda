@@ -1,4 +1,4 @@
-module Rome.NormalTypes.NBE.Syntax where
+module Rome.NBE.Syntax where
 
 open import Data.Product using (_×_ ; _,_)
 open import Rome.Prelude
@@ -67,11 +67,11 @@ module _ where
 -- Semantic types (definition)
 
 data SemRow (Δ : KEnv) (𝒯 : KEnv → Set) : Kind → Set 
-notRowLiteral : {Δ : KEnv} {𝒯 : KEnv → Set} → 
+NotRowLiteral : {Δ : KEnv} {𝒯 : KEnv → Set} → 
                 SemRow Δ 𝒯 R[ κ ] → Set 
 notRowLiterals? : {Δ : KEnv} {𝒯 : KEnv → Set} → 
                   (ρ₂ ρ₁ : SemRow Δ 𝒯 R[ κ ]) → 
-                  Dec (notRowLiteral ρ₂ or notRowLiteral ρ₁)
+                  Dec (NotRowLiteral ρ₂ or NotRowLiteral ρ₁)
 
 data SemRow Δ 𝒯 where
   _$_ : (φ : ∀  {Δ' : KEnv} → Renaming Δ Δ' → NeutralType Δ' κ₁ → 𝒯 Δ') → 
@@ -80,13 +80,13 @@ data SemRow Δ 𝒯 where
   _▹_ : ∀ {κ : Kind} → NeutralType Δ L → 𝒯 Δ → SemRow Δ 𝒯 R[ κ ]
   row : (ρ : Row (𝒯 Δ)) → OrderedRow ρ → SemRow Δ 𝒯 R[ κ ]
   _∖_ : (ρ₂ ρ₁ : SemRow Δ 𝒯 R[ κ ]) → 
-        {nr : notRowLiteral ρ₂ or notRowLiteral ρ₁} →
+        {nr : NotRowLiteral ρ₂ or NotRowLiteral ρ₁} →
         SemRow Δ 𝒯 R[ κ ]
 
-notRowLiteral (x ▹ x₁) = ⊤
-notRowLiteral (row ρ x) = ⊥
-notRowLiteral (ρ ∖ ρ₁) = ⊤
-notRowLiteral (φ $ ρ) = ⊤
+NotRowLiteral (x ▹ x₁) = ⊤
+NotRowLiteral (row ρ x) = ⊥
+NotRowLiteral (ρ ∖ ρ₁) = ⊤
+NotRowLiteral (φ $ ρ) = ⊤
 
 notRowLiterals? (x ▹ x₁) ρ₁ = yes (left tt)
 notRowLiterals? (ρ₂ ∖ ρ₃) ρ₁ = yes (left tt)

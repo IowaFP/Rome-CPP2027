@@ -14,9 +14,9 @@ open import Rome.NormalTypes.Syntax
 open import Rome.NormalTypes.Renaming
 open import Rome.NormalTypes.Properties.Renaming
 
-open import Rome.NormalTypes.NBE.Syntax
-open import Rome.NormalTypes.NBE.Normalization
-open import Rome.NormalTypes.NBE.Renaming
+open import Rome.NBE.Syntax
+open import Rome.NBE.Normalization
+open import Rome.NBE.Renaming
 
 open import Rome.Metatheory.NBE.Soundness.Relation public 
 open import Rome.Metatheory.NBE.Soundness.Congruence public 

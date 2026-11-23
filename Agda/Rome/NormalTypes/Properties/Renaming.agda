@@ -13,7 +13,7 @@ open import Rome.Types.Renaming
 open import Rome.NormalTypes.Syntax
 open import Rome.NormalTypes.Renaming
 
-open import Rome.NormalTypes.NBE
+open import Rome.NBE
  
 
 

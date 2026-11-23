@@ -28,7 +28,7 @@ open import Rome.Types.Properties.Derivable
 open import Rome.NormalTypes
 
 open import Rome.NormalTypes.Properties
-open import Rome.NormalTypes.NBE
+open import Rome.NBE
 
 --------------------------------------------------------------------------------
 -- Metatheory

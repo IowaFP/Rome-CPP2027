@@ -20,9 +20,9 @@ open import Rome.NormalTypes.Renaming
 open import Rome.NormalTypes.Properties.Renaming
   using (↻-ren-⇑ₙₑ ; ↻-ren-⇑)
 
-open import Rome.NormalTypes.NBE.Syntax
-open import Rome.NormalTypes.NBE.Renaming
-open import Rome.NormalTypes.NBE.Normalization
+open import Rome.NBE.Syntax
+open import Rome.NBE.Renaming
+open import Rome.NBE.Normalization
 
 open import Rome.Types.Equivalence
 
@@ -36,7 +36,7 @@ open import Rome.Metatheory.NBE.Consistency.Relation public
 -- ⇑ ∘ reify commutes over _∖_
 
 ↻-⇑-reify-∖ : ∀ (ρ₂ ρ₁ : SemRow Δ₂ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]) → 
-                   {nr   : notRowLiteral ρ₂ or notRowLiteral ρ₁} → 
+                   {nr   : NotRowLiteral ρ₂ or NotRowLiteral ρ₁} → 
                   ⇑ (reify ((ρ₂ ∖ ρ₁) {nr})) ≡ₜ ⇑ (reify ρ₂) ∖ ⇑ (reify ρ₁)
 ↻-⇑-reify-∖ (φ $ n) (φ' $ n') {nr} = eq-refl
 ↻-⇑-reify-∖ (φ $ n) (x₂ ▹ x₃) {nr} = eq-refl
@@ -117,7 +117,7 @@ cong-$⟦⟧≈ f F v ((V₂ ∖ V₁) {nr}) rel-f (eq , rel₂ , rel₁) =
     (eq-∖ 
       (reify-⟦⟧≈ (cong-$⟦⟧≈ f F (⇑ (reify V₂)) V₂ rel-f rel₂)) 
       ((reify-⟦⟧≈ (cong-$⟦⟧≈ f F (⇑ (reify V₁)) V₁ rel-f rel₁)))) 
-    (eq-sym (↻-⇑-reify-∖ (F ⟨$⟩ V₂) (F ⟨$⟩ V₁) {notRowLiteral$ nr}))))) , 
+    (eq-sym (↻-⇑-reify-∖ (F ⟨$⟩ V₂) (F ⟨$⟩ V₁) {NotRowLiteral$ nr}))))) , 
   (refl-⟦⟧≈ (cong-$⟦⟧≈ f F (⇑ (reify V₂)) V₂ rel-f rel₂)) , 
   (refl-⟦⟧≈ (cong-$⟦⟧≈ f F (⇑ (reify V₁)) V₁ rel-f rel₁))
 
@@ -379,7 +379,7 @@ sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {(V₂ ∖ V₁) {nr}} rel r₂ {v}
               (ren-⟦⟧≈ r₂ (rel .snd .snd)))))))))) 
     (eq-sym 
       (↻-⇑-reify-∖ 
-        (apply V ⟨$⟩ renSem r₂ V₂) (apply V ⟨$⟩ renSem r₂ V₁) {notRowLiteral$ (nrRenSem' r₂ V₂ V₁ nr)})) , 
+        (apply V ⟨$⟩ renSem r₂ V₂) (apply V ⟨$⟩ renSem r₂ V₁) {NotRowLiteral$ (nrRenSem' r₂ V₂ V₁ nr)})) , 
     (refl-⟦⟧≈ (cong-$⟦⟧≈ (`λ (` Z · renₜ S v)) (apply V)
                  (renₜ r₂ (⇑ (reify V₂))) (renSem r₂ V₂) (sound-apply v V rel-V) (ren-⟦⟧≈ r₂ (rel .snd .fst))) , 
     refl-⟦⟧≈ (cong-$⟦⟧≈ (`λ (` Z · renₜ S v)) (apply V)
@@ -409,7 +409,7 @@ sound-Π {κ₁ = R[ κ ]} {nl = nl} r {v} {(ρ₂ ∖ ρ₁) {nr}} (eq , rel₂
     (eq-∖ (eq-sym eq-Π) (eq-sym eq-Π)) 
   (eq-trans 
     (eq-∖ (reify-⟦⟧≈ (sound-Π id rel₂)) (reify-⟦⟧≈ (sound-Π id rel₁))) 
-  (eq-trans (eq-sym (↻-⇑-reify-∖ ((λ ρ → ⟨Π⟩) ⟨$⟩ ρ₂) ((λ ρ → ⟨Π⟩) ⟨$⟩ ρ₁) {nr = notRowLiteral$ nr})) eq-refl))))))) , (refl-⟦⟧≈ (sound-Π {nl = nl} id rel₂)) , ((refl-⟦⟧≈ (sound-Π {nl = nl} id rel₁)))
+  (eq-trans (eq-sym (↻-⇑-reify-∖ ((λ ρ → ⟨Π⟩) ⟨$⟩ ρ₂) ((λ ρ → ⟨Π⟩) ⟨$⟩ ρ₁) {nr = NotRowLiteral$ nr})) eq-refl))))))) , (refl-⟦⟧≈ (sound-Π {nl = nl} id rel₂)) , ((refl-⟦⟧≈ (sound-Π {nl = nl} id rel₁)))
 
 map-Π zero P rel = tt
 map-Π {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Π {nl = nl} id rel-fzero) , (map-Π n (P ∘ fsuc) rel-fsuc)
@@ -567,7 +567,7 @@ sound-Σ {κ₁ = κ₁ `→ κ₂} r₁ {f} {(V₂ ∖ V₁) {nr}} rel r₂ {v}
               (ren-⟦⟧≈ r₂ (rel .snd .snd)))))))))) 
     (eq-sym 
       (↻-⇑-reify-∖ 
-        (apply V ⟨$⟩ renSem r₂ V₂) (apply V ⟨$⟩ renSem r₂ V₁) {notRowLiteral$ (nrRenSem' r₂ V₂ V₁ nr)})) , 
+        (apply V ⟨$⟩ renSem r₂ V₂) (apply V ⟨$⟩ renSem r₂ V₁) {NotRowLiteral$ (nrRenSem' r₂ V₂ V₁ nr)})) , 
     (refl-⟦⟧≈ (cong-$⟦⟧≈ (`λ (` Z · renₜ S v)) (apply V)
                  (renₜ r₂ (⇑ (reify V₂))) (renSem r₂ V₂) (sound-apply v V rel-V) (ren-⟦⟧≈ r₂ (rel .snd .fst))) , 
     refl-⟦⟧≈ (cong-$⟦⟧≈ (`λ (` Z · renₜ S v)) (apply V)
@@ -597,7 +597,7 @@ sound-Σ {κ₁ = R[ κ ]} {nl = nl} r {v} {(ρ₂ ∖ ρ₁) {nr}} (eq , rel₂
     (eq-∖ (eq-sym eq-Σ) (eq-sym eq-Σ)) 
   (eq-trans 
     (eq-∖ (reify-⟦⟧≈ (sound-Σ id rel₂)) (reify-⟦⟧≈ (sound-Σ id rel₁))) 
-  (eq-trans (eq-sym (↻-⇑-reify-∖ ((λ ρ → ⟨Σ⟩) ⟨$⟩ ρ₂) ((λ ρ → ⟨Σ⟩) ⟨$⟩ ρ₁) {nr = notRowLiteral$ nr})) eq-refl))))))) , (refl-⟦⟧≈ (sound-Σ {nl = nl} id rel₂)) , ((refl-⟦⟧≈ (sound-Σ {nl = nl} id rel₁)))
+  (eq-trans (eq-sym (↻-⇑-reify-∖ ((λ ρ → ⟨Σ⟩) ⟨$⟩ ρ₂) ((λ ρ → ⟨Σ⟩) ⟨$⟩ ρ₁) {nr = NotRowLiteral$ nr})) eq-refl))))))) , (refl-⟦⟧≈ (sound-Σ {nl = nl} id rel₂)) , ((refl-⟦⟧≈ (sound-Σ {nl = nl} id rel₁)))
 
 map-Σ zero P rel = tt
 map-Σ {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Σ {nl = nl} id rel-fzero) , (map-Σ n (P ∘ fsuc) rel-fsuc)

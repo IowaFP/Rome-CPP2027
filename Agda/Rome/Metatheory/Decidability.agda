@@ -9,7 +9,7 @@ open import Rome.Types.Equivalence
 
 open import Rome.NormalTypes
 open import Rome.NormalTypes.Properties
-open import Rome.NormalTypes.NBE
+open import Rome.NBE
 
 open import Rome.Metatheory.NBE
 

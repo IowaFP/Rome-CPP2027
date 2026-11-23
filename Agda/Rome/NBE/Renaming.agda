@@ -1,5 +1,5 @@
 -- 
-module Rome.NormalTypes.NBE.Renaming where
+module Rome.NBE.Renaming where
 
 open import Rome.Prelude
 open import Rome.Kinds.Syntax
@@ -11,7 +11,7 @@ open import Rome.Types.Renaming
 open import Rome.NormalTypes.Syntax
 open import Rome.NormalTypes.Renaming
 
-open import Rome.NormalTypes.NBE.Syntax
+open import Rome.NBE.Syntax
 
 open import Data.List.Properties using (map-id ; map-cong; map-∘)
 import Data.List.Relation.Unary.All as All
@@ -32,9 +32,9 @@ orderedRenRow : ∀ {n} {Δ₁ : KEnv} {Δ₂ : KEnv} {κ : Kind} {P : Fin n →
                 OrderedRow′ n P → OrderedRow′ n (λ i → (P i .fst) , renSem r (P i .snd))
 
 nrRenSem :  ∀ (r : Renaming Δ₁ Δ₂) → (ρ : SemRow Δ₁ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
-             notRowLiteral ρ → notRowLiteral (renSem r ρ)
+             NotRowLiteral ρ → NotRowLiteral (renSem r ρ)
 nrRenSem' : ∀ (r : Renaming Δ₁ Δ₂) → (ρ₂ ρ₁ : SemRow Δ₁ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
-             notRowLiteral ρ₂ or notRowLiteral ρ₁ → notRowLiteral (renSem r ρ₂) or notRowLiteral (renSem r ρ₁)
+             NotRowLiteral ρ₂ or NotRowLiteral ρ₁ → NotRowLiteral (renSem r ρ₂) or NotRowLiteral (renSem r ρ₁)
 
 renSem {κ = ★} r τ = ren r τ
 renSem {κ = L} r τ = ren r τ

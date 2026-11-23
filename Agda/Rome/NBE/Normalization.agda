@@ -1,5 +1,5 @@
 -- 
-module Rome.NormalTypes.NBE.Normalization where
+module Rome.NBE.Normalization where
 
 open import Rome.Prelude
 open import Rome.Kinds.Syntax
@@ -10,8 +10,8 @@ open import Rome.Types.Renaming
 
 open import Rome.NormalTypes.Syntax
 open import Rome.NormalTypes.Renaming
-open import Rome.NormalTypes.NBE.Syntax
-open import Rome.NormalTypes.NBE.Renaming
+open import Rome.NBE.Syntax
+open import Rome.NBE.Renaming
 
 --------------------------------------------------------------------------------
 -- reflection of neutral types & reification of semantic types
@@ -50,10 +50,10 @@ reifyRowOrdered' (suc (suc n)) P (l₁<l₂ , ih) = l₁<l₂ , (reifyRowOrdered
 reifyRowOrdered {ρ = n , P} ω = reifyRowOrdered' n P ω
 
 reifyPreservesNR : ∀ (ρ₁ ρ₂ : SemRow Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
-                     (nr : notRowLiteral ρ₁ or notRowLiteral ρ₂) → notRowLiteralNF (reify ρ₁) or notRowLiteralNF (reify ρ₂)
+                     (nr : NotRowLiteral ρ₁ or NotRowLiteral ρ₂) → notRowLiteralNF (reify ρ₁) or notRowLiteralNF (reify ρ₂)
 
 reifyPreservesNR' : ∀ (ρ₁ ρ₂ : SemRow Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
-                     (nr : notRowLiteral ρ₁ or notRowLiteral ρ₂) → notRowLiteralNF (reify ((ρ₁ ∖ ρ₂) {nr}))
+                     (nr : NotRowLiteral ρ₁ or NotRowLiteral ρ₂) → notRowLiteralNF (reify ((ρ₁ ∖ ρ₂) {nr}))
 
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
@@ -186,21 +186,21 @@ ordered∖v (n , P) (m , Q) ω₂ ω₁ = ordered-compl P Q ω₂ ω₁
 
 infixr 5 _⟨$⟩_                
 _⟨$⟩_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-notRowLiteral$ : ∀ {Δ : KEnv} {κ₁ : Kind} {κ₂ : Kind} {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : SemRow Δ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]} → 
-              notRowLiteral ρ₂ or notRowLiteral ρ₁ → notRowLiteral (F ⟨$⟩ ρ₂) or notRowLiteral (F ⟨$⟩ ρ₁)
+NotRowLiteral$ : ∀ {Δ : KEnv} {κ₁ : Kind} {κ₂ : Kind} {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : SemRow Δ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]} → 
+              NotRowLiteral ρ₂ or NotRowLiteral ρ₁ → NotRowLiteral (F ⟨$⟩ ρ₂) or NotRowLiteral (F ⟨$⟩ ρ₁)
 
 _⟨$⟩_ {κ₁ = κ₁} {κ₂ = κ₂} F (l ▹ τ) = l ▹ (F ⟨·⟩ τ) -- l ▹ (F ⟨·⟩ τ)
 F ⟨$⟩ row (n , P) q = row (n , map₂ (F id) ∘ P) (orderedMap₂ (F id) q)
-F ⟨$⟩ ((ρ₂ ∖ ρ₁) {nr}) = ((F ⟨$⟩ ρ₂) ∖ (F ⟨$⟩ ρ₁)) {notRowLiteral$ nr}
+F ⟨$⟩ ((ρ₂ ∖ ρ₁) {nr}) = ((F ⟨$⟩ ρ₂) ∖ (F ⟨$⟩ ρ₁)) {NotRowLiteral$ nr}
 F ⟨$⟩ (G $ n) = (λ {Δ'} r → F r ∘ G r) $ n
 
-notRowLiteral$ {F = F} {x₁ ▹ x₂} {ρ₁} (left x) = left tt
-notRowLiteral$ {F = F} {ρ₂ ∖ ρ₃} {ρ₁} (left x) = left tt
-notRowLiteral$ {F = F} {φ $ n} {ρ₁} (left x) = left tt
+NotRowLiteral$ {F = F} {x₁ ▹ x₂} {ρ₁} (left x) = left tt
+NotRowLiteral$ {F = F} {ρ₂ ∖ ρ₃} {ρ₁} (left x) = left tt
+NotRowLiteral$ {F = F} {φ $ n} {ρ₁} (left x) = left tt
 
-notRowLiteral$ {F = F} {ρ₂} {x ▹ x₁} (right y) = right tt
-notRowLiteral$ {F = F} {ρ₂} {ρ₁ ∖ ρ₃} (right y) = right tt
-notRowLiteral$ {F = F} {ρ₂} {φ $ n} (right y) = right tt
+NotRowLiteral$ {F = F} {ρ₂} {x ▹ x₁} (right y) = right tt
+NotRowLiteral$ {F = F} {ρ₂} {ρ₁ ∖ ρ₃} (right y) = right tt
+NotRowLiteral$ {F = F} {ρ₂} {φ $ n} (right y) = right tt
 
 
 -- -- -- --------------------------------------------------------------------------------

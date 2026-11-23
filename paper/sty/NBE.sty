@@ -42,13 +42,18 @@
 \setlength{\belowdisplayshortskip}{0pt}
 
 % -----------------------------------------------------------------------------
-% I can't recall what all do
+% I can't recall what this does
 
 \setlength{\topsep}{5pt plus2pt minus0.5pt}
 \AtEndPreamble{%
   \theoremstyle{acmplain}
   %\newtheorem{theorem}{Theorem}
   \newtheorem*{theorem*}{Theorem}}
+
+% -----------------------------------------------------------------------------
+% IIRC this adds a conditional that is true when a command is used in text
+% and false when a command is used in math-mode. For example, the command
+% \ExC{Ty} renders "Ty" inline and "\mathrm{Ty}" in math environments.
 
 \newif\ifinline\inlinetrue
 \makeatletter
@@ -61,4 +66,4 @@
       \inlinetrue%
     \fi \fi}
 \makeatother
-\everydisplay{\inlinefalse}
+\everydisplay{\inlinefalse}  

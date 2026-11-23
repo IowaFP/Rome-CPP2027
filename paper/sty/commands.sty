@@ -268,15 +268,8 @@
 \newcommand\Variant[3][]{\langle \LabTerm {#2} {#3} \rangle} % \ifthenelse{\equal{#1}{}}{}{_{#1}}}
 \newcommand\SynV[2][]{\langle \mathsf{syn} \, #2 \rangle} % \ifthenelse{\equal{#1}{}}{}{_{#1}}}
 
-
-% \newcommand\KeywordColor{blue}
-% \newcommand\Keyword[1]{{\color{\KeywordColor}#1}}
-% \newcommand\TypeKeywordColor{black}
-% \newcommand\TypeKeyword[1]{{\color{\TypeKeywordColor}#1}}
-% Haskell listings
-
-\newcommand\InlineOn{\lstMakeShortInline{!}}
-\newcommand\InlineOff{\lstDeleteShortInline{!}}
+% \newcommand\InlineOn{\lstMakeShortInline{!}}
+% \newcommand\InlineOff{\lstDeleteShortInline{!}}
 
 \newcommand\Rose{\textsc{Rose}\xspace}
 \newcommand\Rosi{\textsc{Rosi}\xspace}
@@ -374,6 +367,7 @@
 
 % Agda links
 \newcommand\DocBase{https://iowafp.github.io/Rome-CPP2027/}
+\newcommand\RosiCode{https://github.com/iowaFP/Rome-CPP2027/tree/main/Rosi}
 \newcommand\Module[1]{#1.html}
 
 % URL to Rome.{#2}.html with optional anchor e.g.
@@ -385,6 +379,7 @@
 % Link text to a module, e.g.:
 % \Link{Types}{the type module} == the type module | (linked to Rome.Types.html)
 \newcommand\Link[3][Rome]{\href{\Doc{#1.#2}}{#3}}
+\newcommand\ALink[4][Rome]{\href{\ADoc{#1.#2}{#3}}{#4}}
 
 % References specifically to modules, e.g.:
 % \Source{Types.Syntax} == [Types.Syntax] | (linked to Rome.Types.Syntax.html)
@@ -402,27 +397,71 @@
 \newcommand\AName[4][Rome]{\href{\ADoc{#1.#2}{#3}}{#4}}
 
 
+% -----------------------------------------------------------------------------
+% The following permits conditional rendering of Agda formmatted hyperlinks.
+% The goal is to render Agda functions, names, etc in Agda's in-line formatting,
+% with optional links to source code. Each command has two optional arguments:
+% 
+%   \Function[#1][#2]{#3}
+%
+% When #1 and #2 are empty, the command renders simply as an Agda function.
+% For example, the command
+%   \Function{cong-Π} renders as 
+% rewrites to 
+%   \AgdaFunction{cong-Π} 
+%
+% When #1 is non-empty, a link is added to #1's module with #3 as anchor:
+% For example, the command
+%   \Function[Types.Syntax]{cong-Π} 
+% rewrites to
+%   \AgdaFunction{\href{.../Rome.Types.Syntax#cong-Π}{cong-Π}}
+%
+% When #1 and #2 are non-empty, a link is added to #1's module with #2 as 
+% anchor and #3 as copy.
+% For example, the command
+%   \Constructor[Types.Syntax][Type.Π]{Π} 
+% rewites to
+%   \AgdaFunction{\href{.../Rome.Types.Syntax#Type.Π}{Π}}
+%
 
+\makeatletter
+\ExplSyntaxOn
+\cs_new_protected:Npn \__agda_link_cmd:nnnn #1#2#3#4
+  {
+    \tl_if_blank:nTF {#2}
+      {
+        #1 {#4}
+      }
+      {
+        \tl_if_blank:nTF {#3}
+          {
+            #1 { \href { \ADoc { Rome.#2 } { #4 } } { #4 } }
+          }
+          {
+            #1 { \href { \ADoc { Rome.#2 } { #3 } } { #4 } }
+          }
+      }
+  }
 
-% Formatting "Mechanized Representation" headers
-\newcommand\MechRep[1]{Mechanized Representations \textup{(}\Source{#1}\textup{)}}
-\newcommand\MechRepp[2]{Mechanized Representations \textup{(}\Source{#1}, \Source{#2}\textup{)}}
-\newcommand\MechReppp[3]{Mechanized Representations \textup{(}\Source{#1}, \Source{#2}, \Source{#3}\textup{)}}
+\NewDocumentCommand{\Datatype}{O{} O{} m}
+  { \__agda_link_cmd:nnnn \AgdaDatatype {#1} {#2} {#3} }
+\NewDocumentCommand{\Type}{O{} O{} m}
+  { \__agda_link_cmd:nnnn \AgdaFunction {#1} {#2} {#3} }
+\NewDocumentCommand{\Term}{O{} O{} m}
+  { \__agda_link_cmd:nnnn \AgdaFunction {#1} {#2} {#3} }
+\NewDocumentCommand{\Function}{O{} O{} m}
+  { \__agda_link_cmd:nnnn \AgdaFunction {#1} {#2} {#3} }
+\NewDocumentCommand{\Constructor}{O{} O{} m}
+  { \__agda_link_cmd:nnnn \AgdaInductiveConstructor {#1} {#2} {#3} }
+\NewDocumentCommand{\Typeclass}{O{} O{} m}
+  { \__agda_link_cmd:nnnn \AgdaField {#1} {#2} {#3} }
+\ExplSyntaxOff
 
-
-% Agda shorthands
+% Other Agda-inline commands that needn't hyperrefs
 \newcommand\Keyword[1]{\AgdaKeyword{#1}}
-\newcommand\Datatype[1]{\AgdaDatatype{#1}}
-\newcommand\DType[1]{\AgdaDatatype{#1}}
-\newcommand\Type[1]{\AgdaFunction{#1}}
-\newcommand\Term[1]{\AgdaFunction{#1}}
 \newcommand\Symbol[1]{\AgdaSymbol{#1}}
 \newcommand\Prim[1]{\AgdaPrimitive{#1}}
-\newcommand\Function[1]{\AgdaFunction{#1}}
-\newcommand\Constructor[1]{\AgdaInductiveConstructor{#1}}
 \newcommand\Var[1]{\AgdaBound{#1}}
 \newcommand\GVar[1]{\AgdaGeneralizable{#1}}
 \newcommand\Op[1]{\AgdaOperator{#1}}
-\newcommand\Field[1]{\AgdaField{#1}}
-\newcommand\TC[1]{\AgdaField{#1}}
 \newcommand\Underscore{\AgdaUnderscore}
