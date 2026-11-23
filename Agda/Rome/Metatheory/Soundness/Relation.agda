@@ -1,5 +1,5 @@
 -- 
-module Rome.Metatheory.NBE.Soundness.Relation where
+module Rome.Metatheory.Soundness.Relation where
 
 open import Rome.Prelude
 

@@ -1,5 +1,5 @@
 -- 
-module Rome.Metatheory.NBE.Completeness where
+module Rome.Metatheory.Completeness where
 
 open import Rome.Prelude
 
@@ -8,7 +8,7 @@ open import Rome.Types
 open import Rome.Types.Equivalence
 open import Rome.NormalTypes
 open import Rome.NBE
-open import Rome.Metatheory.NBE.Consistency
+open import Rome.Metatheory.Consistency
 open ≡ₜ-Reasoning
 
 --------------------------------------------------------------------------------

@@ -10,8 +10,6 @@ open import Rome.Types.Equivalence
 open import Rome.NormalTypes
 open import Rome.NBE
 
-open import Rome.Metatheory.NBE
-
 open import Data.String.Properties using (_≟_)
 
 --------------------------------------------------------------------------------
@@ -20,12 +18,12 @@ open import Data.String.Properties using (_≟_)
 _≡NE?_ : ∀ (τ₁ τ₂ : NeutralType Δ κ) → Dec (τ₁ ≡ τ₂) 
 _≡?_ : ∀ (τ₁ τ₂ : NormalType Δ κ) → Dec (τ₁ ≡ τ₂)
 _≡ₚ?_ : ∀ (π₁ π₂ : Pred (NormalType Δ R[ κ ])) → Dec (π₁ ≡ π₂)
-_≡ᵣow?_ : ∀ (ρ₁ ρ₂ : RowLiteral (NormalType Δ κ)) → Dec (ρ₁ ≡ ρ₂)
+_≡ᵣ?_ : ∀ (ρ₁ ρ₂ : RowLiteral (NormalType Δ κ)) → Dec (ρ₁ ≡ ρ₂)
 
-[] ≡ᵣow? [] = yes refl
-[] ≡ᵣow? (x ∷ ρ₂) = no (λ ())
-(x ∷ ρ₁) ≡ᵣow? [] = no (λ ())
-((l₁ , τ₁) ∷ ρ₁) ≡ᵣow? ((l₂ , τ₂) ∷ ρ₂) with l₁ ≟ l₂ | τ₁ ≡? τ₂ | ρ₁ ≡ᵣow? ρ₂ 
+[] ≡ᵣ? [] = yes refl
+[] ≡ᵣ? (x ∷ ρ₂) = no (λ ())
+(x ∷ ρ₁) ≡ᵣ? [] = no (λ ())
+((l₁ , τ₁) ∷ ρ₁) ≡ᵣ? ((l₂ , τ₂) ∷ ρ₂) with l₁ ≟ l₂ | τ₁ ≡? τ₂ | ρ₁ ≡ᵣ? ρ₂ 
 ... | yes refl | yes refl | yes refl = yes refl
 ... | yes p | no q  | yes r = no (λ { refl → q refl })
 ... | yes p | yes q | no  r = no (λ { refl → r refl })
@@ -92,7 +90,7 @@ lab l₁ ≡? lab l₂ = map′ (cong lab) (λ { refl → refl }) (l₁ ≟ l₂
 ne τ₁ ≡? ne τ₂ with τ₁ ≡NE? τ₂
 ... | yes refl = yes (cong-ne refl)
 ... | no  p = no (λ { x → p (inj-ne x) })
-⦅ ρ₁ ⦆ ω₁ ≡? ⦅ ρ₂ ⦆ ω₂ with ρ₁ ≡ᵣow? ρ₂ 
+⦅ ρ₁ ⦆ ω₁ ≡? ⦅ ρ₂ ⦆ ω₂ with ρ₁ ≡ᵣ? ρ₂ 
 ... | yes refl rewrite OrderedIrrelevant ρ₁ ω₁ ω₂  = yes refl
 ... | no  p  = no (λ { refl → p refl })
 (x₁ ∖ x₂) ≡? (y₁ ∖ y₂) with x₁ ≡? y₁ | x₂ ≡? y₂ 

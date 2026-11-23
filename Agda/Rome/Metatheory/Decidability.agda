@@ -11,7 +11,8 @@ open import Rome.NormalTypes
 open import Rome.NormalTypes.Properties
 open import Rome.NBE
 
-open import Rome.Metatheory.NBE
+open import Rome.Metatheory.Soundness
+open import Rome.Metatheory.Completeness
 
 --------------------------------------------------------------------------------
 -- -- Type equivalence is decidable

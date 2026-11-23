@@ -767,7 +767,7 @@ Not all row-kinded semantic types are row literals. We must account for \emph{in
             NeutralType Δ R[ κ₁ ] → SemRow Δ R[ κ₂ ]
 \end{code}
 
-The Kripke function argument has both a negative occurence and a non-strictly positive occurence of \Datatype{SemType}, and so Agda rejects this definition (correctly) as ill-founded. We recover a well-founded definition following a subtle encoding trick found in \citet{AllaisBM13}. For the negative occurrence, it is sufficient to instead quantify over \emph{neutral type} arguments; for the non-strictly positive occurrence, we parameterize \Type{SemRow} by a functor $\mathcal T$ \Symbol{:} \Datatype{KEnv} $\to$ \Prim{Set}, which serves as a placeholder for \Datatype{SemType} $(\text{--})$ \GVar{κ}. 
+The Kripke function argument has both a negative occurence and a non-strictly positive occurence of \Datatype{SemType}, and so Agda rejects this definition (correctly) as ill-founded. We recover a well-founded definition following a subtle encoding trick found in \citet{AllaisBM13}. For the negative occurrence, it is sufficient to instead quantify over \emph{neutral type} arguments; for the non-strictly positive occurrence, we parameterize \Type{SemRow} by a functor $\mathcal T$ \Symbol{:} \Datatype{KEnv} $\to$ \Prim{Set}, which serves as a placeholder for \Datatype{SemType} $(Dash)$ \GVar{κ}. 
 
 \begin{figure}
 \begin{code}[hide]
@@ -805,7 +805,7 @@ module Caveat where
 \label{fig:semrow}
 \end{figure}
 
-The constructors in \cref{fig:semrow} specify inert maps, singleton rows with neutral label, row literals, and inert row complements. As in the syntax, we require predicates that row literals are well-ordered and row complements have at most one row literal. Finally, we adjust the definition of \Type{SemType} $\Delta$ \Constructor{R[} $\kappa$ \Constructor{]} accordingly so that $\mathcal T =$ \Datatype{SemType} $(\text{--})$ \GVar{κ}.
+The constructors in \cref{fig:semrow} specify inert maps, singleton rows with neutral label, row literals, and inert row complements. As in the syntax, we require predicates that row literals are well-ordered and row complements have at most one row literal. Finally, we adjust the definition of \Type{SemType} $\Delta$ \Constructor{R[} $\kappa$ \Constructor{]} accordingly so that $\mathcal T =$ \Datatype{SemType} $(\Dash)$ \GVar{κ}.
 \begin{code}[hide]
   SemType : KEnv → Kind → Set 
 \end{code}
@@ -1170,7 +1170,7 @@ module Canonicity where
   open import Rome.Types ; open import Rome.NormalTypes
   open import Rome.Kinds 
 \end{code}
-In any context an arrow-kinded type is canonically $\lambda$-bound:
+Canonicity \SourceP{Metatheory.Canonicity} asserts that arrow, row, and label-kinded normal types have certain canonical forms. In any context an arrow-kinded type is canonically $\lambda$-bound:
 \begin{code}
   arrow-canonicity : (f : NormalType Δ (κ₁ `→ κ₂)) → 
                      Σ[ τ ∈ (NormalType (Δ , κ₁) κ₂) ] 
@@ -1215,24 +1215,24 @@ module Metatheory where
   open import Rome.Kinds
   open import Rome.NBE
 \end{code}
-\emph{Stability} asserts that embedding $\Infix{\Embed}$ is right-inverse to normalization $\Infix{\Norm}$:
+Stability \SourceP{Metatheory.Stability} asserts that embedding (\Typeclass{⇑}) is right-inverse to normalization (\Typeclass{⇓}):
 
 \begin{code}
   stability : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ 
 \end{code}
 \begin{code}[hide]
-  import Rome.Metatheory.NBE.Stability as Stability
+  import Rome.Metatheory.Stability as Stability
   stability = Stability.stability
 \end{code}
 
-\Ni Stability implies idempotency of normalization:
+\Ni Stability implies \Function[Metatheory.Stability]{idempotency} of normalization:
 \begin{code}
   idempotency : ∀ (τ : Type Δ κ) → 
                 ((⇑ ∘ ⇓) ∘ (⇑ ∘ ⇓)) τ ≡ (⇑ ∘ ⇓) τ 
   idempotency τ = cong ⇑ (stability (⇓ τ)) 
 \end{code} 
 
-\Ni and surjectivity:
+\Ni and \Function[Metatheory.Stability]{surjectivity}:
 
 \begin{code}
   surjectivity : ∀ (τ : NormalType Δ κ) → 
@@ -1243,7 +1243,7 @@ module Metatheory where
 
 \subsection{Soundness}
 \label{sec:soundness} 
-\emph{Soundness} of the equational theory states that if $\TEqvJ \Delta \tau \upsilon \kappa$, then $\tau$ and $\upsilon$ normalize to the same form.
+\emph{Soundness} \SourceP{Metatheory.Soundness} of the equational theory states that if $\TEqvJ \Delta \tau \upsilon \kappa$, then $\tau$ and $\upsilon$ normalize to the same form.
 \begin{AgdaAlign}
 \begin{code}[hide]
 module SoundnessStatement where
@@ -1254,12 +1254,12 @@ module SoundnessStatement where
   soundness : ∀ {τ υ : Type Δ κ} → τ ≡ₜ υ → ⇓ τ ≡ ⇓ υ
 \end{code}
 \begin{code}[hide]
-  import Rome.Metatheory.NBE.Soundness as Soundness
+  import Rome.Metatheory.Soundness as Soundness
   soundness = Soundness.soundness
 \end{code}
 \end{AgdaAlign}
 
-We prove soundness via a logical relation $(\approx)$ on semantic types that specifies when two semantic objects are partial-equivalent modulo \emph{uniformity} and functional extensionality.
+We prove soundness via a logical relation (\Function[Metatheory.Soundness.Relation][\Underscore≈\Underscore]{≈}) on semantic types that specifies when two semantic objects are partial-equivalent modulo \emph{uniformity} and functional extensionality.
 
 \begin{figure}
 \begin{AgdaAlign}
@@ -1271,7 +1271,7 @@ module Uniformity where
   open import Rome.Types
   open import Rome.NormalTypes
   open import Rome.NBE hiding (renKripke)
-  open import Rome.Metatheory.NBE.Soundness.Relation hiding 
+  open import Rome.Metatheory.Soundness.Relation hiding 
     (Uniform ; PointEqual-≈)
 \end{code}
 \begin{code}
@@ -1311,7 +1311,7 @@ module SoundnessRelation where
   open import Rome.NormalTypes
   open import Rome.NBE
   open import Data.Nat.Properties renaming (_≟_ to _≡ℕ?_)  
-  open import Rome.Metatheory.NBE.Soundness.Relation hiding 
+  open import Rome.Metatheory.Soundness.Relation hiding 
     (_≈_ ; _≈₂_ ; _≈ᵣ_)
 \end{code}
 \begin{code}
@@ -1322,14 +1322,14 @@ module SoundnessRelation where
   _≈_ {κ = R[ κ ]} (ρ₁ ∖ ρ₂) (ρ₃ ∖ ρ₄) = ρ₁ ≈ ρ₃ × ρ₂ ≈ ρ₄
 \end{code}
 
-\Ni In the arrow case, we assert that the Kripke functions $\phi$ and $\psi$ are \emph{uniform} and \emph{extensionally equivalent} to one another (\cref{fig:uniformity-and-PE}). 
+\Ni In the arrow case, we assert that the Kripke functions $\phi$ and $\psi$ are \emph{uniform} (\Function[Metatheory.Soundness.Relation]{Uniform}) and \emph{extensionally equivalent} to one another ((\Function[Metatheory.Soundness.Relation]{PointEqual-≈}), \cref{fig:uniformity-and-PE}). 
 
 \begin{code}
   _≈_ {Δ₁} {κ = κ₁ `→ κ₂} φ ψ = 
     Uniform φ × Uniform ψ × PointEqual-≈ {Δ₁} φ ψ 
 \end{code}
 
-\Ni Uniformity states that passing a renaming $r_2$ to a Kripke function is equivalent to renaming it algorithmically---that is, semantic renaming (\Function{renSem}) commutes with Kripke renaming. The uniformity property is attributable to \citet{AllaisBM13} but simplified by \citet{ChapmanKNW19}. The \Function{PointEqual-≈} predicate circumvents any need to postulate functional extensionality. Rather, we assert that two Kripke functions $\phi$ and $\psi$ map equivalent inputs to equivalent outputs under all renamings.
+\Ni Uniformity states that passing a renaming $r_2$ to a Kripke function is equivalent to renaming it algorithmically---that is, semantic renaming (\Function[NBE.Renaming]{renSem}) commutes with Kripke renaming. The uniformity property is attributable to \citet{AllaisBM13} but simplified by \citet{ChapmanKNW19}. The \Function{PointEqual-≈} predicate circumvents any need to postulate functional extensionality. Rather, we assert that two Kripke functions $\phi$ and $\psi$ map equivalent inputs to equivalent outputs under all renamings.
 
 Some plumbing is necessary in the case that we are equating two inert maps $\Mapp {\phi} {n}$ and $\Mapp {\psi} {m}$: 
 
@@ -1343,9 +1343,9 @@ Some plumbing is necessary in the case that we are equating two inert maps $\Map
   ... | no _ = ⊥   
 \end{code}
 
-\Ni Kind equality is decidable $\Infix{\equiv_k}$, which lets us relate inert maps only when the domains of $\phi$ and $\psi$ (that is, $\kappa_{1}$ and $\kappa_1'$) are equivalent. The predicates \Function{UniformNE} and \Function{PointEqualNE-≈} are entirely analogous to \Function{Uniform} and \Function{PointEqual-≈} except that they describe Kripke functions in which the domain is a \Datatype{NeutralType} rather than \Datatype{SemType}. 
+\Ni Kind equality is decidable (\Function[Kinds.Properties.Decidability][\Underscore≡ₖ\Underscore]{≡ₖ}), which lets us relate inert maps only when the domains of $\phi$ and $\psi$ (that is, $\kappa_{1}$ and $\kappa_1'$) are equivalent. The predicates \Function[Metatheory.Soundness.Relation]{UniformNE} and \Function[Metatheory.Soundness.Relation]{PointEqualNE-≈} are entirely analogous to \Function{Uniform} and \Function{PointEqual-≈} except that they describe Kripke functions in which the domain is a \Datatype{NeutralType} rather than \Type{SemType}. 
 
-Finally, we relate row literals of equal length by a pointwise relation of their contents.
+Finally, we relate row literals of equal length by a pointwise relation of their contents (\Type[Metatheory.Soundness.Relation][\Underscore≈ᵣ\Underscore]{≈ᵣ}).
 
 \begin{code}
   _≈_ {κ = R[ κ ]} (row (n , P) p) (row (m , Q) q) with 
@@ -1363,7 +1363,7 @@ Finally, we relate row literals of equal length by a pointwise relation of their
 
 \paragraph{Properties}
 
-Towards proving the fundamental lemma, we observe some crucial properties of the soundness relation. Firstly, propositionally equal neutral types reflect to equivalent semantic objects:
+Towards proving the fundamental lemma, we observe some crucial properties of the soundness relation. Firstly, propositionally equal neutral types reflect to equivalent semantic objects (\Function[Metatheory.Soundness.Relation]{reflect-≈}):
 
 \begin{AgdaAlign}
 \begin{code}[hide] 
@@ -1372,7 +1372,7 @@ module FundSoundness where
   open import Rome.NormalTypes
   open import Rome.NBE renaming (idEnv to ie)
   open import Rome.Types.Equivalence
-  import Rome.Metatheory.NBE.Soundness as Soundness
+  import Rome.Metatheory.Soundness as Soundness
   open Soundness hiding (fund-≈ ; reflect-≈ ; reify-≈ ; idEnv-≈ ; _≈ₑ_ ; soundness ; refl-≈ˡ ; refl-≈ʳ ; sym-≈ ; trans-≈)
 \end{code}
 \begin{code}
@@ -1383,7 +1383,7 @@ module FundSoundness where
   reflect-≈ = Soundness.reflect-≈
 \end{code}
 
-\Ni Dually, equivalent semantic objects reify to propositionally equal types. 
+\Ni Dually, equivalent semantic objects reify to propositionally equal types (\Function[Metatheory.Soundness.Relation]{reify-≈}). 
 
 \begin{code}
   reify-≈ : {V₁ V₂ : SemType Δ κ} → 
@@ -1393,7 +1393,7 @@ module FundSoundness where
   reify-≈ = Soundness.reify-≈
 \end{code}
 
-Crucial to most proofs is that the soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric and transitive: 
+Crucial to most proofs is that the soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric (\Function[Metatheory.Soundness.Relation]{sym-≈}) and transitive (\Function[Metatheory.Soundness.Relation]{trans-≈}): 
 
 \begin{code}[hide]
   module _ {V₁ V₂ V₃ : SemType Δ κ} where 
@@ -1407,7 +1407,7 @@ Crucial to most proofs is that the soundness relation forms a \emph{partial equi
     sym-≈   = Soundness.sym-≈
 \end{code}
 
-\Ni but not reflexive. As with all PERs, however, we have a quasi-reflexive property: provided $V_1$ relates to \emph{some} $V_2$, then both $V_1$ and $V_2$ relate to themselves.
+\Ni but not reflexive. As with all PERs, however, we have a quasi-reflexive property: provided $V_1$ relates to \emph{some} $V_2$, then both $V_1$ and $V_2$ relate to themselves (\Function[Metatheory.Soundness.Relation]{refl-≈ˡ} and \Function[Metatheory.Soundness.Relation]{refl-≈ʳ}).
 
 \begin{code}[hide]
   module _ {V₁ V₂ : SemType Δ κ} where 
@@ -1423,7 +1423,7 @@ Crucial to most proofs is that the soundness relation forms a \emph{partial equi
 
 
 \paragraph{Logical environments}
-We lift the soundness relation to a pointwise equivalence on semantic environments.
+We lift the soundness relation to a pointwise equivalence on semantic environments (\Type[Metatheory.Soundness.Relation][\Underscore≈ₑ\Underscore]{≈ₑ}).
 
 \begin{code}
   _≈ₑ_ : {Δ₁ : KEnv} (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
@@ -1431,7 +1431,7 @@ We lift the soundness relation to a pointwise equivalence on semantic environmen
     ∀ {κ} (x : TVar Δ₁ κ) → η₁ x ≈ η₂ x
 \end{code}
 
-\Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by \Function{idEnv-≈}. 
+\Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by \Function[Metatheory.Soundness.Relation]{idEnv-≈}. 
 \begin{code}[hide]
   module _ {Δ : KEnv} where 
     idEnv = ie {Δ}
@@ -1443,7 +1443,7 @@ We lift the soundness relation to a pointwise equivalence on semantic environmen
 
 \paragraph{The fundamental lemma}
 
-The fundamental lemma for the soundness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental lemma is by induction over the type equivalence witness $\tau_1 \TEqv \tau_2$.
+The fundamental lemma (\Function[Metatheory.Soundness]{fund-≈}) for the soundness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental lemma is by induction over the type equivalence witness \Var{τ₁} \Datatype{≡ₜ} \Var{τ₂}.
 \begin{code}
   fund-≈ : ∀ {η₁ η₂ : SemEnv Δ₁ Δ₂}
            {τ₁ τ₂ : Type Δ₁ κ} → 
@@ -1467,7 +1467,7 @@ Soundness follows from the fundamental lemma in the identity semantic environmen
 \subsection{Consistency}
 \label{sec:consistency}
 
-\emph{Consistency} states that every type is equivalent to its normalization. Viewing $\Infix{\TEqv}$ as a reduction relation, this is equivalently a claim of \emph{(weak) normalization}: each type has \emph{some} reduction sequence to a normal form.
+\emph{Consistency} \SourceP{Metatheory.Consistency} states that every type is equivalent to its normalization. Viewing (\Type{≡ₜ}) as a reduction relation, this is equivalently a claim of \emph{(weak) normalization}: each type has \emph{some} reduction sequence to a normal form \SourceP{Metatheory.Normalization}.
 
 \begin{AgdaAlign} 
 \begin{code}[hide]
@@ -1480,14 +1480,13 @@ module ConsistencyStatement where
   consistency : ∀ (τ : Type Δ κ) → τ ≡ₜ ⇑ (⇓ τ)
 \end{code}
 \begin{code}[hide]
-  import Rome.Metatheory.NBE.Consistency as Consistency
+  import Rome.Metatheory.Consistency as Consistency
   consistency = Consistency.consistency
 \end{code}
 \end{AgdaAlign}
 
 
-\AH{You know, this is an Agda paper, not a category theory paper. It's fine to make the notation uniform and favor (i) Agda in-line over math environments, and (ii) underscores over dashes.}
-We define a logical relation for consistency $\LRC{\Dash}{\Dash}$ by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ is equivalent to the embedding of $V$. In other words, $\tau$ and $V$ are identified up to type equivalence.
+We define a logical relation for consistency \Function[Metatheory.Consistency.Relation][⟦\Underscore⟧≈\Underscore]{⟦\Dash⟧≈\Dash} by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ is equivalent to the embedding of $V$. In other words, $\tau$ and $V$ are identified up to type equivalence.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -1499,7 +1498,7 @@ module ConsistencyRelation where
   open import Rome.NormalTypes
   open import Rome.NBE
   open import Data.Nat.Properties renaming (_≟_ to _≡ℕ?_)  
-  open import Rome.Metatheory.NBE.Consistency.Relation hiding 
+  open import Rome.Metatheory.Consistency.Relation hiding 
     (⟦_⟧≈_ ; ⟦_⟧≈ᵣ_)
 \end{code}
 \begin{code}
@@ -1519,12 +1518,12 @@ module ConsistencyRelation where
       ⟦ ren r f · τ ⟧≈ (renKripke r φ ⟨·⟩ V)
 \end{code}
 
-That a type $\tau$ is equivalent to an inert map $\Mapp \phi n$ requires the identification of some equivalent type $\Mapp f {\Embed\, n}$ such that $f$ is related to $\phi$. Of course, $\phi$ is not a \Datatype{SemType} (its domain is a neutral type), and so the definition \Function{SoundKripkeNE} mirrors the logic above for relating functional types modulo a neutral domain argument.
+That a type $\tau$ is equivalent to an inert map $\Mapp \phi n$ requires the identification of some equivalent type $\Mapp f {\Embed\, n}$ such that $f$ is related to $\phi$. Of course, $\phi$ is not a \Type{SemType} (its domain is a neutral type), and so the definition \Function{ConsistentKripkeNE} mirrors the logic above for relating functional types modulo a neutral domain argument.
 
 \begin{code}
   ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (φ $ n) = 
     Σ[ f ∈ (Type Δ (_ `→ κ)) ] 
-      ((τ ≡ₜ f $ ⇑ n) × SoundKripkeNE f φ)
+      ((τ ≡ₜ f $ ⇑ n) × ConsistentKripkeNE f φ)
 \end{code}
 
 \Ni The cases for row singletons and row complements follow the same pattern: we identify a type equivalent to the desired semantic form, then assert that form coheres with the relation.
@@ -1539,9 +1538,7 @@ That a type $\tau$ is equivalent to an inert map $\Mapp \phi n$ requires the ide
     × ⟦ ⇑ (reify ρ₁) ⟧≈ ρ₁
 \end{code}
 
-\AH{Elsewhere I use dashes, here I use underscores. Try to consolidate these.} 
-
-For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with suitable orderedness evidence) and assert, via \Function{⟦\Underscore{}⟧≈ᵣ}, that the contents of the row literal (a list of label-type pairs) is related to the contents of the semantic row (a finite map to semantic types). The helper \Function{⟦\Underscore{}⟧≈₂} asserts that the first components of each pair are equal and the second components are related under \Function{⟦\Underscore{}⟧≈}.
+For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with suitable orderedness evidence) and assert, via \Function[Metatheory.Consistency.Relation][⟦\Underscore⟧≈ᵣ\Underscore]{⟦\Dash⟧≈ᵣ\Dash}, that the contents of the row literal (a list of label-type pairs) is related to the contents of the semantic row (a finite map to semantic types). The helper \Function[Metatheory.Consistency.Relation][⟦\Underscore⟧≈₂\Underscore]{⟦\Dash⟧≈₂\Dash} asserts that the first components of each pair are equal and the second components are related under the consistency relation.
 
 \begin{code}
   ⟦_⟧≈_ {κ = R[ κ ]} τ (row ρ ω) =
@@ -1563,7 +1560,7 @@ For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with
 
 \paragraph{Properties}
 
-The consistency relation observes properties analogous to the soundness relation. First, types equivalent to neutral types are related to their reflection:
+The consistency relation observes properties analogous to the soundness relation. First, types equivalent to neutral types are related to their reflection \Function[Metatheory.Consistency.Relation]{reflect-⟦⟧≈}:
 
 \begin{AgdaAlign}
 \begin{code}[hide] 
@@ -1573,7 +1570,7 @@ module FundConsistencyStatement where
   open import Rome.NBE hiding (idEnv)
   open import Rome.Types.Equivalence
   open import Rome.Types.Properties
-  import Rome.Metatheory.NBE.Consistency as Consistency
+  import Rome.Metatheory.Consistency as Consistency
   open Consistency hiding (⊢⟦_⟧≈ ; reflect-⟦⟧≈ ; reify-⟦⟧≈ ; fund-⟦⟧≈ ; ⟦_⟧≈ₑ_ ; idEnv-⟦⟧≈ ; consistency)
 \end{code}
 \begin{code}
@@ -1584,7 +1581,7 @@ module FundConsistencyStatement where
   reflect-⟦⟧≈ = Consistency.reflect-⟦⟧≈
 \end{code}
 
-\Ni Dually, types related to semantic objects are equivalent to their reification. 
+\Ni Dually, types related to semantic objects are equivalent to their reification (\Function[Metatheory.Consistency.Relation]{reify-⟦⟧≈}):
 
 \begin{code}
   reify-⟦⟧≈ : {τ : Type Δ κ} {V :  SemType Δ κ} → 
@@ -1595,7 +1592,7 @@ module FundConsistencyStatement where
 \end{code}
 
 \paragraph{Logical environments}
-We pointwise relate syntactic substitutions with semantic environments.
+We pointwise relate syntactic substitutions with semantic environments (\Function[Metatheory.Consistency.Relation][⟦\Underscore⟧≈₂\Underscore]{⟦\Dash⟧≈ₑ\Dash}).
 
 \begin{code}
   ⟦_⟧≈ₑ_ : Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
@@ -1603,7 +1600,7 @@ We pointwise relate syntactic substitutions with semantic environments.
     ∀ {κ : Kind} (α : TVar Δ₁ κ) → ⟦ σ α ⟧≈ η α
 \end{code}
 
-\Ni  As expected, the identity substitution relates to the identity semantic environment. The constructor \Constructor{eq-refl} witnesses reflexivity of type equivalence $\Infix{\TEqv}$.
+\Ni  As expected, the identity substitution relates to the identity semantic environment (\Function[Metatheory.Consistency.Relation]{idEnv-⟦⟧≈}). The constructor \Constructor[Types.Equivalence][\Underscore≡ₜ\Underscore.eq-refl]{eq-refl} witnesses reflexivity of type equivalence.
 
 \begin{code}[hide]
   -- in the def below, either ` or idEnv need to be told what Δ₁ is,
@@ -1620,7 +1617,7 @@ We pointwise relate syntactic substitutions with semantic environments.
 
 \paragraph{The fundamental lemma}
 
-The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is related to its evaluation in semantic environment $\eta$, provided a pointwise relation of $\sigma$ and $\eta$:
+The fundamental lemma (\Function[Metatheory.Consistency]{fund-⟦⟧≈}) proves that the substitution of type $\tau$ by $\sigma$ is related to its evaluation in semantic environment $\eta$, provided a pointwise relation of $\sigma$ and $\eta$:
 
 \begin{code}
   fund-⟦⟧≈ : ∀ (τ : Type Δ₁ κ)
@@ -1633,7 +1630,7 @@ The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is
   fund-⟦⟧≈ = Consistency.fund-⟦⟧≈
 \end{code}
 
-A natural corollary of the fundamental lemma is that each type $\tau$, propositionally equal to itself under the identity substitution, is related to its evaluation in the identity environment.
+A natural corollary of the fundamental lemma is that each type $\tau$, propositionally equal to itself under the identity substitution, is related to its evaluation in the identity environment (\Function[Metatheory.Consistency][⊢⟦\Underscore⟧≈]{⊢⟦\Dash⟧≈}).
 
 \begin{code}
   ⊢⟦_⟧≈ : ∀ (τ : Type Δ κ) → ⟦ τ ⟧≈ ⟦ τ ⟧ idEnv
@@ -1654,9 +1651,7 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
 
 \paragraph{Completeness}
 
-% #[LINK][to embedding equational reasoning, inst, and symmetry]
-\AH{Comment on equational reasoning, transitivity, and symmetry.}
-Consistency implies \emph{completeness}, which is dual to soundness. The derivation is given below using custom support for equational reasoning over type equivalence. The helper \Function{inst} reflects propositional equality to type equivalence, and the suffix $\Infix{\Dash}^{-1}$ witnesses symmetry of $\Infix{\TEqv}$.
+Consistency implies completeness \SourceP{Metatheory.Completeness}, which is dual to soundness. The derivation is given below using \ALink{Types.Equivalence}{≡ₜ-Reasoning}{custom support} for equational reasoning over type equivalence. The helper \Function[Types.Equivalence]{inst} reflects propositional equality to type equivalence, and the suffix (\Constructor[Types.Equivalence][≡ₜ-Groupoid]{⁻¹}) witnesses symmetry of type equivalence.
 
 % #[LINK][to completeness proof]
 \begin{AgdaAlign}
@@ -1665,7 +1660,7 @@ module Completeness where
   open import Rome.Types ; open import Rome.NormalTypes
   open import Rome.Kinds
   open import Rome.NBE
-  open import Rome.Metatheory.NBE.Consistency
+  open import Rome.Metatheory.Consistency
   open ≡ₜ-Reasoning
 \end{code}
 \begin{code}
@@ -1683,15 +1678,15 @@ module Completeness where
 
 \subsection{Decidability of Type Conversion}
 
-It is easy enough to implement a syntactic decidability check ($\equiv?$) on the shapes of normal forms. Paired with soundness and completeness, we get an effective decision procedure to decide the relation $\TEqvJ \Delta \tau \upsilon \kappa$ as follows:
+It is easy enough to implement a syntactic decidability check (\Function[NormalTypes.Properties.Decidability][\Underscore≡?\Underscore]{≡?}) on the shapes of normal forms. Paired with soundness and completeness, we get an effective decision procedure to decide the relation $\TEqvJ \Delta \tau \upsilon \kappa$ as follows \SourceP{Metatheory.Decidability}:
 
 \begin{AgdaAlign}
 \begin{code}[hide]
 module DecTyEquiv where
   open import Rome.Types ; open import Rome.NormalTypes
   open import Rome.Kinds
-  open import Rome.Metatheory.NBE.Completeness
-  open import Rome.Metatheory.NBE.Soundness
+  open import Rome.Metatheory.Completeness
+  open import Rome.Metatheory.Soundness
   open import Rome.NBE 
   open import Rome.Kinds.Properties.Decidability
   open import Rome.NormalTypes.Properties.Decidability

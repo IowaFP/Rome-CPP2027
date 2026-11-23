@@ -1,5 +1,5 @@
 -- 
-module Rome.Metatheory.NBE.Consistency where
+module Rome.Metatheory.Consistency where
 
 open import Rome.Prelude
 
@@ -26,9 +26,9 @@ open import Rome.NBE.Normalization
 
 open import Rome.Types.Equivalence
 
-open import Rome.Metatheory.NBE.Soundness
-open import Rome.Metatheory.NBE.Stability
-open import Rome.Metatheory.NBE.Consistency.Relation public
+open import Rome.Metatheory.Soundness
+open import Rome.Metatheory.Stability
+open import Rome.Metatheory.Consistency.Relation public
 
 
 
@@ -153,7 +153,7 @@ cong-compl⟦⟧≈ {n = suc n} {m} {P = P} {Q} P≈ Q≈ with P fzero .fst ∈R
 
 sound-apply : ∀ {Δ : KEnv} {κ₁ : Kind} {κ₂ : Kind} (v : Type Δ κ₁) (V : SemType Δ κ₁) → 
                ⟦ v ⟧≈ V → 
-               SoundKripke {κ₂ = κ₂} (`λ (` Z · renₜ S v)) (apply V)
+               ConsistentKripke {κ₂ = κ₂} (`λ (` Z · renₜ S v)) (apply V)
 sound-apply v V rel-v r {g} {G} rel-G = 
   subst-⟦⟧≈ 
     (eq-sym eq-β)
@@ -171,9 +171,9 @@ sound-apply v V rel-v r {g} {G} rel-G =
 -- Π and Π-Kripke are soundly related
 
 sound-Π : ∀ {nl : NotLabel κ₁} → 
-        SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} (Π {notLabel = nl}) Π-Kripke
+        ConsistentKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} (Π {notLabel = nl}) Π-Kripke
 sound-Σ : ∀ {nl : NotLabel κ₁} → 
-        SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} (Σ {notLabel = nl}) Σ-Kripke
+        ConsistentKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} (Σ {notLabel = nl}) Σ-Kripke
 
 -- Mapping _apply_ over a row is semantic application
 map-apply : ∀ {Δ₂ : KEnv} {κ₁ : Kind}{κ₂ : Kind}
@@ -262,7 +262,7 @@ sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {φ $ n} (f , eq , sound-f) r {v'} {V
         (eq-sym (inst (↻-ren-⇑ₙₑ r n)))))))) , 
     (λ {Δ} → sound {Δ})))))
     where 
-      sound : SoundKripkeNE 
+      sound : ConsistentKripkeNE 
               (`λ (renₜ S (renₜ r f) · ` Z · renₜ S v'))
               (λ {Δ'} r₁ x₁ → apply V' r₁ (φ (r₁ ∘ r) x₁))
       sound r₁ n = 
@@ -450,7 +450,7 @@ sound-Σ {κ₁ = κ₁ `→ κ₂} ρ {v} {φ $ n} (f , eq , sound-f) r {v'} {V
         (eq-sym (inst (↻-ren-⇑ₙₑ r n)))))))) , 
     (λ {Δ} → sound {Δ})))))
     where 
-      sound : SoundKripkeNE 
+      sound : ConsistentKripkeNE 
               (`λ (renₜ S (renₜ r f) · ` Z · renₜ S v'))
               (λ {Δ'} r₁ x₁ → apply V' r₁ (φ (r₁ ∘ r) x₁))
       sound r₁ n = 
@@ -705,27 +705,27 @@ fund-⟦⟧≈ (⦅ (l , τ) ∷ xs ⦆ oxs) {σ} {η} e | ((refl , ih-τ) , ih-
 fund-⟦⟧≈ (ρ₂ ∖ ρ₁) {σ} {η} e with ⟦ ρ₂ ⟧ₜ η | fund-⟦⟧≈ ρ₂ e 
 fund-⟦⟧≈ (ρ₂ ∖ ρ₁) {σ} {η} e | φ $ n | (f , eq-f , rel-f) with 
   ⟦ ρ₁ ⟧ₜ η | fund-⟦⟧≈ ρ₁ e 
-... | φ₂ $ n₂   | (g , eq-g , rel-g) = (eq-∖ (reifySoundKripkeNE-≡ₜ eq-f rel-f) (reifySoundKripkeNE-≡ₜ eq-g rel-g)) , 
-  (f , eq-sym (reifySoundKripkeNE-≡ₜ eq-refl rel-f) , rel-f) , 
-  (g , eq-sym (reifySoundKripkeNE-≡ₜ eq-refl rel-g) , rel-g)
-... | x₂ ▹ x₃  | ih' = (eq-∖ (reifySoundKripkeNE-≡ₜ eq-f rel-f) (ih' .fst)) , ((f , eq-sym (reifySoundKripkeNE-≡ₜ eq-refl rel-f) , rel-f) , (eq-refl , (ih' .snd)))
+... | φ₂ $ n₂   | (g , eq-g , rel-g) = (eq-∖ (reifyConsistentKripkeNE-≡ₜ eq-f rel-f) (reifyConsistentKripkeNE-≡ₜ eq-g rel-g)) , 
+  (f , eq-sym (reifyConsistentKripkeNE-≡ₜ eq-refl rel-f) , rel-f) , 
+  (g , eq-sym (reifyConsistentKripkeNE-≡ₜ eq-refl rel-g) , rel-g)
+... | x₂ ▹ x₃  | ih' = (eq-∖ (reifyConsistentKripkeNE-≡ₜ eq-f rel-f) (ih' .fst)) , ((f , eq-sym (reifyConsistentKripkeNE-≡ₜ eq-refl rel-f) , rel-f) , (eq-refl , (ih' .snd)))
 ... | row ρ x₂ | ih' = 
-  (eq-∖ (reifySoundKripkeNE-≡ₜ eq-f rel-f) (eq-trans (ih' .fst) (eq-row reflᵣ))) , 
-  ((f , eq-sym (reifySoundKripkeNE-≡ₜ eq-refl rel-f) , rel-f)  , ((eq-row reflᵣ) , (ih' .snd)))
+  (eq-∖ (reifyConsistentKripkeNE-≡ₜ eq-f rel-f) (eq-trans (ih' .fst) (eq-row reflᵣ))) , 
+  ((f , eq-sym (reifyConsistentKripkeNE-≡ₜ eq-refl rel-f) , rel-f)  , ((eq-row reflᵣ) , (ih' .snd)))
 ... | c ∖ c₁   | ih' = 
-    (eq-∖ (reifySoundKripkeNE-≡ₜ eq-f rel-f) (ih' .fst)) , 
-    ((f , eq-sym (reifySoundKripkeNE-≡ₜ eq-refl rel-f) , rel-f) , (eq-refl , (ih' .snd .fst) , (ih' .snd .snd)))
+    (eq-∖ (reifyConsistentKripkeNE-≡ₜ eq-f rel-f) (ih' .fst)) , 
+    ((f , eq-sym (reifyConsistentKripkeNE-≡ₜ eq-refl rel-f) , rel-f) , (eq-refl , (ih' .snd .fst) , (ih' .snd .snd)))
 fund-⟦⟧≈ (ρ₂ ∖ ρ₁) {σ} {η} e | x₁ ▹ x₂ | (eq , rel) with ⟦ ρ₁ ⟧ₜ η | fund-⟦⟧≈ ρ₁ e 
 ... | φ $ n    | (f , eq-f , rel-f) = 
-   eq-∖ eq (reifySoundKripkeNE-≡ₜ eq-f rel-f) , 
-    (eq-refl , rel) , (f , eq-sym (reifySoundKripkeNE-≡ₜ eq-refl rel-f) , rel-f)
+   eq-∖ eq (reifyConsistentKripkeNE-≡ₜ eq-f rel-f) , 
+    (eq-refl , rel) , (f , eq-sym (reifyConsistentKripkeNE-≡ₜ eq-refl rel-f) , rel-f)
 ... | x₂ ▹ x₃  | ih' = eq-∖ eq (ih' .fst) , (eq-refl , rel) , (eq-refl , (ih' .snd))
 ... | row ρ x₂ | ih' = eq-∖ eq (eq-trans (ih' .fst) (eq-row reflᵣ)) , (eq-refl , rel) , (eq-row reflᵣ , (ih' .snd))
 ... | c ∖ c₁   | ih' = eq-∖ eq (ih' .fst) , (eq-refl , rel) , (eq-refl , (ih' .snd))
 fund-⟦⟧≈ (ρ₂ ∖ ρ₁) {σ} {η} e | row (n , P) oP | ih with ⟦ ρ₁ ⟧ₜ η | fund-⟦⟧≈ ρ₁ e 
 ... | φ $ n    | (f , eq-f , rel-f) = 
-  eq-∖ (eq-trans (ih .fst) (eq-row reflᵣ)) (reifySoundKripkeNE-≡ₜ eq-f rel-f) , 
-  ((eq-row reflᵣ , (ih .snd)) , f , eq-sym (reifySoundKripkeNE-≡ₜ eq-refl rel-f) , rel-f)
+  eq-∖ (eq-trans (ih .fst) (eq-row reflᵣ)) (reifyConsistentKripkeNE-≡ₜ eq-f rel-f) , 
+  ((eq-row reflᵣ , (ih .snd)) , f , eq-sym (reifyConsistentKripkeNE-≡ₜ eq-refl rel-f) , rel-f)
 ... | x₂ ▹ x₃  | ih' = eq-∖ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , (ih' .snd)))
 ... | row (m , Q) oQ | ih' = 
   eq-trans 
@@ -738,8 +738,8 @@ fund-⟦⟧≈ (ρ₂ ∖ ρ₁) {σ} {η} e | row (n , P) oP | ih with ⟦ ρ�
 ... | c ∖ c₁   | ih' = eq-∖ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
 fund-⟦⟧≈ (ρ₂ ∖ ρ₁) {σ} {η} e | c ∖ c₁ | ih with ⟦ ρ₁ ⟧ₜ η | fund-⟦⟧≈ ρ₁ e 
 ... | φ $ n    | (f , eq-f , rel-f) = 
-  eq-∖ (ih .fst) (reifySoundKripkeNE-≡ₜ eq-f rel-f) , 
-  ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (f , eq-sym (reifySoundKripkeNE-≡ₜ eq-refl rel-f) , rel-f))
+  eq-∖ (ih .fst) (reifyConsistentKripkeNE-≡ₜ eq-f rel-f) , 
+  ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (f , eq-sym (reifyConsistentKripkeNE-≡ₜ eq-refl rel-f) , rel-f))
 ... | x₂ ▹ x₃  | ih' = eq-∖ (ih .fst) (ih' .fst) , ((eq-refl , (ih .snd)) , (eq-refl , (ih' .snd)))
 ... | row ρ x₂ | ih' = eq-trans (eq-∖ (ih .fst) (ih' .fst)) (eq-∖ eq-refl (eq-row reflᵣ)) , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (eq-row reflᵣ , (ih' .snd)))
 ... | c ∖ c₁   | ih' = eq-∖ (ih .fst) (ih' .fst) , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))

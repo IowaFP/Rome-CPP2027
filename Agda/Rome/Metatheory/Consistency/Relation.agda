@@ -1,5 +1,5 @@
 -- 
-module Rome.Metatheory.NBE.Consistency.Relation where
+module Rome.Metatheory.Consistency.Relation where
 
 open import Rome.Prelude
 
@@ -24,8 +24,8 @@ open import Rome.NBE.Normalization
 
 open import Rome.Types.Equivalence
 open import Rome.Types.Properties.Equivalence
-open import Rome.Metatheory.NBE.Soundness
-open import Rome.Metatheory.NBE.Stability
+open import Rome.Metatheory.Soundness
+open import Rome.Metatheory.Stability
 
 --------------------------------------------------------------------------------
 -- Consistency of type normalization: 
@@ -39,8 +39,8 @@ infix 0 ⟦_⟧≈_
 ⟦_⟧≈₂_ : ∀ {Δ : KEnv} {κ : Kind} → Label × Type Δ κ → Label × SemType Δ κ → Set
 ⟦ (l₁ , τ) ⟧≈₂ (l₂ , V) = (l₁ ≡ l₂) × (⟦ τ ⟧≈ V)
 
-SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂ → Set
-SoundKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ κ₂ → Set
+ConsistentKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂ → Set
+ConsistentKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ κ₂ → Set
 
 -- τ is equivalent to neutral `n` if it's equivalent 
 -- to the η and map-id expansion of n
@@ -48,7 +48,7 @@ SoundKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ �
 
 ⟦_⟧≈_ {κ = ★} τ₁ τ₂ = τ₁ ≡ₜ ⇑ τ₂
 ⟦_⟧≈_ {κ = L} τ₁ τ₂ = τ₁ ≡ₜ ⇑ τ₂
-⟦_⟧≈_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
+⟦_⟧≈_ {Δ₁} {κ = κ₁ `→ κ₂} f F = ConsistentKripke f F
 ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (row ρ ω) =
     let xs = ⇑ᵣ (reifyRow ρ) in 
     (τ ≡ₜ ⦅ xs ⦆ (fromWitness (⇑ₒ {ρ = reifyRow ρ} (reifyRowOrdered ω)))) × 
@@ -56,19 +56,19 @@ SoundKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ �
 ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (l ▹ V) = (τ ≡ₜ (⇑ₙₑ l ▹ ⇑ (reify V))) × (⟦ ⇑ (reify V) ⟧≈ V)
 ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ ((ρ₂ ∖ ρ₁) {nr}) = (τ ≡ₜ (⇑ (reify ((ρ₂ ∖ ρ₁) {nr})))) × (⟦ ⇑ (reify ρ₂) ⟧≈ ρ₂) × (⟦ ⇑ (reify ρ₁) ⟧≈ ρ₁)
 ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (φ $ n) = 
-  ∃[ f ] ((τ ≡ₜ (f $ ⇑ₙₑ n)) × (SoundKripkeNE f φ))
+  ∃[ f ] ((τ ≡ₜ (f $ ⇑ₙₑ n)) × (ConsistentKripkeNE f φ))
 
 ⟦ [] ⟧≈ᵣ (zero , P) = ⊤
 ⟦ [] ⟧≈ᵣ (suc n , P) = ⊥
 ⟦ x ∷ ρ ⟧≈ᵣ (zero , P) = ⊥
 ⟦ x ∷ ρ ⟧≈ᵣ (suc n , P) =  (⟦ x ⟧≈₂ (P fzero)) × ⟦ ρ ⟧≈ᵣ (n , P ∘ fsuc)
 
-SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
+ConsistentKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
     ∀ {Δ₂ : KEnv} (ρ : Renaming Δ₁ Δ₂) {v V} → 
       ⟦ v ⟧≈ V → 
       ⟦ (renₜ ρ f · v) ⟧≈ (renKripke ρ F ⟨·⟩ V)
 
-SoundKripkeNE {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
+ConsistentKripkeNE {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
     ∀ {Δ₂ : KEnv} (r : Renaming Δ₁ Δ₂) {v V} → 
       ⟦ v ⟧≈ne  V → 
       ⟦ (renₜ r f · v) ⟧≈ (F r V)
@@ -349,12 +349,12 @@ map₂-⟦⟧≈ {n = suc n} F rel-f ((refl , rel-fzero) , rel-fsuc) =
 -- To be clear, although we use an existential in defining ⟦ τ ⟧≈(φ $ n), 
 -- we know more precisely that τ ≡ₜ `λ (⇑ (reify (φ₂ S (` Z)))) $ ⇑ₙₑ n.
 
-reifySoundKripkeNE-≡ₜ : ∀ {τ : Type Δ R[ κ₂ ]} {f : Type Δ (κ₁ `→ κ₂)} {n : NeutralType Δ R[ κ₁ ]} 
+reifyConsistentKripkeNE-≡ₜ : ∀ {τ : Type Δ R[ κ₂ ]} {f : Type Δ (κ₁ `→ κ₂)} {n : NeutralType Δ R[ κ₁ ]} 
         {φ : KripkeFunctionNE Δ κ₁ κ₂} → 
         τ ≡ₜ f $ ⇑ₙₑ n → 
-        SoundKripkeNE f φ → 
+        ConsistentKripkeNE f φ → 
         τ ≡ₜ (`λ (⇑ (reify (φ S (` Z)))) $ ⇑ₙₑ n)
-reifySoundKripkeNE-≡ₜ eq rel-f = 
+reifyConsistentKripkeNE-≡ₜ eq rel-f = 
   (eq-trans 
       eq
       (eq-$ 

@@ -1,5 +1,5 @@
 -- 
-module Rome.Metatheory.NBE.Stability where
+module Rome.Metatheory.Stability where
 
 open import Rome.Prelude
 
@@ -19,7 +19,7 @@ open import Rome.NBE.Syntax
 open import Rome.NBE.Renaming
 open import Rome.NBE.Normalization
 
-open import Rome.Metatheory.NBE.Soundness
+open import Rome.Metatheory.Soundness
 
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ₜ 

@@ -1,4 +1,4 @@
-module Rome.Metatheory.NBE.Normalization where
+module Rome.Metatheory.Normalization where
 
 open import Rome.Prelude
 open import Rome.Kinds
@@ -6,8 +6,8 @@ open import Rome.Types
 open import Rome.Types.Equivalence
 open import Rome.NormalTypes
 open import Rome.NBE
-open import Rome.Metatheory.NBE.Consistency
-open import Rome.Metatheory.NBE.Stability
+open import Rome.Metatheory.Consistency
+open import Rome.Metatheory.Stability
 
 --------------------------------------------------------------------------------
 -- An alias for _≡ₜ_ to emphasize that it's viewed as a step relation.

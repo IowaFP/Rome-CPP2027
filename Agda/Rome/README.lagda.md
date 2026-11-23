@@ -145,7 +145,7 @@ open import Rome.NormalTypes.Properties.Decidability public
 Canonicity of normal forms (§7) is given in: 
 
 ```agda 
-open import Rome.NormalTypes.Properties.Canonicity public
+open import Rome.Metatheory.Canonicity public
 ``` 
 
 ## Semantic Domain (§5) 
@@ -173,14 +173,14 @@ most main theorems and lemmas are housed in `Rome.Metatheory`, with some excepti
 
 ### Canonicity of Normal Types
 
-Canonicity of Normal types is defined in `Rome.NormalTypes.Properties.Canonicity` (above).
+Canonicity of Normal types is defined in `Rome.Metatheory.Canonicity` (above).
 
 ### Stability 
 
 Stability is defined and proven in: 
 
 ```agda
-open import Rome.Metatheory.NBE.Stability public 
+open import Rome.Metatheory.Stability public 
 ``` 
 
 ### Soundness 
@@ -188,26 +188,26 @@ open import Rome.Metatheory.NBE.Stability public
 The soundness logical relation is defined in: 
 
 ```agda 
-open import Rome.Metatheory.NBE.Soundness.Relation public
+open import Rome.Metatheory.Soundness.Relation public
 ``` 
 
 We require a great deal of commutativity lemmas to prove the fundamental lemma,
 which are given in: 
 
 ```agda 
-open import Rome.Metatheory.NBE.Soundness.Commutativity public
+open import Rome.Metatheory.Soundness.Commutativity public
 ``` 
 
 We also require a great deal of congruence lemmas, given in: 
 
 ```agda 
-open import Rome.Metatheory.NBE.Soundness.Congruence public
+open import Rome.Metatheory.Soundness.Congruence public
 ``` 
 
 Finally, the fundamental lemma and soundness are proven in: 
 
 ```agda 
-open import Rome.Metatheory.NBE.Soundness public 
+open import Rome.Metatheory.Soundness public 
 ``` 
 
 ### Consistency
@@ -215,13 +215,13 @@ open import Rome.Metatheory.NBE.Soundness public
 The consistency logical relation is defined in: 
 
 ```agda 
-open import Rome.Metatheory.NBE.Consistency.Relation public
+open import Rome.Metatheory.Consistency.Relation public
 ``` 
 
 The fundamental lemma and consistency are proven in: 
 
 ```agda 
-open import Rome.Metatheory.NBE.Consistency public 
+open import Rome.Metatheory.Consistency public 
 ``` 
 
 ### Completeness 
@@ -229,7 +229,7 @@ open import Rome.Metatheory.NBE.Consistency public
 Completeness follows from consistency, which is shown in: 
 
 ```agda 
-open import Rome.Metatheory.NBE.Completeness public
+open import Rome.Metatheory.Completeness public
 ``` 
 
 ### Decidability of Type Equivalence

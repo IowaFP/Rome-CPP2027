@@ -11,7 +11,7 @@ open import Rome.NormalTypes.Syntax
 open import Rome.NormalTypes.Renaming
 open import Rome.NBE.Normalization
 
-open import Rome.Metatheory.NBE.Soundness
+open import Rome.Metatheory.Soundness
 open import Rome.Types.Equivalence
 
 --------------------------------------------------------------------------------

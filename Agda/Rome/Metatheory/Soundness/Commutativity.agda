@@ -1,5 +1,5 @@
 -- 
-module Rome.Metatheory.NBE.Soundness.Commutativity where
+module Rome.Metatheory.Soundness.Commutativity where
 
 open import Rome.Prelude
 
@@ -18,8 +18,8 @@ open import Rome.NormalTypes.Properties.Renaming
 open import Rome.NBE.Syntax
 open import Rome.NBE.Renaming
 open import Rome.NBE.Normalization
-open import Rome.Metatheory.NBE.Soundness.Relation
-open import Rome.Metatheory.NBE.Soundness.Congruence
+open import Rome.Metatheory.Soundness.Relation
+open import Rome.Metatheory.Soundness.Congruence
 
 -- --------------------------------------------------------------------------------
 -- -- Renaming commutes with application.

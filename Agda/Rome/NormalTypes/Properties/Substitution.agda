@@ -25,10 +25,10 @@ open import Rome.NBE.Syntax
 open import Rome.NBE.Normalization
 open import Rome.NBE.Renaming
 
-open import Rome.Metatheory.NBE.Soundness
-open import Rome.Metatheory.NBE.Consistency
+open import Rome.Metatheory.Soundness
+open import Rome.Metatheory.Consistency
 
-open import Rome.Metatheory.NBE.Stability
+open import Rome.Metatheory.Stability
 
 
 

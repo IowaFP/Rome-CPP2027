@@ -1,5 +1,5 @@
 -- 
-module Rome.Metatheory.NBE.Soundness where
+module Rome.Metatheory.Soundness where
 
 open import Rome.Prelude
 
@@ -18,9 +18,9 @@ open import Rome.NBE.Syntax
 open import Rome.NBE.Normalization
 open import Rome.NBE.Renaming
 
-open import Rome.Metatheory.NBE.Soundness.Relation public 
-open import Rome.Metatheory.NBE.Soundness.Congruence public 
-open import Rome.Metatheory.NBE.Soundness.Commutativity public
+open import Rome.Metatheory.Soundness.Relation public 
+open import Rome.Metatheory.Soundness.Congruence public 
+open import Rome.Metatheory.Soundness.Commutativity public
 
 open import Rome.Types.Equivalence
 

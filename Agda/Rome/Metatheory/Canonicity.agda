@@ -1,4 +1,4 @@
-module Rome.NormalTypes.Properties.Canonicity where 
+module Rome.Metatheory.Canonicity where 
 
 open import Rome.Prelude
 open import Rome.Kinds
