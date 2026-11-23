@@ -595,7 +595,7 @@ Reaping the benefits of intrinsic syntax while dodging the downfalls is largely 
 
 \subsection{Renamings}
 
-A \Type[Types.Renaming]{Renaming} is a function mapping type variables in environment $\Delta_1$ to environment $\Delta_2$. As our variables are De Bruijn indices and not named, this is "renaming" in spirit. More accurate is to say that the function \Term[Types.Renaming][renₜ]{ren} \emph{reassigns} each free variable (i.e., an index into a kind in environment $\Delta_1$) in the input type $\tau$ to a kind in environment $\Delta_2$.
+A \Type[Types.Renaming]{Renaming} is a function mapping type variables in environment $\Delta_1$ to environment $\Delta_2$. As our variables are De Bruijn indices and not named, this is not strictly \emph{renaming}---more accurate is to say that the function \Term[Types.Renaming][renₜ]{ren} \emph{reassigns} each free variable (i.e., an index into a kind in environment $\Delta_1$) in the input type $\tau$ to a kind in environment $\Delta_2$.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -666,43 +666,14 @@ module SubId where
 \label{sec:NbE}
 \ifNbE
 
-% #TODO[Move this to ./figures]
-\begin{figure}
-\begin{tikzpicture}[
-  nbedomain/.style={draw, rounded corners=6pt, minimum height=2.2em, inner xsep=8pt, align=center},
-  sem/.style={nbedomain, fill=blue!6, draw=blue!45!black},
-  fn/.style={->, >=stealth, thick},
-  comp/.style={->, >=stealth, thick, double}
-]
-  \node[sem]       (sem) at (3.2, 2.4) {\Datatype[NBE.Syntax]{SemType}};
-  \node[nbedomain] (ty)  at (0, 0)   {\Datatype[Types.Syntax]{Type}};
-  \node[nbedomain] (ne)  at (3.2, 0) {\Datatype[NormalTypes.Syntax]{NeutralType}};
-  \node[nbedomain] (no)  at (6.6, 0) {\Datatype[NormalTypes.Syntax]{NormalType}};
+\input{figures/nbe}
 
-  \draw[fn] (ty)  -- node[above left]        {\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}}    (sem);
-  \draw[fn] (ne)  -- node[right, pos=0.45]  {\Function[NBE.Normalization]{reflect}} (sem);
-  \draw[fn] (sem) -- node[above right]       {\Function[NBE.Normalization]{reify}}   (no);
-
-  \draw[comp, dashed] (ne) to[bend left=18]
-    node[above] {\Function[NBE.Normalization]{reify} $\circ$ \Function[NBE.Normalization]{reflect}} (no);
-
-  \draw[comp] (ty) to[bend right=22]
-    node[below] {\Function[NBE.Normalization][⇓ₜ]{⇓} $=$ \Function[NBE.Normalization]{reify} $\circ$ \Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}} (no);
-\end{tikzpicture}
-\caption{Normalization by Evaluation: reflection, reification, and evaluation}
-\label{fig:nbe}
-\end{figure}
-
-% #LINK[to reflection, reification, evaluation, and normalization? Maybe not. They come soon.]
-% #TODO[] Or, Maybe change this text to:
-% We declare (i) the syntax of \Datatype{Type}s, (ii) the syntax of \Datatype{NormalType}s and \Datatype{NeutralType}s, and (iii) an embedded domain of semantic types. From there we produce (i) a reflection from neutral to semantic types, (ii) a reification from semantic types to normal types, and (iii) an evaluation from types to semantic types. It follows...
-% #TODO[Visual] Maybe borrow from "Type Theory in Type Theory" and make a little graph diagram?
-Normalization by evaluation \SourceP{NBE.Normalization} consists of three key domains and three functions over these domains. We declare (i) \Datatype{Type}, the syntax of types; (ii) \Datatype{NormalType} and \Datatype{NeutralType}, the syntax of normal and neutral types; and (iii) \Datatype{SemType}, an embedded domain of semantic types. From there we (i) \Function[NBE.Normalization]{reflect} neutral types to semantic types; (ii) \Function[NBE.Normalization]{reify} from semantic types to normal types; and (iii) evaluate (\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}) types into semantic types. It follows that normalization (\Function[NBE.Normalization][⇓ₜ]{⇓}) of a type $\tau$ is the composition of reification after evaluation of $\tau$.\cref{fig:nbe}
+Normalization by evaluation \SourceP{NBE.Normalization} consists of three key domains and three functions over these domains (\cref{fig:nbe}). We define the syntax of types, neutral and normal forms, and the embedded domain of semantic types. From there we \emph{reflect} neutral types to semantic types, \emph{reify} from semantic types to normal types, and \emph{evaluate} (\Function{⟦\Underscore⟧}) types into semantic types. The composition of these functions produces procedures for (i) \emph{normalization} (\Function[NBE.Normalization][⇓ₜ]{⇓}) from types to normal types, and (ii) \emph{$\eta$-expansion} (\Function[NBE.Normalization]{η-norm}) of neutral types to normal types.
 
 \subsection{Residualizing Semantics}
 \label{sec:residual-semantics}
 
-We define our semantic domain in Agda recursively over the syntax of kinds. Our semantics is \emph{residualizing}~\citep{Lindley05} because we distinguish \emph{values} in the semantic domain (functions and rows) from \emph{residual values} (unbound variables, applications with a variable in head position, and normal forms) at ground kind. Hence semantic types are residual values at type and label kind.
+We define our semantic domain \SourceP{NBE.Syntax} in Agda recursively over the syntax of kinds. Our semantics is \emph{residualizing}~\citep{Lindley05} because we distinguish \emph{values} in the semantic domain (functions and rows) from \emph{residual values} (unbound variables, applications with a variable in head position, and normal forms) at ground kind. Hence semantic types (\Type[NBE.Syntax]{SemType}) are residual values at type and label kind.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -731,7 +702,7 @@ module SemTypes where
 \end{code}
 
 
-\paragraph{Functions} We interpret arrow-kinded types as \emph{Kripke function spaces} \citep{JungT93, Abel13}, which permit the application of interpreted function $\KindJ {\Delta_1} \phi {\kappa_1 \to \kappa_2}$ at any environment $\Delta_2$ provided a renaming from $\Delta_1$ into $\Delta_2$. The Kripke flavor here is that environments may be viewed as \emph{worlds}, and so each Kripke function returns a type in any \emph{reachable} environment.
+\paragraph{Functions} We interpret arrow-kinded types as \emph{Kripke function spaces} (\Type[NBE.Syntax]{KripkeFunction}) \citep{JungT93, Abel13}, which permit the application of interpreted function $\KindJ {\Delta_1} \phi {\kappa_1 \to \kappa_2}$ at any environment $\Delta_2$ provided a renaming from $\Delta_1$ into $\Delta_2$. The Kripke flavor here is that environments may be viewed as \emph{worlds}, and so each Kripke function returns a type in any \emph{reachable} environment.
 
 \begin{code}[hide]
   module _ where private
@@ -742,22 +713,22 @@ module SemTypes where
     KripkeFunction Δ₁ κ₁ κ₂ =  
       ∀ {Δ₂} → Renaming Δ₁ Δ₂ → 
                 SemType Δ₂ κ₁ → SemType Δ₂ κ₂
-    SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂
+    SemType Δ (κ₁ `→ κ₂) = KripkeFunction Δ κ₁ κ₂
 \end{code}
 \begin{code}[hide]
     SemType _ _ = ⊥
 \end{code}
 
-Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are canonically $\lambda$-bound, and hence our definition of \Datatype{SemType} needn't account for the evaluation of arrow-kinded variables. Contrast our definition with that of \citet{ChapmanKNW19}, for which the evaluation of e.g. variable \Var{v} $:$ $\TypeK \to \TypeK$ is \Function{left} \Symbol{(}\Constructor{`} \Var{v}\Symbol{)}: 
+Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are canonically $\lambda$-bound, and hence our definition of \Datatype{SemType} needn't account for the evaluation of arrow-kinded variables. Contrast our definition with that of \citet{ChapmanKNW19}, for which the evaluation of e.g. the variable \Var{v} $:$ $\TypeK \to \TypeK$ is \Function{left} \Symbol{(}\Constructor{`} \Var{v}\Symbol{)}: 
 
 \begin{code}
-    SemType Δ₁ (κ₁ `→ κ₂) = 
-        NeutralType Δ₁ (κ₁ `→ κ₂) 
-     or KripkeFunction Δ₁ κ₁ κ₂
+    SemType Δ (κ₁ `→ κ₂) = 
+        NeutralType Δ (κ₁ `→ κ₂) 
+     or KripkeFunction Δ κ₁ κ₂
 \end{code} 
 
 
-\paragraph{Row literals} We define the interpretation of row literals ${\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}}$ as the type \Type{Row} \Symbol{(}\Type{SemType} $\Delta$ $\kappa$\Symbol{)}, which is defined generically over arbitrary type \GVar{A} \Symbol{:} \Prim{Set} below. The \Type{Row} type is a finitely indexed map. We choose this representation because operations like row mapping can be expressed as function composition. We will commonly refer to the empty row and cons case on \Type{Row}s as $\epsilon$ and $\Infix{\co\co}$, respectively.
+\paragraph{Row literals} We define the interpretation of row literals ${\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}}$ as the type \Type{Row} \Symbol{(}\Type{SemType} $\Delta$ $\kappa$\Symbol{)}, which is defined generically over arbitrary type \GVar{A} \Symbol{:} \Prim{Set} below. The \Type[NBE.Syntax]{Row} type is a finitely indexed map. We choose this representation because operations like row mapping can be expressed as function composition. We will commonly refer to the empty row and cons case on \Type{Row}s as \Function[NBE.Syntax]{ε} and (\Function[NBE.Syntax][_⨾⨾_]{⨾⨾}), respectively.
 
 \begin{code}
   Row : Set → Set 
@@ -789,14 +760,14 @@ module SemRows where
 \begin{code}[hide]
 \end{code}
 
-Not all row-kinded semantic types are row literals. We must account for \emph{inert} row kinded types for which neutral types halt reduction to row literals. For example, the singleton $\Row {\LabTy n \tau}$ is not a row literal because its label is neutral. In summary, a semantic row is either: a row literal, a neutral-labeled row singleton, an inert map, or an inert row complement.  In order to enforce rule \erule{map$_\circ$}---that the nested map $\Mapp{\phi_{1}}{(\Mapp{\phi_{2}}{\rho})}$ be recomposed to $\Mapp{(\phi_{1} \circ \phi_{2})}{\rho}$---we want to represent the type operator in inert maps functionally. However, a direct attempt in doing so runs afoul of Agda's positivity checker. Consider the following definition of \Type{SemRow} for an inert map constructor:
+Not all row-kinded semantic types are row literals. We must account for \emph{inert} row kinded types for which neutral types halt reduction to row literals. For example, the singleton $\Row {\LabTy n \tau}$ is not a row literal because its label is neutral. In summary, a semantic row is either: a row literal, a neutral-labeled row singleton, an inert map, or an inert row complement.  In order to enforce rule \erule{map$_\circ$}---that the nested map $\Mapp{\phi_{1}}{(\Mapp{\phi_{2}}{\rho})}$ be recomposed to $\Mapp{(\phi_{1} \circ \phi_{2})}{\rho}$---we want to represent the type operator in inert maps functionally. However, a direct attempt in doing so runs afoul of Agda's positivity checker. Consider the following definition of \Type[NBE.Syntax]{SemRow} for an inert map constructor:
 \begin{code} 
   data SemRow (Δ : KEnv) : Kind → Set where
     _$_ : KripkeFunction Δ κ₁ κ₂ → 
             NeutralType Δ R[ κ₁ ] → SemRow Δ R[ κ₂ ]
 \end{code}
 
-The Kripke function argument has both a negative occurence and a non-strictly positive occurence of \Datatype{SemType}, and so Agda rejects this definition (correctly) as ill-founded. We recover a well-founded definition following a subtle encoding trick found in \citet{AllaisBM13}. For the negative occurrence, it is sufficient to instead quantify over \emph{neutral type} arguments; for the non-strictly positive occurrence, we parameterize \Type{SemRow} by a functor $\mathcal T$ \Symbol{:} \Datatype{KEnv} $\to$ \Prim{Set}, which serves as a placeholder for \Datatype{SemType} $(\text{--})$ $\kappa$. 
+The Kripke function argument has both a negative occurence and a non-strictly positive occurence of \Datatype{SemType}, and so Agda rejects this definition (correctly) as ill-founded. We recover a well-founded definition following a subtle encoding trick found in \citet{AllaisBM13}. For the negative occurrence, it is sufficient to instead quantify over \emph{neutral type} arguments; for the non-strictly positive occurrence, we parameterize \Type{SemRow} by a functor $\mathcal T$ \Symbol{:} \Datatype{KEnv} $\to$ \Prim{Set}, which serves as a placeholder for \Datatype{SemType} $(\text{--})$ \GVar{κ}. 
 
 \begin{figure}
 \begin{code}[hide]
@@ -831,10 +802,10 @@ module Caveat where
   NotRowLiteral (φ $ ρ) = ⊤
 \end{code}
 \caption{Semantic rows}
-\label{fig:SemRow}
+\label{fig:semrow}
 \end{figure}
 
-The constructors in \cref{fig:SemRow} specify inert maps, singleton rows with neutral label, row literals, and inert row complements. As in the syntax, we require predicates that row literals are well-ordered and row complements have at most one row literal. Finally, we adjust the definition of \Datatype{SemType} $\Delta$ \Constructor{R[} $\kappa$ \Constructor{]} accordingly so that $\mathcal T =$ \Datatype{SemType} $(\text{--})$ $\kappa$.
+The constructors in \cref{fig:semrow} specify inert maps, singleton rows with neutral label, row literals, and inert row complements. As in the syntax, we require predicates that row literals are well-ordered and row complements have at most one row literal. Finally, we adjust the definition of \Type{SemType} $\Delta$ \Constructor{R[} $\kappa$ \Constructor{]} accordingly so that $\mathcal T =$ \Datatype{SemType} $(\text{--})$ \GVar{κ}.
 \begin{code}[hide]
   SemType : KEnv → Kind → Set 
 \end{code}
@@ -875,7 +846,7 @@ module ReflectReify where
 
 
 
-Reflection asserts that neutral forms have semantic representations. We define reflection (\cref{fig:reflection}) mutually recursively with reification (\cref{fig:reification}). Types at kind $\TypeK$ and $\LabK$ can be promoted straightforwardly with the \Constructor{ne} constructor. Neutral types at arrow kind must be expanded into Kripke functions: The input $v$ has type \Type{SemType} $\Delta_2$ $\kappa_1$ and must be reified, while The function $\phi$ is kinded in environment $\Delta_1$ and so must be renamed to $\Delta_2$, the environment of $v$. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by \Symbol{(}\Op{λ} \Var{r} \Var{n} $\to$ \Term{reflect} \Var{n}\Symbol{)}. This equation implements the expansion of \erule{map$_\mathsf{id}$} for neutral types.
+Reflection asserts that neutral forms have semantic representations. We define reflection (\Function[NBE.Normalization]{reflect}, \cref{fig:reflection}) mutually recursively with reification (\Function[NBE.Normalization]{reify}, \cref{fig:reification}). Types at kind $\TypeK$ and $\LabK$ can be promoted straightforwardly with the \Constructor{ne} constructor. Neutral types at arrow kind must be expanded into Kripke functions: The input \Var{v} has type \Type{SemType} $\Delta_2$ $\kappa_1$ and must be reified, while The function \Var{φ} is kinded in environment $\Delta_1$ and so must be renamed to $\Delta_2$, the environment of \Var{v}. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by \Symbol{(}\Op{λ} \Var{r} \Var{n} $\to$ \Term{reflect} \Var{n}\Symbol{)}. This equation implements the expansion of \erule{map$_\mathsf{id}$} for neutral types.
 
 \subsection{Reification}
 \label{sec:reification}
