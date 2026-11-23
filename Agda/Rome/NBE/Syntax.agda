@@ -11,57 +11,55 @@ open import Rome.Types.Renaming using (liftₜ ; Renaming)
 open import Rome.NormalTypes.Syntax
 open import Rome.NormalTypes.Renaming
 
-
+private 
+  variable 
+    A : Set
+    n m : ℕ 
+ 
 --------------------------------------------------------------------------------
 -- Semantic types (definition)
 
-module _ where 
-  private 
-    variable 
-      A : Set
-      n m : ℕ 
+infixr 5 _↪_
+_↪_ : ℕ → Set → Set 
+n ↪ A = Fin n → Label × A
 
-  infixr 5 _↪_
-  _↪_ : ℕ → Set → Set 
-  n ↪ A = Fin n → Label × A
-  
-  Row : Set → Set 
-  Row A = ∃[ n ] (n ↪ A)
+Row : Set → Set 
+Row A = ∃[ n ] (n ↪ A)
 
 --------------------------------------------------------------------------------
 -- Ordered predicate on finite maps
 
-  OrderedRow′ : (n : ℕ) → (n ↪ A) → Set
-  OrderedRow′ zero P          = ⊤
-  OrderedRow′ (suc zero) P    = ⊤
-  OrderedRow′ (suc (suc n)) P = 
-    (P fzero .fst < P (fsuc fzero) .fst)  × OrderedRow′ (suc n) (P ∘ fsuc)
+OrderedRow′ : (n : ℕ) → (n ↪ A) → Set
+OrderedRow′ zero P          = ⊤
+OrderedRow′ (suc zero) P    = ⊤
+OrderedRow′ (suc (suc n)) P = 
+  (P fzero .fst < P (fsuc fzero) .fst)  × OrderedRow′ (suc n) (P ∘ fsuc)
 
-  OrderedRow : Row A → Set
-  OrderedRow (n , P) = OrderedRow′ n P
+OrderedRow : Row A → Set
+OrderedRow (n , P) = OrderedRow′ n P
 
 --------------------------------------------------------------------------------
 -- smart constructors
 
-  -- extension
-  _⨾⨾_ :  Label × A → Row A → Row A
-  e ⨾⨾ (n , P) =  suc n , λ { fzero     → e 
-                            ; (fsuc x) → P x }
-  -- the empty row                                  
-  ε : Row A
-  ε = 0 , λ ()
-  
-  -- Singleton rows
-  ⁅_⁆ : Label × A → Row A
-  ⁅ e ⁆ = 1 , λ { fzero → e }
+-- extension
+_⨾⨾_ :  Label × A → Row A → Row A
+e ⨾⨾ (n , P) =  suc n , λ { fzero     → e 
+                          ; (fsuc x) → P x }
+-- the empty row                                  
+ε : Row A
+ε = 0 , λ ()
+
+-- Singleton rows
+⁅_⁆ : Label × A → Row A
+⁅ e ⁆ = 1 , λ { fzero → e }
 
 --------------------------------------------------------------------------------
 -- some helpers
-  
-  substᵢₓ : n ≡ m → 
-           (n ↪ A) → 
-            m ↪ A 
-  substᵢₓ {A = A} = tr (_↪ A)
+
+substᵢₓ : n ≡ m → 
+          (n ↪ A) → 
+          m ↪ A 
+substᵢₓ {A = A} = tr (_↪ A)
 
 --------------------------------------------------------------------------------
 -- Semantic types (definition)
