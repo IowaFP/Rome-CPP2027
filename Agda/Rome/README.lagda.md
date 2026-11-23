@@ -232,6 +232,14 @@ Completeness follows from consistency, which is shown in:
 open import Rome.Metatheory.Completeness public
 ``` 
 
+### Normalization 
+
+That the step relation is normalizing is proved, at least in essence, by:
+
+```agda
+open import Rome.Metatheory.Normalization public
+``` 
+
 ### Decidability of Type Equivalence
 
 Decidability of type equivalence follows from soundness, completeness,

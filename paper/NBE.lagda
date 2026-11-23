@@ -644,7 +644,7 @@ module Substitution where
 \Ni Like with renaming, we introduce a typeclass so that the syntax \Typeclass[Types.Substitution][\Underscore[\Underscore]ₛ]{\Underscore{}[\Underscore{}]ₛ} operates over types, neutral and normal types, rows, and predicates.
 
 \AH{Rephrase this as per comment from reviewer.}
-While each \Type{Substitution} is a total function, not all variables are changed. In particular, the \Datatype{Type} constructor \Constructor[Types.Syntax][Type.`]{`} constructs a \Datatype{Type} from a \Datatype[Kinds.Syntax]{TVar}, fixing each type variable. This constructor forms the \emph{identity substitution} over types (\Function[Types.Properties.Substitution]{sub-id}).
+While each \Type{Substitution} is a total function, not all variables are changed. In particular, the \Datatype{Type} constructor \Constructor[Types.Syntax][Type.`]{`} constructs a \Datatype{Type} from a \Datatype[Kinds.Syntax]{TVar}, fixing each type variable. This constructor forms the \emph{identity substitution} over types.
 
 \begin{code}[hide]
 module SubId where
@@ -673,7 +673,7 @@ Normalization by evaluation \SourceP{NBE.Normalization} consists of three key do
 \subsection{Residualizing Semantics}
 \label{sec:residual-semantics}
 
-We define our semantic domain \SourceP{NBE.Syntax} in Agda recursively over the syntax of kinds. Our semantics is \emph{residualizing}~\citep{Lindley05} because we distinguish \emph{values} in the semantic domain (functions and rows) from \emph{residual values} (unbound variables, applications with a variable in head position, and normal forms) at ground kind. Hence semantic types (\Type[NBE.Syntax]{SemType}) are residual values at type and label kind.
+We define our semantic domain \SourceP{NBE.Syntax} in Agda recursively over the syntax of kinds. Our semantics is \emph{residualizing}~\citep{Lindley05} because we distinguish \emph{values} in the semantic domain (functions and rows) from \emph{residual values} (unbound variables, applications with a variable in head position, and normal forms) at ground kind. Hence semantic types are residual values at type and label kind.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -702,7 +702,7 @@ module SemTypes where
 \end{code}
 
 
-\paragraph{Functions} We interpret arrow-kinded types as \emph{Kripke function spaces} (\Type[NBE.Syntax]{KripkeFunction}) \citep{JungT93, Abel13}, which permit the application of interpreted function $\KindJ {\Delta_1} \phi {\kappa_1 \to \kappa_2}$ at any environment $\Delta_2$ provided a renaming from $\Delta_1$ into $\Delta_2$. The Kripke flavor here is that environments may be viewed as \emph{worlds}, and so each Kripke function returns a type in any \emph{reachable} environment.
+\paragraph{Functions} We interpret arrow-kinded types as \emph{Kripke function spaces} \citep{JungT93, Abel13}, which permit the application of interpreted function $\KindJ {\Delta_1} \phi {\kappa_1 \to \kappa_2}$ at any environment $\Delta_2$ provided a renaming from $\Delta_1$ into $\Delta_2$. The Kripke flavor here is that environments may be viewed as \emph{worlds}, and so each Kripke function returns a type in any \emph{reachable} environment.
 
 \begin{code}[hide]
   module _ where private
@@ -767,7 +767,7 @@ Not all row-kinded semantic types are row literals. We must account for \emph{in
             NeutralType Δ R[ κ₁ ] → SemRow Δ R[ κ₂ ]
 \end{code}
 
-The Kripke function argument has both a negative occurence and a non-strictly positive occurence of \Datatype{SemType}, and so Agda rejects this definition (correctly) as ill-founded. We recover a well-founded definition following a subtle encoding trick found in \citet{AllaisBM13}. For the negative occurrence, it is sufficient to instead quantify over \emph{neutral type} arguments; for the non-strictly positive occurrence, we parameterize \Type{SemRow} by a functor $\mathcal T$ \Symbol{:} \Datatype{KEnv} $\to$ \Prim{Set}, which serves as a placeholder for \Datatype{SemType} $(Dash)$ \GVar{κ}. 
+The Kripke function argument has both a negative occurence and a non-strictly positive occurence of \Datatype{SemType}, and so Agda rejects this definition (correctly) as ill-founded. We recover a well-founded definition following a subtle encoding trick found in \citet{AllaisBM13}. For the negative occurrence, it is sufficient to instead quantify over \emph{neutral type} arguments; for the non-strictly positive occurrence, we parameterize \Type{SemRow} by a functor $\mathcal T$ \Symbol{:} \Datatype{KEnv} $\to$ \Prim{Set}, which serves as a placeholder for \Datatype{SemType} $(\Dash)$ \GVar{κ}. 
 
 \begin{figure}
 \begin{code}[hide]
@@ -917,7 +917,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
 
 Reification asserts that semantic values have syntactic representations. The definition of reification is a little more involved (\cref{fig:reification}). The first two equations are expected ($\tau$ is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion. Here we see why we choose to interpret functions with a Kripke flavor, as the weakening renaming \Constructor[Kinds.Syntax][TVar.S]{S} is crucial to permitting $\phi$ to operate over the just-introduced type variable \Constructor{` Z}. The remaining equations describe the reification of the four row cases. In the $\Mapp \phi \tau$ case, we must reify the neutral Kripke function $\phi$ analogously to the reification of type operators. We reify row literals effectively by mapping reification over the contents of each semantic row, reconstructing a list as we go along. A straightforward definition of \Function[NBE.Normalization]{reifyRow} might attempt to induct over the \Type{Row} argument's length (its first component), which Agda's termination checker rejects. This is because the recursive call in the successor case will be over $(n , P \circ \text{fsuc})$, where the second component is not structurally smaller. We bypass this restriction by instead recursing over the curried form \Function[NBE.Normalization]{reifyRow⃗}. In both the row literal and row complement case, some bookkeeping is necessary to ensure that (respectively) reification respects row orderedness and reification does not produce row literals from inert rows.
 
-Finally, The \Datatype{NormalType} constructor \Constructor{ne} stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence the composition of reflection and reification effectively $\eta$-expands neutral types (\Function[NBE.Normalization]{η-norm}).
+Finally, The \Datatype{NormalType} constructor \Constructor{ne} stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence the composition of reflection and reification effectively $\eta$-expands neutral types.
 
 \begin{code}[hide]
 module ηNorm where 
@@ -1073,7 +1073,7 @@ Next, when applying \Function{⟨Π⟩} to a function, we expand the semantic $\
 These two rules characterize the computational interaction of $\Pi$ and $\Sigma$ with higher-order and nested rows. We implement row computation via our semantic helpers. The fact that the semantic helpers resemble their syntactic equational rules, modulo some plumbing, is a desirable feature of our implementation.
 
 \paragraph{Evaluation}
-A semantic environment (\Type[NBE.Normalization]{SemEnv}) maps type variables to semantic types. The identity environment (\Type[NBE.Normalization]{idEnv}), which fixes the meaning of variables, is given as the composition of reflection and \Constructor{`}. Evaluation (\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}, \cref{fig:evaluation}) maps \Datatype{Type}s to semantic types, given a suitable semantic environment.
+A semantic environment (\Type[NBE.Normalization]{SemEnv}) maps type variables to semantic types, and thus the identity environment (\Type[NBE.Normalization]{idEnv}) fixes the meaning of variables. Evaluation (\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}, \cref{fig:evaluation}) maps \Datatype{Type}s to semantic types, given a suitable semantic environment.
 
 
 \begin{code}
@@ -1151,7 +1151,7 @@ We describe only the interesting cases of evaluation. The first equation states 
   ⇓ τ = reify (⟦ τ ⟧ idEnv)
 \end{code}
 
-\Ni Similar definitions can be given for the evaluation and normalization of predicates and row literals, which we express via the \ALink{NBE.Normalization}{EvaluateTC.⟦\Underscore⟧}{typeclass} methods \Typeclass{⟦\Underscore{}⟧} and \Typeclass{⇓}, respectively.
+\Ni Similar definitions can be given for the evaluation and normalization of predicates and row literals, which we express via the \ALink{NBE.Normalization}{EvaluateTC.⟦\Underscore⟧}{typeclass} \ALink{NBE.Normalization}{NormalizeTC.⇓}{methods} \Typeclass{⟦\Underscore{}⟧} and \Typeclass{⇓}, respectively.
 \fi
 
 % -----------------------------------------------------------------------------
@@ -1170,7 +1170,7 @@ module Canonicity where
   open import Rome.Types ; open import Rome.NormalTypes
   open import Rome.Kinds 
 \end{code}
-Canonicity \SourceP{Metatheory.Canonicity} asserts that arrow, row, and label-kinded normal types have certain canonical forms. In any context an arrow-kinded type is canonically $\lambda$-bound:
+\emph{Canonicity} \SourceP{Metatheory.Canonicity} asserts that arrow, row, and label-kinded normal types have certain canonical forms. In any context an arrow-kinded type is canonically $\lambda$-bound:
 \begin{code}
   arrow-canonicity : (f : NormalType Δ (κ₁ `→ κ₂)) → 
                      Σ[ τ ∈ (NormalType (Δ , κ₁) κ₂) ] 
@@ -1225,7 +1225,7 @@ Stability \SourceP{Metatheory.Stability} asserts that embedding (\Typeclass{⇑}
   stability = Stability.stability
 \end{code}
 
-\Ni Stability implies \Function[Metatheory.Stability]{idempotency} of normalization:
+\Ni \emph{Stability} implies \Function[Metatheory.Stability]{idempotency} of normalization:
 \begin{code}
   idempotency : ∀ (τ : Type Δ κ) → 
                 ((⇑ ∘ ⇓) ∘ (⇑ ∘ ⇓)) τ ≡ (⇑ ∘ ⇓) τ 
@@ -1345,7 +1345,7 @@ Some plumbing is necessary in the case that we are equating two inert maps $\Map
 
 \Ni Kind equality is decidable (\Function[Kinds.Properties.Decidability][\Underscore≡ₖ\Underscore]{≡ₖ}), which lets us relate inert maps only when the domains of $\phi$ and $\psi$ (that is, $\kappa_{1}$ and $\kappa_1'$) are equivalent. The predicates \Function[Metatheory.Soundness.Relation]{UniformNE} and \Function[Metatheory.Soundness.Relation]{PointEqualNE-≈} are entirely analogous to \Function{Uniform} and \Function{PointEqual-≈} except that they describe Kripke functions in which the domain is a \Datatype{NeutralType} rather than \Type{SemType}. 
 
-Finally, we relate row literals of equal length by a pointwise relation of their contents (\Type[Metatheory.Soundness.Relation][\Underscore≈ᵣ\Underscore]{≈ᵣ}).
+Finally, we relate row literals of equal length by a pointwise relation of their contents.
 
 \begin{code}
   _≈_ {κ = R[ κ ]} (row (n , P) p) (row (m , Q) q) with 
@@ -1363,7 +1363,7 @@ Finally, we relate row literals of equal length by a pointwise relation of their
 
 \paragraph{Properties}
 
-Towards proving the fundamental lemma, we observe some crucial properties of the soundness relation. Firstly, propositionally equal neutral types reflect to equivalent semantic objects (\Function[Metatheory.Soundness.Relation]{reflect-≈}):
+Towards proving the fundamental lemma, we observe some crucial properties of the soundness relation. Firstly, propositionally equal neutral types reflect to equivalent semantic objects:
 
 \begin{AgdaAlign}
 \begin{code}[hide] 
@@ -1383,7 +1383,7 @@ module FundSoundness where
   reflect-≈ = Soundness.reflect-≈
 \end{code}
 
-\Ni Dually, equivalent semantic objects reify to propositionally equal types (\Function[Metatheory.Soundness.Relation]{reify-≈}). 
+\Ni Dually, equivalent semantic objects reify to propositionally equal types: 
 
 \begin{code}
   reify-≈ : {V₁ V₂ : SemType Δ κ} → 
@@ -1393,7 +1393,7 @@ module FundSoundness where
   reify-≈ = Soundness.reify-≈
 \end{code}
 
-Crucial to most proofs is that the soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric (\Function[Metatheory.Soundness.Relation]{sym-≈}) and transitive (\Function[Metatheory.Soundness.Relation]{trans-≈}): 
+Crucial to most proofs is that the soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric and transitive: 
 
 \begin{code}[hide]
   module _ {V₁ V₂ V₃ : SemType Δ κ} where 
@@ -1407,7 +1407,7 @@ Crucial to most proofs is that the soundness relation forms a \emph{partial equi
     sym-≈   = Soundness.sym-≈
 \end{code}
 
-\Ni but not reflexive. As with all PERs, however, we have a quasi-reflexive property: provided $V_1$ relates to \emph{some} $V_2$, then both $V_1$ and $V_2$ relate to themselves (\Function[Metatheory.Soundness.Relation]{refl-≈ˡ} and \Function[Metatheory.Soundness.Relation]{refl-≈ʳ}).
+\Ni but not reflexive. As with all PERs, however, we have a quasi-reflexive property: provided $V_1$ relates to \emph{some} $V_2$, then both $V_1$ and $V_2$ relate to themselves.
 
 \begin{code}[hide]
   module _ {V₁ V₂ : SemType Δ κ} where 
@@ -1423,7 +1423,7 @@ Crucial to most proofs is that the soundness relation forms a \emph{partial equi
 
 
 \paragraph{Logical environments}
-We lift the soundness relation to a pointwise equivalence on semantic environments (\Type[Metatheory.Soundness.Relation][\Underscore≈ₑ\Underscore]{≈ₑ}).
+We lift the soundness relation to a pointwise equivalence on semantic environments.
 
 \begin{code}
   _≈ₑ_ : {Δ₁ : KEnv} (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
@@ -1486,7 +1486,7 @@ module ConsistencyStatement where
 \end{AgdaAlign}
 
 
-We define a logical relation for consistency \Function[Metatheory.Consistency.Relation][⟦\Underscore⟧≈\Underscore]{⟦\Dash⟧≈\Dash} by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ is equivalent to the embedding of $V$. In other words, $\tau$ and $V$ are identified up to type equivalence.
+We define a logical relation for consistency (\Function[Metatheory.Consistency.Relation][⟦\Underscore⟧≈\Underscore]{⟦\Dash⟧≈\Dash}) by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ is equivalent to the embedding of $V$. In other words, $\tau$ and $V$ are identified up to type equivalence.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -1518,7 +1518,7 @@ module ConsistencyRelation where
       ⟦ ren r f · τ ⟧≈ (renKripke r φ ⟨·⟩ V)
 \end{code}
 
-That a type $\tau$ is equivalent to an inert map $\Mapp \phi n$ requires the identification of some equivalent type $\Mapp f {\Embed\, n}$ such that $f$ is related to $\phi$. Of course, $\phi$ is not a \Type{SemType} (its domain is a neutral type), and so the definition \Function{ConsistentKripkeNE} mirrors the logic above for relating functional types modulo a neutral domain argument.
+That a type $\tau$ is equivalent to an inert map $\Mapp \phi n$ requires the identification of some equivalent type $\Mapp f {\Embed\, n}$ such that $f$ is related to $\phi$. Of course, $\phi$ is not a \Type{SemType} (its domain is a neutral type), and so the definition \Function[Metatheory.Consistency.Relation]{ConsistentKripkeNE} mirrors the logic above for relating functional types modulo a neutral domain argument.
 
 \begin{code}
   ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (φ $ n) = 
@@ -1560,7 +1560,7 @@ For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with
 
 \paragraph{Properties}
 
-The consistency relation observes properties analogous to the soundness relation. First, types equivalent to neutral types are related to their reflection \Function[Metatheory.Consistency.Relation]{reflect-⟦⟧≈}:
+The consistency relation observes properties analogous to the soundness relation. First, types equivalent to neutral types are related to their reflection:
 
 \begin{AgdaAlign}
 \begin{code}[hide] 
@@ -1581,7 +1581,7 @@ module FundConsistencyStatement where
   reflect-⟦⟧≈ = Consistency.reflect-⟦⟧≈
 \end{code}
 
-\Ni Dually, types related to semantic objects are equivalent to their reification (\Function[Metatheory.Consistency.Relation]{reify-⟦⟧≈}):
+\Ni Dually, types related to semantic objects are equivalent to their reification:
 
 \begin{code}
   reify-⟦⟧≈ : {τ : Type Δ κ} {V :  SemType Δ κ} → 
@@ -1592,7 +1592,7 @@ module FundConsistencyStatement where
 \end{code}
 
 \paragraph{Logical environments}
-We pointwise relate syntactic substitutions with semantic environments (\Function[Metatheory.Consistency.Relation][⟦\Underscore⟧≈₂\Underscore]{⟦\Dash⟧≈ₑ\Dash}).
+We pointwise relate syntactic substitutions with semantic environments.
 
 \begin{code}
   ⟦_⟧≈ₑ_ : Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
@@ -1651,7 +1651,7 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
 
 \paragraph{Completeness}
 
-Consistency implies completeness \SourceP{Metatheory.Completeness}, which is dual to soundness. The derivation is given below using \ALink{Types.Equivalence}{≡ₜ-Reasoning}{custom support} for equational reasoning over type equivalence. The helper \Function[Types.Equivalence]{inst} reflects propositional equality to type equivalence, and the suffix (\Constructor[Types.Equivalence][≡ₜ-Groupoid]{⁻¹}) witnesses symmetry of type equivalence.
+\emph{Completeness} \SourceP{Metatheory.Completeness} is a simple corollary of consistency. The derivation is given below using \ALink{Types.Equivalence}{≡ₜ-Reasoning}{custom support} for equational reasoning over type equivalence. The helper \Function[Types.Equivalence]{inst} reflects propositional equality to type equivalence, and the suffix (\Constructor[Types.Equivalence][≡ₜ-Groupoid]{⁻¹}) witnesses symmetry of type equivalence.
 
 % #[LINK][to completeness proof]
 \begin{AgdaAlign}
