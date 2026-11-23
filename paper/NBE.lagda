@@ -917,7 +917,7 @@ Reflection asserts that neutral forms have semantic representations. We define r
 
 Reification asserts that semantic values have syntactic representations. The definition of reification is a little more involved (\cref{fig:reification}). The first two equations are expected ($\tau$ is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion. Here we see why we choose to interpret functions with a Kripke flavor, as the weakening renaming \Constructor[Kinds.Syntax][TVar.S]{S} is crucial to permitting $\phi$ to operate over the just-introduced type variable \Constructor{` Z}. The remaining equations describe the reification of the four row cases. In the $\Mapp \phi \tau$ case, we must reify the neutral Kripke function $\phi$ analogously to the reification of type operators. We reify row literals effectively by mapping reification over the contents of each semantic row, reconstructing a list as we go along. A straightforward definition of \Function[NBE.Normalization]{reifyRow} might attempt to induct over the \Type{Row} argument's length (its first component), which Agda's termination checker rejects. This is because the recursive call in the successor case will be over $(n , P \circ \text{fsuc})$, where the second component is not structurally smaller. We bypass this restriction by instead recursing over the curried form \Function[NBE.Normalization]{reifyRow⃗}. In both the row literal and row complement case, some bookkeeping is necessary to ensure that (respectively) reification respects row orderedness and reification does not produce row literals from inert rows.
 
-Finally, The \Datatype{NormalType} constructor \Constructor{ne} stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence the composition of reflection and reification effectively $\eta$-expands neutral types.
+Finally, The \Datatype{NormalType} constructor \Constructor{ne} stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence the composition of reflection and reification effectively $\eta$-expands neutral types (\Function[NBE.Normalization]{η-norm}).
 
 \begin{code}[hide]
 module ηNorm where 
@@ -963,7 +963,7 @@ module Evaluation where
 
 \paragraph{Semantic application}
 
-We define semantic application straightforwardly as Agda application under the identity renaming.
+We define semantic application (\Function[NBE.Normalization][\Underscore⟨·⟩\Underscore]{⟨·⟩}) straightforwardly as Agda application under the identity renaming.
 
 \begin{code}
   _⟨·⟩_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → 
@@ -975,7 +975,7 @@ We define semantic application straightforwardly as Agda application under the i
 \Ni Semantic application implements $\beta$-reduction. 
 
 \paragraph{Semantic mapping}
-We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row may take. The functions \Function{orderedMap₂} and \Function{NotRowLiteral\$} are bookkeeping that assert our orderedness and row literal predicates are preserved by semantic mapping.
+We define mapping (\Function[NBE.Normalization][\Underscore⟨$⟩\Underscore]{⟨\$⟩}) over the four cases a semantic row may take. The functions \Function[NBE.Syntax][orderedMap₂]{ordered\-Map₂} and \Function[NBE.Syntax][NotRowLiteral]{NotRowLiteral\$} are bookkeeping that assert our orderedness and row literal predicates are preserved by semantic mapping.
 
 \begin{AgdaAlign}
 \begin{code}
@@ -1005,11 +1005,11 @@ We define the mapping $\Mapp {\phi} {\rho}$ over the four cases a semantic row m
 \end{code}
 \end{AgdaAlign}
 
-\Ni The case where $\rho$ is a row literal is interesting in that our choice of representation for row literals as finite maps pays off: we express the mapping of $\phi$ across the row $(n , P)$ by composing $P$ with $F$. (The function \Function{map₂} maps over a tuple's second component.) This equation, and line 3, implement the equational rule \errule{map}. 
+\Ni The case where $\rho$ is a row literal is interesting in that our choice of representation for row literals as finite maps pays off: we express the mapping of $\phi$ across the row $(n , P)$ by composing $P$ with $F$. (The function \Function{\Name[Data]{Product.Base}{map₂}} maps over a tuple's second component.) This equation, and line 3, implement the equational rule \errule{map}. 
 
 The mapping of $\phi$ over a complement is distributive, following rule \errule{map$_{\setminus}$}. Likewise, we follow rule \errule{map$_\circ$} in grouping the nested map $\Mapp {\phi_1} {(\Mapp {phi_2}  n)}$ into a composed map. Here again a functional representation pays off by permitting composition in the semantic domain.
 
-\paragraph{Semantic complement} The complement of two row-kinded semantic types is always inert when one (or both) are not row literals, and thus constructed simply by the \Constructor{\Underscore{}∖\Underscore{}} constructor. The interesting case is when we must reduce two row literals to another row literal.
+\paragraph{Semantic complement} The complement of two row-kinded semantic types (\Function[NBE.Normalization][\Underscore∖v\Underscore]{⟨∖⟩}) is always inert when one (or both) are not row literals, and thus constructed simply by the \Constructor[NBE.Syntax][SemRow.\Underscore∖\Underscore]{\Underscore{}∖\Underscore{}} constructor. The interesting case is when we must reduce two row literals to another row literal.
 
 \begin{AgdaAlign}
 \begin{code}
@@ -1037,7 +1037,7 @@ The mapping of $\phi$ over a complement is distributive, following rule \errule{
 The semantic helper above implements the subtract function given in \cref{fig:equivalence}, and is effectively identical logic. In the interest of concision, we present this helper by induction over the \Type{Row} input's first component, which Agda's termination checker rejects. Like with \Function{reifyRow} (\cref{fig:reification}), our artifact instead recurses over a curried form. This nuisance highlights a shortcoming in Agda's strictly syntactic termination checking, and could be avoided with type-based alternatives~\citep{AbelP16, AbreuDHJMS23}.
 
 \paragraph{Semantic flap}
-We define a semantic version of the flap operator as follows. This definition is auxiliary but helpful in tidying code.
+We define a semantic version of the flap operator (\Function[NBE.Normalization][\Underscore⟨?⟩\Underscore]{⟨?⟩}) as follows. This definition is auxiliary but helpful in tidying code.
 
 \begin{code}
   apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
@@ -1049,7 +1049,7 @@ We define a semantic version of the flap operator as follows. This definition is
 
 \paragraph{Semantic $\Pi$ and $\Sigma$} 
 \label{sec:semantic-Pi}
-The defining equations for the reduction of $\Pi$ is given below. The logic for $\Sigma$ is identical and omitted.
+The defining equations for the reduction of $\Pi$ is given below (\Function[NBE.Normalization]{⟨Π⟩}). The logic for \Function[NBE.Normalization]{⟨Σ⟩} is identical and omitted.
 
 \begin{code}
   ⟨Π⟩ : SemType Δ R[ κ ] → SemType Δ κ 
@@ -1066,14 +1066,14 @@ The defining equations for the reduction of $\Pi$ is given below. The logic for 
   ⟨Σ⟩ {κ = L} _ = lab "impossible"
 \end{code}
  
-Recall that we may only construct record types in normal form at kind $\TypeK$, and so for the case that $\kappa = \TypeK$ we simply reify the input and construct the record via the \Datatype{NormalType} constructor \Constructor{Pi}. We exclude the case that $\kappa = \LabK$ because it is impossible (recall that in the \Datatype{Type} syntax, we restrict the formation of the $\Pi$ constructor to just non-label kinds.) 
+Recall that we may only construct record types in normal form at kind $\TypeK$, and so for the case that $\kappa = \TypeK$ we simply reify the input and construct the record via the \Datatype{NormalType} constructor \Constructor{Π}. We exclude the case that $\kappa = \LabK$ because it is impossible (recall that in the \Datatype{Type} syntax, we restrict the formation of the \Constructor{Π} constructor to just non-label kinds.) 
 
 Next, when applying \Function{⟨Π⟩} to a function, we expand the semantic $\lambda$-binding outwards. Thereafter, we apply rule \errule{assoc$_\Pi$} to explain how \Function{⟨Π⟩} operates on a single operand. We implement rule \errule{$\Pi$} directly in the last equation: the application of \Function{⟨Π⟩} to a row-kinded input $\rho$ is simply the mapping of \Function{⟨Π⟩}  over $\rho$.
 
 These two rules characterize the computational interaction of $\Pi$ and $\Sigma$ with higher-order and nested rows. We implement row computation via our semantic helpers. The fact that the semantic helpers resemble their syntactic equational rules, modulo some plumbing, is a desirable feature of our implementation.
 
 \paragraph{Evaluation}
-A semantic environment maps type variables to semantic types. The identity environment, which fixes the meaning of variables, is given as the composition of reflection and \Constructor{`}. Evaluation (\cref{fig:evaluation}) maps \Datatype{Type}s to semantic types, given a suitable semantic environment.
+A semantic environment (\Type[NBE.Normalization]{SemEnv}) maps type variables to semantic types. The identity environment (\Type[NBE.Normalization]{idEnv}), which fixes the meaning of variables, is given as the composition of reflection and \Constructor{`}. Evaluation (\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}, \cref{fig:evaluation}) maps \Datatype{Type}s to semantic types, given a suitable semantic environment.
 
 
 \begin{code}
@@ -1142,16 +1142,16 @@ A semantic environment maps type variables to semantic types. The identity envir
 \end{figure}
 
 
-We describe only the interesting cases of evaluation. The first equation states that variables evaluate to their meaning in environment $\eta$. As desired, the equations for application \Constructor{\Underscore{}·\Underscore{}}, row complement \Constructor{\Underscore{}∖\Underscore{}}, record and variant operators \Constructor{Π} and \Constructor{Σ}, and mapping \Constructor{\Underscore{}\$\Underscore{}} defer to the semantic helpers defined in this section. (The operation \Function{⟨∖⟩′} is the semantic complement operator for row literals lifted to \Datatype{SemRow}s.) Evaluation of labeled singletons must check if the label is a neutral variable $n$ or label literal $\ell$, making sure to only construct row literals with literal labels. The evaluation of row literals $\Infix{\Sem{\Dash}_{\rho}}$ is effectively inverse to \Function{reifyRow} (\cref{fig:reification}). In each case, we employ our smart constructors for semantic row literals. We have an obligation to prove that evaluation preserves the ordering evidence $\omega$, which is performed by the auxiliary lemma $\Infix{\SemO{\Dash}}$ denoting ordered row literal evidence to ordered semantic row evidence.
+We describe only the interesting cases of evaluation. The first equation states that variables evaluate to their meaning in environment $\eta$. As desired, the equations for application (\Constructor{\Underscore{}·\Underscore{}}), row complement (\Constructor{\Underscore{}∖\Underscore{}}), record and variant operators (\Constructor{Π} and \Constructor{Σ}), and mapping (\Constructor{\Underscore{}\$\Underscore{}}) defer to the semantic helpers defined in this section. (The operation \Function[NBE.Normalization][\Underscore⟨∖⟩\Underscore]{⟨∖⟩′} is the semantic complement operator for row literals lifted to \Datatype{SemRow}s.) Evaluation of labeled singletons must check if the label is a neutral variable \Var{ν} or label literal $\ell$, making sure to only construct row literals with literal labels. The evaluation of row literals (\Function[NBE.Normalization][⟦\Underscore⟧ᵣ]{⟦\Underscore⟧ᵣ}) is effectively inverse to \Function{reifyRow} (\cref{fig:reification}). In each case, we employ our smart constructors for semantic row literals. We have an obligation to prove that evaluation preserves the ordering evidence \Var{ω}, which is performed by the auxiliary lemma \Function[NBE.Normalization][⟦\Underscore⟧ₒ]{⟦\Underscore⟧ₒ} denoting ordered row literal evidence to ordered semantic row evidence.
 
-\paragraph{Normalization} Finally, normalization in the NbE approach is simply the composition of reification after evaluation.  
+\paragraph{Normalization} Finally, normalization (\Function[NBE.Normalization][⇓ₜ]{⇓}) in the NbE approach is simply the composition of reification after evaluation.  
 
 \begin{code}
   ⇓ : Type Δ κ → NormalType Δ κ 
   ⇓ τ = reify (⟦ τ ⟧ idEnv)
 \end{code}
 
-\Ni Similar definitions can be given for the evaluation and normaliation of predicates and row literals, which we express via the typeclass methods \Symbol{\Typeclass{⟦\Underscore{}⟧}} and \Symbol{\Typeclass{⇓}}, respectively.
+\Ni Similar definitions can be given for the evaluation and normalization of predicates and row literals, which we express via the \ALink{NBE.Normalization}{EvaluateTC.⟦\Underscore⟧}{typeclass} methods \Typeclass{⟦\Underscore{}⟧} and \Typeclass{⇓}, respectively.
 \fi
 
 % -----------------------------------------------------------------------------
