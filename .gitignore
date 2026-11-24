@@ -280,3 +280,4 @@ time-of-build-both.log
 time-of-build-pretty.log
 
 *.ptb
+*.zip
