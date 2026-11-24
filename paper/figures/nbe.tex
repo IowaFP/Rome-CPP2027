@@ -1,38 +1,45 @@
 \begin{figure}[t]
 \centering
-\resizebox{\columnwidth}{!}{%
 \begin{tikzpicture}[
   >=stealth,
   thick,
   every node/.style={font=\small},
-  tycircle/.style={circle, draw=black!75, fill=black!2, minimum size=4.1cm},
-  nocircle/.style={circle, draw=black!75, fill=black!6, minimum size=2.65cm},
-  necircle/.style={circle, draw=black!75, fill=black!11, minimum size=1.35cm, align=center},
-  semcircle/.style={circle, draw=blue!55!black, fill=blue!6, minimum size=1.85cm, align=center},
-  fn/.style={->, thick}
+  tycircle/.style={circle, draw=black!75, fill=black!2, minimum size=3.7cm},
+  nocircle/.style={circle, draw=black!75, fill=black!6, minimum size=2.4cm},
+  necircle/.style={circle, draw=black!75, fill=black!11, minimum size=1.22cm, align=center},
+  semcircle/.style={circle, draw=blue!55!black, fill=blue!6, minimum size=1.65cm, align=center},
+  fn/.style={->, thick},
+  dbl/.style={->, >=stealth, double, thick}
 ]
   % Left: Nested circles (NeutralType inside NormalType inside Type)
   \node[tycircle] (ty) at (0, 0) {};
-  \node[nocircle] (no) at (-0.18, -0.18) {};
-  \node[necircle] (ne) at (-0.36, -0.36) {\scriptsize\Datatype[NormalTypes.Syntax]{NeutralType}};
+  \node[nocircle] (no) at (-0.16, -0.16) {};
+  \node[necircle] (ne) at (-0.32, -0.32) {\scriptsize\Datatype[NormalTypes.Syntax]{NeutralType}};
 
   % Labels for Type and NormalType inside their rings
-  \node[anchor=north] at (0, 1.95) {\Datatype[Types.Syntax]{Type}};
-  \node[anchor=north] at (-0.18, 1.02) {\Datatype[NormalTypes.Syntax]{NormalType}};
+  \node[anchor=north] at (0, 1.75) {\Datatype[Types.Syntax]{Type}};
+  \node[anchor=north] at (-0.16, 0.90) {\Datatype[NormalTypes.Syntax]{NormalType}};
 
   % Right: SemType
-  \node[semcircle] (sem) at (4.35, 0) {\Datatype[NBE.Syntax]{SemType}};
+  \node[semcircle] (sem) at (3.85, 0) {\Datatype[NBE.Syntax]{SemType}};
 
   % 1. Evaluation: Type -> SemType (top arrow)
-  \draw[fn] (1.65, 1.15) -- node[above] {\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}} (3.45, 0.45);
+  \draw[fn] (1.48, 1.05) -- node[above] {\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}} (3.05, 0.40);
 
   % 2. Reflect: NeutralType -> SemType (middle arrow)
-  \draw[fn] (0.31, -0.36) -- node[above, pos=0.55] {\Function[NBE.Normalization]{reflect}} (3.42, 0);
+  \draw[fn] (0.28, -0.32) -- node[above, pos=0.55] {\Function[NBE.Normalization]{reflect}} (3.02, 0);
 
   % 3. Reify: SemType -> NormalType (bottom arrow)
-  \draw[fn] (3.45, -0.45) -- node[below] {\Function[NBE.Normalization]{reify}} (1.12, -0.45);
+  \draw[fn] (3.05, -0.40) -- node[below] {\Function[NBE.Normalization]{reify}} (1.02, -0.40);
+
+  % 4. Normalization: Type -> NormalType labeled ⇓
+  \draw[->, >=stealth, double, thick] (-1.0, -1.32) to[bend right=20]
+    node[below] {\scriptsize $\Function[NBE.Normalization][⇓ₜ]{⇓}$} (-0.25, -1.19);
+
+  % 5. Neutral -> Normal normalization: NeutralType -> NormalType labeled η-norm
+  \draw[->, >=stealth, double, thick] (0.04, -0.74) to[bend right=22]
+    node[below right, inner sep=3pt] {\scriptsize \Function[NBE.Normalization]{η-norm}} (0.46, -0.95);
 \end{tikzpicture}%
-}
 \caption{Normalization by evaluation: reflection, reification, and evaluation.}
 \label{fig:nbe}
 \end{figure}
