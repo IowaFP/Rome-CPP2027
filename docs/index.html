@@ -45,129 +45,139 @@ We borrow some notation and conventions from HoTT, e.g. we write:
 - `_⁻¹` for sym; and
 - `_○_` for trans
 
-**But**, we do *not* presume univalence in any form, nor is this a cubical Agda development.
+**But**, we do *not* presume univalence in any form, nor is this a cubical Agda development. To facilitate wide reuse of syntax like `_○_` for transitivity and `_⁻¹` for symmetry across propositional equality, homotopy, and type equivalence, we create a typeclass for Groupoid and Order syntax in:
 
+</a><a id="2631" class="Markup">```agda
+</a><a id="2639" class="Keyword">open</a> <a id="2644" class="Keyword">import</a> <a id="2651" href="Rome.Prelude.Groupoids.html" class="Module">Rome.Prelude.Groupoids</a> <a id="2674" class="Keyword">public</a>
+<a id="2681" class="Markup">```
+</a><a id="2685" class="Background">
+We also add some functionality for Homotopies in:
+
+</a><a id="2737" class="Markup">```agda 
+</a><a id="2746" class="Keyword">open</a> <a id="2751" class="Keyword">import</a> <a id="2758" href="Rome.Prelude.Homotopies.html" class="Module">Rome.Prelude.Homotopies</a> <a id="2782" class="Keyword">public</a>
+<a id="2789" class="Markup">``` 
+</a><a id="2794" class="Background">
 The modules `Levels` and `Sets`
 
-</a><a id="2459" class="Markup">```agda 
-</a><a id="2468" class="Keyword">open</a> <a id="2473" class="Keyword">import</a> <a id="2480" href="Rome.Prelude.GVars.Levels.html" class="Module">Rome.Prelude.GVars.Levels</a> <a id="2506" class="Keyword">public</a>
-<a id="2513" class="Keyword">open</a> <a id="2518" class="Keyword">import</a> <a id="2525" href="Rome.Prelude.GVars.Sets.html" class="Module">Rome.Prelude.GVars.Sets</a> <a id="2549" class="Keyword">public</a>
-<a id="2556" class="Markup">``` 
-</a><a id="2561" class="Background">
+</a><a id="2828" class="Markup">```agda 
+</a><a id="2837" class="Keyword">open</a> <a id="2842" class="Keyword">import</a> <a id="2849" href="Rome.Prelude.GVars.Levels.html" class="Module">Rome.Prelude.GVars.Levels</a> <a id="2875" class="Keyword">public</a>
+<a id="2882" class="Keyword">open</a> <a id="2887" class="Keyword">import</a> <a id="2894" href="Rome.Prelude.GVars.Sets.html" class="Module">Rome.Prelude.GVars.Sets</a> <a id="2918" class="Keyword">public</a>
+<a id="2925" class="Markup">``` 
+</a><a id="2930" class="Background">
 export generalized variables for levels (e.g., ℓ, ℓ₁ , ...) and sets (e.g., A : Set ℓ, B : Set ℓ, ...). 
 
 ### Prelude.Containment 
 
 The `Containment` module contains some definitions and lemmas for list containment. Specifically, it has some definitions that help when working with row literals.
 
-</a><a id="2859" class="Markup">```agda
-</a><a id="2867" class="Keyword">open</a> <a id="2872" class="Keyword">import</a> <a id="2879" href="Rome.Prelude.Containment.html" class="Module">Rome.Prelude.Containment</a> <a id="2904" class="Keyword">public</a>
-<a id="2911" class="Markup">``` 
-</a><a id="2916" class="Background">
+</a><a id="3228" class="Markup">```agda
+</a><a id="3236" class="Keyword">open</a> <a id="3241" class="Keyword">import</a> <a id="3248" href="Rome.Prelude.Containment.html" class="Module">Rome.Prelude.Containment</a> <a id="3273" class="Keyword">public</a>
+<a id="3280" class="Markup">``` 
+</a><a id="3285" class="Background">
 ## Kind syntax (§ 3.1)
 
 The syntax of kinds, kinding environments, and type variables is given by:
 
-</a><a id="3017" class="Markup">```agda 
-</a><a id="3026" class="Keyword">open</a> <a id="3031" class="Keyword">import</a> <a id="3038" href="Rome.Kinds.Syntax.html" class="Module">Rome.Kinds.Syntax</a> <a id="3056" class="Keyword">public</a> 
-<a id="3064" class="Markup">``` 
-</a><a id="3069" class="Background">
+</a><a id="3386" class="Markup">```agda 
+</a><a id="3395" class="Keyword">open</a> <a id="3400" class="Keyword">import</a> <a id="3407" href="Rome.Kinds.Syntax.html" class="Module">Rome.Kinds.Syntax</a> <a id="3425" class="Keyword">public</a> 
+<a id="3433" class="Markup">``` 
+</a><a id="3438" class="Background">
 We also define some generalized variables, e.g., Δ for kinding envs and κ for Kinds, in: 
-</a><a id="3160" class="Markup">```agda 
-</a><a id="3169" class="Keyword">open</a> <a id="3174" class="Keyword">import</a> <a id="3181" href="Rome.Kinds.GVars.html" class="Module">Rome.Kinds.GVars</a> <a id="3198" class="Keyword">public</a>
-<a id="3205" class="Markup">```
-</a><a id="3209" class="Background">
-That syntactic kind equality is decidable (§6) is defined in: 
+</a><a id="3529" class="Markup">```agda 
+</a><a id="3538" class="Keyword">open</a> <a id="3543" class="Keyword">import</a> <a id="3550" href="Rome.Kinds.GVars.html" class="Module">Rome.Kinds.GVars</a> <a id="3567" class="Keyword">public</a>
+<a id="3574" class="Markup">```
+</a><a id="3578" class="Background">
+That syntactic kind equality is decidable (§7.3) is defined in: 
 
-</a><a id="3274" class="Markup">```agda 
-</a><a id="3283" class="Keyword">open</a> <a id="3288" class="Keyword">import</a> <a id="3295" href="Rome.Kinds.Properties.Decidability.html" class="Module">Rome.Kinds.Properties.Decidability</a> <a id="3330" class="Keyword">public</a>
-<a id="3337" class="Markup">```
-</a><a id="3341" class="Background">
+</a><a id="3645" class="Markup">```agda 
+</a><a id="3654" class="Keyword">open</a> <a id="3659" class="Keyword">import</a> <a id="3666" href="Rome.Kinds.Properties.Decidability.html" class="Module">Rome.Kinds.Properties.Decidability</a> <a id="3701" class="Keyword">public</a>
+<a id="3708" class="Markup">```
+</a><a id="3712" class="Background">
 ## Types (§3.2)
 
 The syntax of types, row literals, and predicates is defined in: 
 
-</a><a id="3426" class="Markup">```agda
-</a><a id="3434" class="Keyword">open</a> <a id="3439" class="Keyword">import</a> <a id="3446" href="Rome.Kinds.Syntax.html" class="Module">Rome.Kinds.Syntax</a> <a id="3464" class="Keyword">public</a>
-<a id="3471" class="Markup">``` 
-</a><a id="3476" class="Background">
+</a><a id="3797" class="Markup">```agda
+</a><a id="3805" class="Keyword">open</a> <a id="3810" class="Keyword">import</a> <a id="3817" href="Rome.Kinds.Syntax.html" class="Module">Rome.Kinds.Syntax</a> <a id="3835" class="Keyword">public</a>
+<a id="3842" class="Markup">``` 
+</a><a id="3847" class="Background">
 Type renaming and substitution are defined in: 
 
-</a><a id="3526" class="Markup">```agda 
-</a><a id="3535" class="Keyword">open</a> <a id="3540" class="Keyword">import</a> <a id="3547" href="Rome.Types.Renaming.html" class="Module">Rome.Types.Renaming</a> <a id="3567" class="Keyword">public</a>
-<a id="3574" class="Keyword">open</a> <a id="3579" class="Keyword">import</a> <a id="3586" href="Rome.Types.Substitution.html" class="Module">Rome.Types.Substitution</a> <a id="3610" class="Keyword">public</a>
-<a id="3617" class="Markup">``` 
-</a><a id="3622" class="Background">
+</a><a id="3897" class="Markup">```agda 
+</a><a id="3906" class="Keyword">open</a> <a id="3911" class="Keyword">import</a> <a id="3918" href="Rome.Types.Renaming.html" class="Module">Rome.Types.Renaming</a> <a id="3938" class="Keyword">public</a>
+<a id="3945" class="Keyword">open</a> <a id="3950" class="Keyword">import</a> <a id="3957" href="Rome.Types.Substitution.html" class="Module">Rome.Types.Substitution</a> <a id="3981" class="Keyword">public</a>
+<a id="3988" class="Markup">``` 
+</a><a id="3993" class="Background">
 Properties of renaming and substitution (i.e., lemmas and theorems) are defined in:
 
-</a><a id="3708" class="Markup">```agda 
-</a><a id="3717" class="Keyword">open</a> <a id="3722" class="Keyword">import</a> <a id="3729" href="Rome.Types.Properties.Renaming.html" class="Module">Rome.Types.Properties.Renaming</a> <a id="3760" class="Keyword">public</a>
-<a id="3767" class="Keyword">open</a> <a id="3772" class="Keyword">import</a> <a id="3779" href="Rome.Types.Properties.Substitution.html" class="Module">Rome.Types.Properties.Substitution</a> <a id="3814" class="Keyword">public</a>
-<a id="3821" class="Markup">```
-</a><a id="3825" class="Background">
+</a><a id="4079" class="Markup">```agda 
+</a><a id="4088" class="Keyword">open</a> <a id="4093" class="Keyword">import</a> <a id="4100" href="Rome.Types.Properties.Renaming.html" class="Module">Rome.Types.Properties.Renaming</a> <a id="4131" class="Keyword">public</a>
+<a id="4138" class="Keyword">open</a> <a id="4143" class="Keyword">import</a> <a id="4150" href="Rome.Types.Properties.Substitution.html" class="Module">Rome.Types.Properties.Substitution</a> <a id="4185" class="Keyword">public</a>
+<a id="4192" class="Markup">```
+</a><a id="4196" class="Background">
 ### Type Equivalence (§3.3)
 
 The inductive relation `_≡t_` for type equivalence, as well as its metatheoretic properties, are defined (resp.) in:
 
-</a><a id="3973" class="Markup">```agda 
-</a><a id="3982" class="Keyword">open</a> <a id="3987" class="Keyword">import</a> <a id="3994" href="Rome.Types.Equivalence.html" class="Module">Rome.Types.Equivalence</a> <a id="4017" class="Keyword">public</a>
-<a id="4024" class="Keyword">open</a> <a id="4029" class="Keyword">import</a> <a id="4036" href="Rome.Types.Properties.Equivalence.html" class="Module">Rome.Types.Properties.Equivalence</a> <a id="4070" class="Keyword">public</a>
-<a id="4077" class="Markup">```
-</a><a id="4081" class="Background">
+</a><a id="4344" class="Markup">```agda 
+</a><a id="4353" class="Keyword">open</a> <a id="4358" class="Keyword">import</a> <a id="4365" href="Rome.Types.Equivalence.html" class="Module">Rome.Types.Equivalence</a> <a id="4388" class="Keyword">public</a>
+<a id="4395" class="Keyword">open</a> <a id="4400" class="Keyword">import</a> <a id="4407" href="Rome.Types.Properties.Equivalence.html" class="Module">Rome.Types.Properties.Equivalence</a> <a id="4441" class="Keyword">public</a>
+<a id="4448" class="Markup">```
+</a><a id="4452" class="Background">
 The claim in §3.3 that Π and Σ commute over λ-bindings is given in:
 
-</a><a id="4151" class="Markup">```agda 
-</a><a id="4160" class="Keyword">open</a> <a id="4165" class="Keyword">import</a> <a id="4172" href="Rome.Types.Properties.Derivable.html" class="Module">Rome.Types.Properties.Derivable</a> <a id="4204" class="Keyword">public</a>
-<a id="4211" class="Markup">```
-</a><a id="4215" class="Background">
+</a><a id="4522" class="Markup">```agda 
+</a><a id="4531" class="Keyword">open</a> <a id="4536" class="Keyword">import</a> <a id="4543" href="Rome.Types.Derivable.html" class="Module">Rome.Types.Derivable</a> <a id="4564" class="Keyword">public</a>
+<a id="4571" class="Markup">```
+</a><a id="4575" class="Background">
 ## Normal Types (§3.4)
 
 The syntax of normal types is defined in: 
 
-</a><a id="4284" class="Markup">```agda
-</a><a id="4292" class="Keyword">open</a> <a id="4297" class="Keyword">import</a> <a id="4304" href="Rome.NormalTypes.Syntax.html" class="Module">Rome.NormalTypes.Syntax</a> <a id="4328" class="Keyword">public</a>
-<a id="4335" class="Markup">``` 
-</a><a id="4340" class="Background">
+</a><a id="4644" class="Markup">```agda
+</a><a id="4652" class="Keyword">open</a> <a id="4657" class="Keyword">import</a> <a id="4664" href="Rome.NormalTypes.Syntax.html" class="Module">Rome.NormalTypes.Syntax</a> <a id="4688" class="Keyword">public</a>
+<a id="4695" class="Markup">``` 
+</a><a id="4700" class="Background">
 Renaming (§4.1) and substitution (§4.2), as well as their properties, are defined in:
 
-</a><a id="4428" class="Markup">```agda 
-</a><a id="4437" class="Keyword">open</a> <a id="4442" class="Keyword">import</a> <a id="4449" href="Rome.NormalTypes.Renaming.html" class="Module">Rome.NormalTypes.Renaming</a> <a id="4475" class="Keyword">public</a>
-<a id="4482" class="Keyword">open</a> <a id="4487" class="Keyword">import</a> <a id="4494" href="Rome.NormalTypes.Substitution.html" class="Module">Rome.NormalTypes.Substitution</a> <a id="4524" class="Keyword">public</a>
-<a id="4531" class="Keyword">open</a> <a id="4536" class="Keyword">import</a> <a id="4543" href="Rome.NormalTypes.Properties.Renaming.html" class="Module">Rome.NormalTypes.Properties.Renaming</a> <a id="4580" class="Keyword">public</a>
-<a id="4587" class="Keyword">open</a> <a id="4592" class="Keyword">import</a> <a id="4599" href="Rome.NormalTypes.Properties.Substitution.html" class="Module">Rome.NormalTypes.Properties.Substitution</a> <a id="4640" class="Keyword">public</a>
-<a id="4647" class="Markup">``` 
-</a><a id="4652" class="Background">
-That normal type equality (§7) is decidable is defined in: 
+</a><a id="4788" class="Markup">```agda 
+</a><a id="4797" class="Keyword">open</a> <a id="4802" class="Keyword">import</a> <a id="4809" href="Rome.NormalTypes.Renaming.html" class="Module">Rome.NormalTypes.Renaming</a> <a id="4835" class="Keyword">public</a>
+<a id="4842" class="Keyword">open</a> <a id="4847" class="Keyword">import</a> <a id="4854" href="Rome.NormalTypes.Substitution.html" class="Module">Rome.NormalTypes.Substitution</a> <a id="4884" class="Keyword">public</a>
+<a id="4891" class="Keyword">open</a> <a id="4896" class="Keyword">import</a> <a id="4903" href="Rome.NormalTypes.Properties.Renaming.html" class="Module">Rome.NormalTypes.Properties.Renaming</a> <a id="4940" class="Keyword">public</a>
+<a id="4947" class="Keyword">open</a> <a id="4952" class="Keyword">import</a> <a id="4959" href="Rome.NormalTypes.Properties.Substitution.html" class="Module">Rome.NormalTypes.Properties.Substitution</a> <a id="5000" class="Keyword">public</a>
+<a id="5007" class="Markup">``` 
+</a><a id="5012" class="Background">
+That normal type equality (§7.5) is decidable is defined in: 
 
-</a><a id="4714" class="Markup">```agda 
-</a><a id="4723" class="Keyword">open</a> <a id="4728" class="Keyword">import</a> <a id="4735" href="Rome.NormalTypes.Properties.Decidability.html" class="Module">Rome.NormalTypes.Properties.Decidability</a> <a id="4776" class="Keyword">public</a>
-<a id="4783" class="Markup">``` 
-</a><a id="4788" class="Background">
-Canonicity of normal forms (§7) is given in: 
+</a><a id="5076" class="Markup">```agda 
+</a><a id="5085" class="Keyword">open</a> <a id="5090" class="Keyword">import</a> <a id="5097" href="Rome.NormalTypes.Properties.Decidability.html" class="Module">Rome.NormalTypes.Properties.Decidability</a> <a id="5138" class="Keyword">public</a>
+<a id="5145" class="Markup">``` 
+</a><a id="5150" class="Background">
+Canonicity of normal forms (§7.1) is given in: 
 
-</a><a id="4836" class="Markup">```agda 
-</a><a id="4845" class="Keyword">open</a> <a id="4850" class="Keyword">import</a> <a id="4857" href="Rome.Metatheory.Canonicity.html" class="Module">Rome.Metatheory.Canonicity</a> <a id="4884" class="Keyword">public</a>
-<a id="4891" class="Markup">``` 
-</a><a id="4896" class="Background">
+</a><a id="5200" class="Markup">```agda 
+</a><a id="5209" class="Keyword">open</a> <a id="5214" class="Keyword">import</a> <a id="5221" href="Rome.Metatheory.Canonicity.html" class="Module">Rome.Metatheory.Canonicity</a> <a id="5248" class="Keyword">public</a>
+<a id="5255" class="Markup">``` 
+</a><a id="5260" class="Background">
 ## Semantic Domain (§5) 
 
 The semantic domains and Normalization by Evaluation (NbE) machinery is all defined in `NBE`.
 
 The syntax and renaming (§5.1) of semantic types are defined in: 
 
-</a><a id="5085" class="Markup">```agda 
-</a><a id="5094" class="Keyword">open</a> <a id="5099" class="Keyword">import</a> <a id="5106" href="Rome.NBE.Syntax.html" class="Module">Rome.NBE.Syntax</a> <a id="5122" class="Keyword">public</a>
-<a id="5129" class="Keyword">open</a> <a id="5134" class="Keyword">import</a> <a id="5141" href="Rome.NBE.Renaming.html" class="Module">Rome.NBE.Renaming</a> <a id="5159" class="Keyword">public</a>
-<a id="5166" class="Markup">```
-</a><a id="5170" class="Background">
+</a><a id="5449" class="Markup">```agda 
+</a><a id="5458" class="Keyword">open</a> <a id="5463" class="Keyword">import</a> <a id="5470" href="Rome.NBE.Syntax.html" class="Module">Rome.NBE.Syntax</a> <a id="5486" class="Keyword">public</a>
+<a id="5493" class="Keyword">open</a> <a id="5498" class="Keyword">import</a> <a id="5505" href="Rome.NBE.Renaming.html" class="Module">Rome.NBE.Renaming</a> <a id="5523" class="Keyword">public</a>
+<a id="5530" class="Markup">```
+</a><a id="5534" class="Background">
 ### Normalization by Evaluation (§5--§6)
 
 Reflection (§5.2), reification (§5.3), and evaluation (§6) are defined in: 
 
-</a><a id="5290" class="Markup">```agda 
-</a><a id="5299" class="Keyword">open</a> <a id="5304" class="Keyword">import</a> <a id="5311" href="Rome.NBE.Normalization.html" class="Module">Rome.NBE.Normalization</a> <a id="5334" class="Keyword">public</a>
-<a id="5341" class="Markup">``` 
-</a><a id="5346" class="Background">
+</a><a id="5654" class="Markup">```agda 
+</a><a id="5663" class="Keyword">open</a> <a id="5668" class="Keyword">import</a> <a id="5675" href="Rome.NBE.Normalization.html" class="Module">Rome.NBE.Normalization</a> <a id="5698" class="Keyword">public</a>
+<a id="5705" class="Markup">``` 
+</a><a id="5710" class="Background">
 ## Metatheory (§7)
 
 most main theorems and lemmas are housed in `Rome.Metatheory`, with some exception: 
@@ -180,76 +190,76 @@ Canonicity of Normal types is defined in `Rome.Metatheory.Canonicity` (above).
 
 Stability is defined and proven in: 
 
-</a><a id="5619" class="Markup">```agda
-</a><a id="5627" class="Keyword">open</a> <a id="5632" class="Keyword">import</a> <a id="5639" href="Rome.Metatheory.Stability.html" class="Module">Rome.Metatheory.Stability</a> <a id="5665" class="Keyword">public</a> 
-<a id="5673" class="Markup">``` 
-</a><a id="5678" class="Background">
+</a><a id="5983" class="Markup">```agda
+</a><a id="5991" class="Keyword">open</a> <a id="5996" class="Keyword">import</a> <a id="6003" href="Rome.Metatheory.Stability.html" class="Module">Rome.Metatheory.Stability</a> <a id="6029" class="Keyword">public</a> 
+<a id="6037" class="Markup">``` 
+</a><a id="6042" class="Background">
 ### Soundness 
 
 The soundness logical relation is defined in: 
 
-</a><a id="5743" class="Markup">```agda 
-</a><a id="5752" class="Keyword">open</a> <a id="5757" class="Keyword">import</a> <a id="5764" href="Rome.Metatheory.Soundness.Relation.html" class="Module">Rome.Metatheory.Soundness.Relation</a> <a id="5799" class="Keyword">public</a>
-<a id="5806" class="Markup">``` 
-</a><a id="5811" class="Background">
+</a><a id="6107" class="Markup">```agda 
+</a><a id="6116" class="Keyword">open</a> <a id="6121" class="Keyword">import</a> <a id="6128" href="Rome.Metatheory.Soundness.Relation.html" class="Module">Rome.Metatheory.Soundness.Relation</a> <a id="6163" class="Keyword">public</a>
+<a id="6170" class="Markup">``` 
+</a><a id="6175" class="Background">
 We require a great deal of commutativity lemmas to prove the fundamental lemma,
 which are given in: 
 
-</a><a id="5914" class="Markup">```agda 
-</a><a id="5923" class="Keyword">open</a> <a id="5928" class="Keyword">import</a> <a id="5935" href="Rome.Metatheory.Soundness.Commutativity.html" class="Module">Rome.Metatheory.Soundness.Commutativity</a> <a id="5975" class="Keyword">public</a>
-<a id="5982" class="Markup">``` 
-</a><a id="5987" class="Background">
+</a><a id="6278" class="Markup">```agda 
+</a><a id="6287" class="Keyword">open</a> <a id="6292" class="Keyword">import</a> <a id="6299" href="Rome.Metatheory.Soundness.Commutativity.html" class="Module">Rome.Metatheory.Soundness.Commutativity</a> <a id="6339" class="Keyword">public</a>
+<a id="6346" class="Markup">``` 
+</a><a id="6351" class="Background">
 We also require a great deal of congruence lemmas, given in: 
 
-</a><a id="6051" class="Markup">```agda 
-</a><a id="6060" class="Keyword">open</a> <a id="6065" class="Keyword">import</a> <a id="6072" href="Rome.Metatheory.Soundness.Congruence.html" class="Module">Rome.Metatheory.Soundness.Congruence</a> <a id="6109" class="Keyword">public</a>
-<a id="6116" class="Markup">``` 
-</a><a id="6121" class="Background">
+</a><a id="6415" class="Markup">```agda 
+</a><a id="6424" class="Keyword">open</a> <a id="6429" class="Keyword">import</a> <a id="6436" href="Rome.Metatheory.Soundness.Congruence.html" class="Module">Rome.Metatheory.Soundness.Congruence</a> <a id="6473" class="Keyword">public</a>
+<a id="6480" class="Markup">``` 
+</a><a id="6485" class="Background">
 Finally, the fundamental lemma and soundness are proven in: 
 
-</a><a id="6184" class="Markup">```agda 
-</a><a id="6193" class="Keyword">open</a> <a id="6198" class="Keyword">import</a> <a id="6205" href="Rome.Metatheory.Soundness.html" class="Module">Rome.Metatheory.Soundness</a> <a id="6231" class="Keyword">public</a> 
-<a id="6239" class="Markup">``` 
-</a><a id="6244" class="Background">
+</a><a id="6548" class="Markup">```agda 
+</a><a id="6557" class="Keyword">open</a> <a id="6562" class="Keyword">import</a> <a id="6569" href="Rome.Metatheory.Soundness.html" class="Module">Rome.Metatheory.Soundness</a> <a id="6595" class="Keyword">public</a> 
+<a id="6603" class="Markup">``` 
+</a><a id="6608" class="Background">
 ### Consistency
 
 The consistency logical relation is defined in: 
 
-</a><a id="6312" class="Markup">```agda 
-</a><a id="6321" class="Keyword">open</a> <a id="6326" class="Keyword">import</a> <a id="6333" href="Rome.Metatheory.Consistency.Relation.html" class="Module">Rome.Metatheory.Consistency.Relation</a> <a id="6370" class="Keyword">public</a>
-<a id="6377" class="Markup">``` 
-</a><a id="6382" class="Background">
+</a><a id="6676" class="Markup">```agda 
+</a><a id="6685" class="Keyword">open</a> <a id="6690" class="Keyword">import</a> <a id="6697" href="Rome.Metatheory.Consistency.Relation.html" class="Module">Rome.Metatheory.Consistency.Relation</a> <a id="6734" class="Keyword">public</a>
+<a id="6741" class="Markup">``` 
+</a><a id="6746" class="Background">
 The fundamental lemma and consistency are proven in: 
 
-</a><a id="6438" class="Markup">```agda 
-</a><a id="6447" class="Keyword">open</a> <a id="6452" class="Keyword">import</a> <a id="6459" href="Rome.Metatheory.Consistency.html" class="Module">Rome.Metatheory.Consistency</a> <a id="6487" class="Keyword">public</a> 
-<a id="6495" class="Markup">``` 
-</a><a id="6500" class="Background">
+</a><a id="6802" class="Markup">```agda 
+</a><a id="6811" class="Keyword">open</a> <a id="6816" class="Keyword">import</a> <a id="6823" href="Rome.Metatheory.Consistency.html" class="Module">Rome.Metatheory.Consistency</a> <a id="6851" class="Keyword">public</a> 
+<a id="6859" class="Markup">``` 
+</a><a id="6864" class="Background">
 ### Completeness 
 
 Completeness follows from consistency, which is shown in: 
 
-</a><a id="6580" class="Markup">```agda 
-</a><a id="6589" class="Keyword">open</a> <a id="6594" class="Keyword">import</a> <a id="6601" href="Rome.Metatheory.Completeness.html" class="Module">Rome.Metatheory.Completeness</a> <a id="6630" class="Keyword">public</a>
-<a id="6637" class="Markup">``` 
-</a><a id="6642" class="Background">
+</a><a id="6944" class="Markup">```agda 
+</a><a id="6953" class="Keyword">open</a> <a id="6958" class="Keyword">import</a> <a id="6965" href="Rome.Metatheory.Completeness.html" class="Module">Rome.Metatheory.Completeness</a> <a id="6994" class="Keyword">public</a>
+<a id="7001" class="Markup">``` 
+</a><a id="7006" class="Background">
 ### Normalization 
 
 That the step relation is normalizing is proved, at least in essence, by:
 
-</a><a id="6738" class="Markup">```agda
-</a><a id="6746" class="Keyword">open</a> <a id="6751" class="Keyword">import</a> <a id="6758" href="Rome.Metatheory.Normalization.html" class="Module">Rome.Metatheory.Normalization</a> <a id="6788" class="Keyword">public</a>
-<a id="6795" class="Markup">``` 
-</a><a id="6800" class="Background">
+</a><a id="7102" class="Markup">```agda
+</a><a id="7110" class="Keyword">open</a> <a id="7115" class="Keyword">import</a> <a id="7122" href="Rome.Metatheory.Normalization.html" class="Module">Rome.Metatheory.Normalization</a> <a id="7152" class="Keyword">public</a>
+<a id="7159" class="Markup">``` 
+</a><a id="7164" class="Background">
 ### Decidability of Type Equivalence
 
 Decidability of type equivalence follows from soundness, completeness,
 and the decidability of equality on normal forms:
 
-</a><a id="6961" class="Markup">```agda 
-</a><a id="6970" class="Keyword">open</a> <a id="6975" class="Keyword">import</a> <a id="6982" href="Rome.Metatheory.Decidability.html" class="Module">Rome.Metatheory.Decidability</a> <a id="7011" class="Keyword">public</a>
-<a id="7018" class="Markup">``` 
-</a><a id="7023" class="Background">
+</a><a id="7325" class="Markup">```agda 
+</a><a id="7334" class="Keyword">open</a> <a id="7339" class="Keyword">import</a> <a id="7346" href="Rome.Metatheory.Decidability.html" class="Module">Rome.Metatheory.Decidability</a> <a id="7375" class="Keyword">public</a>
+<a id="7382" class="Markup">``` 
+</a><a id="7387" class="Background">
 
 
 

@@ -1,4 +1,4 @@
-module Rome.Types.Properties.Derivable where
+module Rome.Types.Derivable where
 
 open import Rome.Prelude
 open import Rome.Kinds

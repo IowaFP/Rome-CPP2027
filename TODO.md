@@ -33,8 +33,8 @@
 - [x] Clarify nomenclature divergence
 - [x] Use and explain ωmap
 - [x] Expand on PER and other properties of consistency/soundness relations
-- [ ] Outline intended changes to draft in response to reviewer feedback
-- [ ] Implement copy changes
+- [x] Outline intended changes to draft in response to reviewer feedback
+- [x] Implement copy changes
 - [x] Add citations to Zenodo & github
 - [x] Add hyperlinks for each claim to public repo
 - [x] **Refactor README.lagda.md** to reference new section numbers, titles, and locations

@@ -72,8 +72,8 @@
 \acmYear{2027}
 \copyrightyear{2027}
 \acmNumber{CPP}
-\received{2026-11-25}
-\received[accepted]{2026-11-25}
+% \received{2026-11-25}
+% \received[accepted]{2026-11-25}
 \citestyle{acmauthoryear}
 \bibliographystyle{ACM-Reference-Format}
 % \acmDOI{10.1145/3571196}
@@ -158,22 +158,12 @@ Systems with type computation typically include a \emph{type conversion} rule, i
 
 Type conversion is typically decided by reducing types to normal forms and performing a syntactic equality check (modulo $\alpha$-equivalence). In fact, the presence of normal forms permits the system to eliminate the type conversion rule entirely: terms may be indexed by types in normal form, and thus any use of the conversion rule would superfluously equate identical types. Eliminating the conversion rule ``unstucks'' proofs of progress, as the head term in an application must be in canonical form (a $\lambda$-binding).
 
-\RA{"An equational theory $\ldots$ cannot defer to its parent system to inherit a proof of type normalization": Not sure what the sentence tries to say here, clarification needed.}
-Type normalization is necessary for important metatheoretic claims, but can be nontrivial. An equational theory for System \FO involves only one nontrivial equation: $\beta$-reduction. The presence of higher-order row types and type operators introduces an abundance of nontrivial type equalities, e.g., the reduction of a map over a row. Likewise, subtle boundary cases arise when constructing record and variant types from nested rows. Consequently, an equational theory with higher-order rows cannot defer to its parent system to inherit a proof of type normalization, nor claim such a proof is an orthogonal triviality. 
+Type normalization is necessary but challenging to prove. An equational theory for System \FO involves only one nontrivial equation: $\beta$-reduction. The presence of higher-order row types and type operators introduces an abundance of nontrivial type equalities, e.g., the reduction of a map over a row. Likewise, subtle boundary cases arise when constructing record and variant types from nested rows. For these reasons, extant higher-order row-typed systems have only presented incomplete equational theories~\citep{HubersM23} or instead conjectured normalization of type reduction.~\citep{Chlipala10}
 
-\RB{\textbf{Strong normalization (l.~77--79).} The introduction says
-  the theory, ``viewed as a reduction sequence, is strongly
-  normalizing''. Section~7 proves stability, soundness, and completeness
-  of a normalization \emph{function}. It proves neither strong
-  normalization of a reduction relation nor confluence. Either drop the
-  claim or prove it.}
 This paper closes this metatheoretic gap. We introduce \Rome{} (pronounced ``Rome''), a novel row calculus extending System \RO~\citep{HubersM23} with row mapping, iso-recursive types, and a novel complement operator on rows. We provide a sound and complete equational theory of types in \Rome{} and prove that this theory, when viewed as a reduction sequence, is normalizing.
 
-\RC{- l. 90: Would the authors agree of this claim after having done their development?}
-\RC{- l. 97: If the goal is to serve  as a reference it would be helpful to put some remarks in the text: what are the relevant changes/pitfalls…?}
-This involves two key contributions. First, we implement a \emph{normalization by evaluation} (NbE) procedure that maps types to normal forms. This procedure is not only responsible for reducing along nontrivial row type equalities, but also for identifying the precise normal and neutral forms of rows and row operations. Second, we prove the equational theory is sound and complete with respect to this normalization function via two Kripke-style logical relations. Our contributions are mechanized in the interactive theorem prover Agda. \Citet{AbelAHPMSS19} highlight the challenge of \emph{Kripke-style logical relations} on \emph{intrinsically well-typed terms}, for which ``developing [logical relation] proofs for realistic languages can require an almost heroic mechanization effort in existing general-purpose proof assistants.'' Our development follows \citet{AllaisBM13} and \citet{ChapmanKNW19} in contributing additional tooling for this known challenge. Our artifact serves as a reference for future NbE and logical-relation proofs of normalization for systems with computation beyond $\beta$-reduction.
+This involves two key contributions. First, we implement a \emph{normalization by evaluation} (NbE) procedure that maps types to normal forms. This procedure is not only responsible for reducing along nontrivial row type equalities, but also for identifying the precise normal and neutral forms of rows and row operations. Second, we prove the equational theory is sound and complete with respect to this normalization function via two Kripke-style logical relations, which are noted by \Citet{AbelAHPMSS19} as an important but challenging mechanization technique. Our contributions are mechanized in the interactive theorem prover Agda.   % \Citet{AbelAHPMSS19} highlight the challenge of \emph{Kripke-style logical relations} on \emph{intrinsically well-typed terms}, for which ``developing [logical relation] proofs for realistic languages can require an almost heroic mechanization effort in existing general-purpose proof assistants.'' Our development follows \citet{AllaisBM13} and \citet{ChapmanKNW19} in contributing additional tooling for this known challenge. Our artifact serves as a reference for future NbE and logical-relation proofs of normalization for systems with computation beyond $\beta$-reduction.
 
-\RB{l.100  propositionally irrelevant universe $\mapsto$ proof-irrelevant universe}
 In contrast to developments where normalization predicates live in a proof-irrelevant universe (e.g., that of \citet{TooheyCJX26}), our development is \emph{constructive}: we do not merely assert the existence of normal forms, but rather compute a normal form $\hat{\tau}$ for each type $\tau$. Moreover, decidability of the equational theory is constructive: given types $\KindJ \Gamma \tau \kappa$ and $\KindJ \Gamma \upsilon \kappa$, we can either (i) compute a derivation of $\TEqvJ \Gamma \tau \upsilon \kappa$, or (ii) show no such derivation can exist.   
 
 % -----------------------------------------------------------------------------
@@ -181,11 +171,10 @@ In contrast to developments where normalization predicates live in a proof-irrel
 
 In summary, this paper contributes: 
 
-\RA{L118: Π and Σ discussed but not introduced before}
 \begin{enumerate}
   \item \Rome{}'s types, kinds, and equational theory \cref{sec:rome};
   \item a classification of the normal and neutral forms required for higher-order rows, including inert maps, neutral-label rows, and residual row complements \cref{sec:normal-forms};
-  \item an NbE algorithm whose semantic operations implement $\beta$-reduction, row mapping and complements, and nested $\Pi$ and $\Sigma$ computation \cref{sec:NbE};  
+  \item an NbE algorithm whose semantic operations implement $\beta$-reduction, row mapping and complements, and nested row computation \cref{sec:NbE};  
   \item mechanized proofs of stability, soundness, and completeness in Agda, yielding a decision procedure for \Rome{} type equivalence \cref{sec:metatheory}; and
   \item a \emph{fully safe} Agda artifact witnessing the computability of normal forms and type equivalence.
 \end{enumerate}
@@ -199,12 +188,6 @@ Our artifact is free and available on Github~\citep{GithubArtifact} for quick br
 \section{Rows in Action}
 \label{sec:rows-in-action}
 \ifrowsInAction
-
-\RB{\textbf{Executability.} Since constructiveness is a selling point
-  (l.~100--108), show the normalizer at work: for example, the Agda
-  normal forms of the types of $\texttt{fmap}\Sigma$ and $\texttt{desugarOr}$
-  from Section~2. Comment on efficiency, since rows are represented as
-  functions $\mathsf{Fin}\;n \to \mathsf{Label} \times A$.}
 
 We begin by illustrating some of the novel type computation features in \Rome. Code excerpts are formatted \ala{} \Rosi~\citep{Rosi}, an experimental implementation of \Rome. The corresponding \Rosi{} terms are given in full \href{\RosiCode}{online}~\citep{GithubArtifact}.
 
@@ -250,7 +233,6 @@ fmapΣ : ∀ z : R[* → *].
         ∀ a b. (a → b) → (Σ z) a → (Σ z) b 
 \end{rosi}
 
-\RA{L173: It is not made explicit whether the flap operator is defined at the meta-level or internally to `Rωμ`. I would guess it is the former, as the helper universally quantifies over a kind variable `κ`, which does not seem doable internally.}
 
 But what is \R{(Σ z) a}? Intuitively, we expect this to mean ``the variant produced by supplying the variable $a$ as an argument to each operator in the row variable $z$''. Hence this application reduces in \Rome{} according to an associativity rule. First, for conceptual clarity, let us define some metanotation for a ``flipped mapping'' helper \Infix{?} (read as ``flap''):
 
@@ -282,8 +264,7 @@ fmapΣ : ... → Σ ((λ f. f b) ＠
 fmapΣ : ... → Σ {'Leaf ▹ Nat, 'Branch ▹ b × b}
 \end{rosi}
 
-\RB{l.192 takes places $\mapsto$  takes place}
-\Ni Similar reduction takes places in the input type.
+\Ni Similar reduction takes place in the input type.
 
 \paragraph{Desugaring Booleans}
 
@@ -405,7 +386,6 @@ Lastly, the syntax $\Mapp \phi \rho$ maps the type operator $\phi$ across a row 
 
 \paragraph{Mechanized Representations \SourceP{Types.Syntax}}
 Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a \emph{normal form}, and hence the \Datatype[Types.Syntax]{Pred} type generalizes over both via the \Var{Ty} parameter. For example, predicates on \Datatype[Types.Syntax]{Type}s are described by \Datatype{Pred} \Symbol{(}\Datatype{Type} \GVar{Δ} \Constructor{R[}\GVar{κ}\Constructor{]}\Symbol{)}.
-\RC{It might help to explain the purpose of the `Ty` parameter more explicitly when introducing `Pred`, perhaps with an example of its instantiation for types and normal types. I found this hard to follow.}
 \begin{AgdaAlign}
 \begin{code} 
   data Pred (Ty : Set) : Set
@@ -453,9 +433,8 @@ Two sets of \Datatype{Type} constructors are interesting. First, we restrict the
 \end{code}
 \end{AgdaAlign}
 
-\RC{Could the authors clarify the intended notion of irrelevance and its consequence for equality of constructors?}
 \Ni The \Function[Kinds.Syntax]{NotLabel} $\kappa$ predicate computes to \Term{\Name[Data]{Empty}{⊥}} when $\kappa \in \mathcal K$ (see \cref{fig:kinding}) and \Term{\Name[Agda]{Builtin.Unit}{⊤}} otherwise, making it \emph{irrelevant}. Hence congruence over $\Pi$ and $\Sigma$ may be defined without regard for this evidence. That is, we have \Constructor{Π} \Symbol{\{}\Var{nl₁}\Symbol{\}} \Var{ρ₁} \Datatype{≡} \Constructor{Π} \Symbol{\{}\Var{nl₂}\Symbol{\}} \Var{ρ₂} iff \Var{ρ₁} \Datatype{≡} \Var{ρ₂} (\Function[Types.Syntax]{cong-Π}).
-\RC{The canonical ordering of row literals was already explained earlier. (AH> I've edited since this reviewed, so it may be already addressed.)}
+
 Second, The constructor \Constructor[Types.Syntax][Type.⦅\Underscore⦆]{⦅\Underscore⦆} for row literal types is guarded by the predicate \Function{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}.
 
 \begin{code}
@@ -507,11 +486,7 @@ The interesting rules describe row complement computation and the interplay of $
 \end{align*}
 \end{small}
 
-\Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it (\Function[Types.Properties.Derivable]{eq-Πλ}). 
-
-\RB{\textbf{``Derivable'' rule (l.~477--480).} The rule commuting
-  $\Xi \in \{\Pi, \Sigma\}$ over $\lambda$-bindings
-  is said to be derivable. Give the derivation.}
+\Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it (\Function[Types.Derivable]{eq-Πλ}, \Source{Types.Derivable}). 
 
 \paragraph{Mechanized Representations \SourceP{Types.Equivalence}}
 Equivalence on predicates and types is represented mechanically by the typed relations (\Datatype[Types.Equivalence][\Underscore≡ₜ\Underscore]{≡ₜ}) and (\Datatype[Types.Equivalence][\Underscore≡ₚ\Underscore]{≡ₚ}).
@@ -532,8 +507,8 @@ Equivalence on predicates and types is represented mechanically by the typed rel
 \subsection{Normal Forms}
 \label{sec:normal-forms}
 
-\RC{I didn’t understand the purpose of the highlighting in this case (I found it useful in the previouse use case)}
-The directed type equivalence relation yields normal forms. The syntax of normal types is given in \cref{fig:type-normalization}. We have highlighted some aspects of the syntax for discussion.
+
+The directed type equivalence relation yields normal forms. The syntax of normal types is given in \cref{fig:type-normalization}.
 
 \input{figures/normal-form-judgments}
 
@@ -614,28 +589,10 @@ module Embedding where
 
 Our development occupies a sweet spot in intrinsically well-typed syntax. Because variables are well-scoped and types are well-kinded, relations and functions defined on types preserve kind and context definitionally. This reduces the overhead of tedious well-formedness predicates and preservation lemmas. 
 
-\RB{l.595--596  the painful transports \ldots{} that comes $\mapsto$
-  \ldots{} that come}
-Reaping the benefits of intrinsic syntax while dodging the downfalls is largely thanks to the \Rome{} calculus's stratification of types from kinds. Intrinsic syntax is notoriously prone to ``transport hell'' \citep{SaffrichTM24, ChenNFT26}, in which effectively equivalent terms are indexed by unfortunately unequal indices. Notably absent from our mechanized representations are inductively-defined renamings and substitutions, which in turn prevents constructors for \emph{explicit substitution} in the syntax of types. Because \Rome{} enjoys a stratification of types from kinds, no substitution calculus is necessary, as substitution and renaming may be defined functionally without unpleasant circularity. Instead, following \citet{ChapmanKNW19}, we use a higher-order representation of renamings and substitutions. Hence we inherit the benefits of functions (e.g., associativity of composition) without encumbering definitions with the painful transports on indices that comes from explicit substitutions.
+
+Reaping the benefits of intrinsic syntax while dodging the downfalls is largely thanks to the \Rome{} calculus's stratification of types from kinds. Intrinsic syntax is notoriously prone to ``transport hell'' \citep{SaffrichTM24, ChenNFT26}, in which effectively equivalent terms are indexed by unfortunately unequal indices. Notably absent from our mechanized representations are inductively-defined renamings and substitutions, which in turn prevents constructors for \emph{explicit substitution} in the syntax of types. Because \Rome{} enjoys a stratification of types from kinds, no substitution calculus is necessary, as substitution and renaming may be defined functionally without unpleasant circularity. Instead, following \citet{ChapmanKNW19}, we use a higher-order representation of renamings and substitutions. Hence we inherit the benefits of functions (e.g., associativity of composition) without encumbering definitions with the painful transports on indices that come from explicit substitutions.
 
 \subsection{Renamings}
-\RB{\textbf{De Bruijn indices and renamings (l.~48, 271--274,
-  597--608).} The mechanization uses intrinsically well-scoped
-  de~Bruijn variables, under which $\alpha$-equivalent types are
-  syntactically identical; yet the paper speaks of renaming variables
-  (Sec. 4.1) and, at l.~48, of comparing normal forms ``modulo
-  $\alpha$-equivalence''. Please clarify that the renamings
-  $\texttt{Renaming}\;\Delta_1\;\Delta_2 =
-  \forall\{\kappa\} \to \texttt{TVar}\;\Delta_1\;\kappa \to
-  \texttt{TVar}\;\Delta_2\;\kappa$ are not $\alpha$-conversions but
-  re-indexings of variables between kinding environments, required
-  for weakening: going under a binder shifts the free indices, as in
-  the Kripke function spaces (Sec. 5.1), in $\texttt{reflect}$ (which uses
-  $\texttt{ren}\;r\;\phi$), and in $\texttt{reify}$ (which applies $\phi$ to the
-  weakening $\texttt{S}$ and the fresh variable $\texttt{`\,Z}$). Correspondingly,
-  the decision procedure of Sec. 7.5 compares normal forms by plain
-  syntactic equality, so the phrase ``modulo $\alpha$-equivalence''
-  should be removed or qualified.}
 
 A \Type[Types.Renaming]{Renaming} is a function mapping type variables in environment $\Delta_1$ to environment $\Delta_2$. As our variables are De Bruijn indices and not named, this is not strictly \emph{renaming}---more accurate is to say that the function \Term[Types.Renaming][renₜ]{ren} \emph{reassigns} each free variable (i.e., an index into a kind in environment $\Delta_1$) in the input type $\tau$ to a kind in environment $\Delta_2$.
 
@@ -683,10 +640,9 @@ module Substitution where
 \end{code}
 \end{AgdaAlign}
 
-\Ni Like with renaming, we introduce a typeclass so that the syntax \Typeclass[Types.Substitution][\Underscore[\Underscore]ₛ]{\Underscore{}[\Underscore{}]ₛ} operates over types, neutral and normal types, rows, and predicates.
+Like with renaming, we introduce a \ALink{Types.Substitution}{\Underscore[\Underscore]ₛ}{typeclass} so that the syntax \Typeclass{\Underscore{}[\Underscore{}]ₛ} operates over types, neutral and normal types, rows, and predicates.
 
-\RB{l.621--622  While each Substitution is a total function, not all variables are changed $\mapsto$ rephrase (the point is that the identity substitution exists)}
-While each \Type{Substitution} is a total function, not all variables are changed. In particular, the \Datatype{Type} constructor \Constructor[Types.Syntax][Type.`]{`} constructs a \Datatype{Type} from a \Datatype[Kinds.Syntax]{TVar}, fixing each type variable. This constructor forms the \emph{identity substitution} over types.
+A given \Type{Substitution} need not change any variables. In particular, the \Datatype{Type} constructor \Constructor[Types.Syntax][Type.`]{`} constructs a \Datatype{Type} from a \Datatype[Kinds.Syntax]{TVar}, fixing each type variable, and thus forms the \emph{identity substitution} over types.
 
 \begin{code}[hide]
 module SubId where
@@ -715,8 +671,7 @@ Normalization by evaluation \SourceP{NBE.Normalization} consists of three key do
 \subsection{Residualizing Semantics}
 \label{sec:residual-semantics}
 
-\RB{l.645  at type and label kind $\mapsto$ at kinds $\TypeK$ and $\LabK$}
-We define our semantic domain \SourceP{NBE.Syntax} in Agda recursively over the syntax of kinds. Our semantics is \emph{residualizing}~\citep{Lindley05} because we distinguish \emph{values} in the semantic domain (functions and rows) from \emph{residual values} (unbound variables, applications with a variable in head position, and normal forms) at ground kind. Hence semantic types are residual values at type and label kind.
+We define our semantic domain \SourceP{NBE.Syntax} in Agda recursively over the syntax of kinds. Our semantics is \emph{residualizing}~\citep{Lindley05} because we distinguish \emph{values} in the semantic domain (functions and rows) from \emph{residual values} (unbound variables, applications with a variable in head position, and normal forms) at ground kind. Hence semantic types are residual values at kinds $\TypeK$ and $\LabK$.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -1117,7 +1072,6 @@ These two rules characterize the computational interaction of $\Pi$ and $\Sigma$
 
 \paragraph{Evaluation}
 A semantic environment (\Type[NBE.Normalization]{SemEnv}) maps type variables to semantic types, and thus the identity environment (\Type[NBE.Normalization]{idEnv}) fixes the meaning of variables. Evaluation (\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}, \cref{fig:evaluation}) maps \Datatype{Type}s to semantic types, given a suitable semantic environment.
-\RA{L916: The definition of semantic environment looks rather a lot like a (semantic) substitution.}
 
 \begin{code}
   SemEnv : KEnv → KEnv → Set
@@ -1302,12 +1256,6 @@ module SoundnessStatement where
 \end{code}
 \end{AgdaAlign}
 
-\RB{\textbf{The relation $\approx$ (l.~1040--1087).} Say explicitly
-  that mismatched constructors and the $\texttt{no}$ branches of the
-  decidable kind and length tests are mapped to~$\bot$. Mention the
-  symmetry and transitivity lemmas (it is a partial equivalence
-  relation) that the fundamental lemma needs.}
-
 We prove soundness via a logical relation (\Function[Metatheory.Soundness.Relation][\Underscore≈\Underscore]{≈}) on semantic types that specifies when two semantic objects are partial-equivalent modulo \emph{uniformity} and functional extensionality.
 
 \begin{figure}
@@ -1442,21 +1390,7 @@ module FundSoundness where
   reify-≈ = Soundness.reify-≈
 \end{code}
 
-Crucial to most proofs is that the soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric and transitive: 
-
-\begin{code}[hide]
-  module _ {V₁ V₂ V₃ : SemType Δ κ} where 
-\end{code}
-\begin{code}
-    trans-≈ : V₁ ≈ V₂ → V₂ ≈ V₃ → V₁ ≈ V₃
-    sym-≈   : V₁ ≈ V₂ → V₂ ≈ V₁
-\end{code}
-\begin{code}[hide]
-    trans-≈ = Soundness.trans-≈
-    sym-≈   = Soundness.sym-≈
-\end{code}
-
-\Ni but not reflexive. As with all PERs, however, we have a quasi-reflexive property: provided $V_1$ relates to \emph{some} $V_2$, then both $V_1$ and $V_2$ relate to themselves.
+Crucial to most proofs is that the soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric and transitive but not reflexive. As with all PERs, of course, we have a quasi-reflexive property: provided $V_1$ relates to \emph{some} $V_2$, then both $V_1$ and $V_2$ relate to themselves.
 
 \begin{code}[hide]
   module _ {V₁ V₂ : SemType Δ κ} where 
@@ -1492,7 +1426,7 @@ We lift the soundness relation to a pointwise equivalence on semantic environmen
 
 \paragraph{The fundamental lemma}
 
-The fundamental lemma (\Function[Metatheory.Soundness]{fund-≈}) for the soundness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental lemma is by induction over the type equivalence witness \Var{τ₁} \Datatype{≡ₜ} \Var{τ₂}.
+The fundamental lemma for the soundness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental lemma is by induction over the type equivalence witness \Var{τ₁} \Datatype{≡ₜ} \Var{τ₂}.
 \begin{code}
   fund-≈ : ∀ {η₁ η₂ : SemEnv Δ₁ Δ₂}
            {τ₁ τ₂ : Type Δ₁ κ} → 
@@ -1516,7 +1450,7 @@ Soundness follows from the fundamental lemma in the identity semantic environmen
 \subsection{Consistency}
 \label{sec:consistency}
 
-\emph{Consistency} \SourceP{Metatheory.Consistency} states that every type is equivalent to its normalization. Viewing (\Type{≡ₜ}) as a reduction relation, this is equivalently a claim of \emph{(weak) normalization}: each type has \emph{some} reduction sequence to a normal form \SourceP{Metatheory.Normalization}.
+\emph{Consistency} \SourceP{Metatheory.Consistency} states that every type is equivalent to its normalization. Viewing (\Type{≡ₜ}) as a reduction relation, this is equivalently a claim of \emph{(weak) normalization}: each type has \emph{some} reduction sequence to a normal form.
 
 \begin{AgdaAlign} 
 \begin{code}[hide]
@@ -1620,7 +1554,7 @@ module FundConsistencyStatement where
   open import Rome.Types.Equivalence
   open import Rome.Types.Properties
   import Rome.Metatheory.Consistency as Consistency
-  open Consistency hiding (⊢⟦_⟧≈ ; reflect-⟦⟧≈ ; reify-⟦⟧≈ ; fund-⟦⟧≈ ; ⟦_⟧≈ₑ_ ; idEnv-⟦⟧≈ ; consistency)
+  open Consistency hiding (⊢⟦_⟧≈ ; reflect-⟦⟧≈ ; reify-⟦⟧≈ ; fund-⟦⟧≈  ; consistency)
 \end{code}
 \begin{code}
   reflect-⟦⟧≈ : {τ : Type Δ κ} {υ :  NeutralType Δ κ} → 
@@ -1640,33 +1574,33 @@ module FundConsistencyStatement where
   reify-⟦⟧≈ = Consistency.reify-⟦⟧≈
 \end{code}
 
-\paragraph{Logical environments}
-We pointwise relate syntactic substitutions with semantic environments.
+% \paragraph{Logical environments}
+% We pointwise relate syntactic substitutions with semantic environments.
 
-\begin{code}
-  ⟦_⟧≈ₑ_ : Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
-  ⟦_⟧≈ₑ_ {Δ₁ = Δ₁} σ η = 
-    ∀ {κ : Kind} (α : TVar Δ₁ κ) → ⟦ σ α ⟧≈ η α
-\end{code}
+% \begin{code}
+%   ⟦_⟧≈ₑ_ : Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
+%   ⟦_⟧≈ₑ_ {Δ₁ = Δ₁} σ η = 
+%     ∀ {κ : Kind} (α : TVar Δ₁ κ) → ⟦ σ α ⟧≈ η α
+% \end{code}
 
-\Ni  As expected, the identity substitution relates to the identity semantic environment (\Function[Metatheory.Consistency.Relation]{idEnv-⟦⟧≈}). The constructor \Constructor[Types.Equivalence][\Underscore≡ₜ\Underscore.eq-refl]{eq-refl} witnesses reflexivity of type equivalence.
+% \Ni  As expected, the identity substitution relates to the identity semantic environment (\Function[Metatheory.Consistency.Relation]{idEnv-⟦⟧≈}). The constructor \Constructor[Types.Equivalence][\Underscore≡ₜ\Underscore.eq-refl]{eq-refl} witnesses reflexivity of type equivalence.
 
-\begin{code}[hide]
-  -- in the def below, either ` or idEnv need to be told what Δ₁ is,
-  -- which is ugly to use an implicit for. This is a small little presentational
-  -- lie---we'll introduce its environment as an implicit of the module.
-  module _ {Δ : KEnv} where
-    open import Rome.NBE renaming (idEnv to ie)
-    idEnv = ie {Δ = Δ}
-\end{code}
-\begin{code}
-    idEnv-⟦⟧≈ : ⟦ ` ⟧≈ₑ idEnv
-    idEnv-⟦⟧≈ _ = reflect-⟦⟧≈ eq-refl
-\end{code}
+% \begin{code}[hide]
+%   -- in the def below, either ` or idEnv need to be told what Δ₁ is,
+%   -- which is ugly to use an implicit for. This is a small little presentational
+%   -- lie---we'll introduce its environment as an implicit of the module.
+%   module _ {Δ : KEnv} where
+%     open import Rome.NBE renaming (idEnv to ie)
+%     idEnv = ie {Δ = Δ}
+% \end{code}
+% \begin{code}
+%     idEnv-⟦⟧≈ : ⟦ ` ⟧≈ₑ idEnv
+%     idEnv-⟦⟧≈ _ = reflect-⟦⟧≈ eq-refl
+% \end{code}
 
 \paragraph{The fundamental lemma}
 
-The fundamental lemma (\Function[Metatheory.Consistency]{fund-⟦⟧≈}) proves that the substitution of type $\tau$ by $\sigma$ is related to its evaluation in semantic environment $\eta$, provided a pointwise relation of $\sigma$ and $\eta$:
+The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is related to its evaluation in semantic environment $\eta$:
 
 \begin{code}
   fund-⟦⟧≈ : ∀ (τ : Type Δ₁ κ)
@@ -1679,7 +1613,25 @@ The fundamental lemma (\Function[Metatheory.Consistency]{fund-⟦⟧≈}) proves
   fund-⟦⟧≈ = Consistency.fund-⟦⟧≈
 \end{code}
 
-A natural corollary of the fundamental lemma is that each type $\tau$, propositionally equal to itself under the identity substitution, is related to its evaluation in the identity environment (\Function[Metatheory.Consistency][⊢⟦\Underscore⟧≈]{⊢⟦\Dash⟧≈}).
+\Ni provided a pointwise relation of $\sigma$ and $\eta$:
+
+\begin{code}[hide]
+module ConsistencyRest where
+  open import Rome.Types ; open import Rome.Kinds 
+  open import Rome.NBE
+  open import Rome.NormalTypes
+  open import Rome.Types.Equivalence
+  open import Rome.Types.Properties
+  import Rome.Metatheory.Consistency as Consistency
+  open Consistency hiding (⊢⟦_⟧≈ ; ⟦_⟧≈ₑ_ ; consistency)
+\end{code}
+\begin{code}
+  ⟦_⟧≈ₑ_ : Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
+  ⟦_⟧≈ₑ_ {Δ₁ = Δ₁} σ η = 
+    ∀ {κ : Kind} (α : TVar Δ₁ κ) → ⟦ σ α ⟧≈ η α
+\end{code}
+
+A natural corollary of the fundamental lemma is that the substitution of \Var{τ} by the identity substitution \Constructor{`} relates to the evaluation of \Var{τ} in the identity environment, or more simply that $\tau$ relates to its evaluation:
 
 \begin{code}
   ⊢⟦_⟧≈ : ∀ (τ : Type Δ κ) → ⟦ τ ⟧≈ ⟦ τ ⟧ idEnv
@@ -1689,7 +1641,7 @@ A natural corollary of the fundamental lemma is that each type $\tau$, propositi
     (sub-id τ) (fund-⟦⟧≈ τ idEnv-⟦⟧≈)    
 \end{code}
 
-\Ni Consistency follows directly from the reification of this property.
+\Ni Consistency follows directly from the reification of this fact.
 
 \begin{code}
   consistency : (τ : Type Δ κ) → τ ≡ₜ ⇑ (⇓ τ) 
@@ -1726,7 +1678,7 @@ module Completeness where
 
 \subsection{Decidability of Type Conversion}
 
-It is easy enough to implement a syntactic decidability check (\Function[NormalTypes.Properties.Decidability][\Underscore≡?\Underscore]{≡?}) on the shapes of normal forms. Paired with soundness and completeness, we get an effective decision procedure to decide the relation $\TEqvJ \Delta \tau \upsilon \kappa$ as follows \SourceP{Metatheory.Decidability}:
+It is easy enough to implement a syntactic decidability check (\Function[NormalTypes.Properties.Decidability][\Underscore≡?\Underscore]{≡?}) on the shapes of normal forms. Paired with soundness and completeness, we get an effective decision procedure (\Function[Metatheory.Decidability][\Underscore≡ₜ?\Underscore]{≡ₜ?})  to decide the relation $\TEqvJ \Delta \tau \upsilon \kappa$:
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -1766,8 +1718,7 @@ Existing formalizations of row calculi with type-level computation differ in bot
 \Citet{HubersM23} give a denotational semantics for System \RO's kinds, types, and terms. Their soundness theorem shows that equivalent types have the same denotation, and that well-typed terms inhabit the denotations of their types. This establishes semantic soundness of the equational theory, but does not characterize normal forms or give a complete decision procedure for type equivalence.
 
 \paragraph{Elaboration-based approaches}
-\RA{Rocq, not Coq. Also missing a citation like for Lean at L1281.}
-\Citet{Chlipala10} describes \emph{featherweight Ur}, a language with type-level records and an elaboration into Coq. The development does not provide a normalization procedure for Ur's own definitional equality. Instead, the author conjectures that a terminating and confluent procedure could be given. More recently, \Citet{TooheyCJX26} give an elaboration semantics for $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. In contrast, our normalizer operates directly on higher-order rows and must account explicitly for row computation. Moreover, their proof relies on a logical relation for normalization that lives in \Datatype{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms.
+\Citet{Chlipala10} describes \emph{featherweight Ur}, a language with type-level records and an elaboration into Rocq~\citep{Rocq}. The development does not provide a normalization procedure for Ur's own definitional equality. Instead, the author conjectures that a terminating and confluent procedure could be given. More recently, \Citet{TooheyCJX26} give an elaboration semantics for $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. In contrast, our normalizer operates directly on higher-order rows and must account explicitly for row computation. Moreover, their proof relies on a logical relation for normalization that lives in \Datatype{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms.
 
 \subsection{NbE and Intrinsic Mechanization}
 

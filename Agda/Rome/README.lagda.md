@@ -126,7 +126,7 @@ open import Rome.Types.Properties.Equivalence public
 The claim in §3.3 that Π and Σ commute over λ-bindings is given in:
 
 ```agda 
-open import Rome.Types.Properties.Derivable public
+open import Rome.Types.Derivable public
 ```
 
 ## Normal Types (§3.4)

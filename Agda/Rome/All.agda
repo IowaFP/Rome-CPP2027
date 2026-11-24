@@ -20,7 +20,7 @@ open import Rome.Kinds.Properties
 
 open import Rome.Types
 open import Rome.Types.Properties 
-open import Rome.Types.Properties.Derivable
+open import Rome.Types.Derivable
 
 --------------------------------------------------------------------------------
 -- NormalTypes 
