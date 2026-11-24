@@ -10,7 +10,8 @@
   necircle/.style={circle, draw=black!75, fill=black!11, minimum size=1.22cm, align=center},
   semcircle/.style={circle, draw=blue!55!black, fill=blue!6, minimum size=1.65cm, align=center},
   fn/.style={->, thick},
-  dbl/.style={->, >=stealth, double, thick}
+  dbl/.style={->, >=stealth, double, thick},
+  lbl/.style={fill=white, fill opacity=0.8, text opacity=1, inner sep=1.2pt}
 ]
   \node[tycircle] (ty) at (0, 0) {};
   \node[nocircle] (no) at (-0.16, -0.16) {};
@@ -19,17 +20,23 @@
   \node[anchor=north] at (0, 1.75) {\Datatype[Types.Syntax]{Type}};
   \node[anchor=north] at (-0.16, 0.90) {\Datatype[NormalTypes.Syntax]{NormalType}};
 
-  \node[semcircle] (sem) at (3.85, 0) {\Datatype[NBE.Syntax]{SemType}};
+  \node[semcircle] (sem) at (4.6, 0) {\Datatype[NBE.Syntax]{SemType}};
 
-  \draw[fn] (1.48, 1.05) -- node[above] {\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}} (3.05, 0.40);
-  \draw[fn] (0.28, -0.32) -- node[above, pos=0.55] {\Function[NBE.Normalization]{reflect}} (3.02, 0);
-  \draw[fn] (3.05, -0.40) -- node[below] {\Function[NBE.Normalization]{reify}} (1.02, -0.40);
+  % (4) evaluation up and to the right a bit
+  \draw[fn] (1.30, 1.25) -- node[lbl, above=1pt, xshift=4pt, yshift=2pt] {\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}} (3.78, 0.48);
 
-  \draw[->, >=stealth, double, thick] (-1.0, -1.32) to[bend right=20]
-    node[below] {\scriptsize $\Function[NBE.Normalization][⇓ₜ]{⇓}$} (-0.25, -1.19);
+  % (3) reflect up and to the right a bit
+  \draw[fn] (-0.05, -0.22) -- node[lbl, above, pos=0.6, xshift=4pt, yshift=2pt] {\Function[NBE.Normalization]{reflect}} (3.77, -0.05);
 
-  \draw[->, >=stealth, double, thick] (0.04, -0.74) to[bend right=22]
-    node[below right, inner sep=3pt] {\scriptsize \Function[NBE.Normalization]{η-norm}} (0.46, -0.95);
+  \draw[fn] (3.77, -0.45) -- node[lbl, below, pos=0.4] {\Function[NBE.Normalization]{reify}} (1.02, -0.45);
+
+  % (1) \Downarrow pushed up a bit
+  \draw[->, >=stealth, double, thick] (-1.0, -1.35) to[bend right=22]
+    node[lbl, above=1pt, yshift=3pt] {\scriptsize $\Function[NBE.Normalization][⇓ₜ]{⇓}$} (-0.25, -1.21);
+
+  % (2) \eta-norm moved to the right a bit
+  \draw[->, >=stealth, double, thick] (0.04, -0.74) to[bend right=20]
+    node[lbl, below right, xshift=6.5pt, inner sep=1pt] {\scriptsize \Function[NBE.Normalization]{η-norm}} (0.42, -0.92);
 \end{tikzpicture}%
 }
 \caption{Normalization by evaluation: reflection, reification, evaluation, and the composition thereof.}

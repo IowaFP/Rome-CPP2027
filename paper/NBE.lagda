@@ -164,7 +164,7 @@ Row types, as introduced by \citet{wand87}, describe type-level associations of 
 
 Systems with type computation typically include a \emph{type conversion} rule, in which a term $M$ at type $\tau$ may be converted to type $\upsilon$ provided that $\tau = \upsilon$. But this rule complicates and impedes the metatheory. For example, type checking is not decidable if type equivalence is not decidable. Consider the judgment $\TypeJ {\Gamma, x : \tau} {x} {\upsilon}$, which is well-typed if $\tau \equiv \upsilon$ and ill-typed otherwise. In addition, type conversion impedes \emph{preservation} and \emph{progress}. For example, when analyzing an application $\TypeJ \Gamma {M\, N} {\upsilon}$, inverting the head term $\TypeJ \Gamma M {\tau \to \upsilon}$  via the inductive hypothesis may yield a conversion rather than a canonical $\lambda$-binding, leaving the proof \emph{stuck}.
 
-Type conversion is typically decided by reducing types to normal forms and performing a syntactic equality check. In fact, the presence of normal forms permits the system to eliminate the type conversion rule entirely: terms may be indexed by types in normal form, and thus any use of the conversion rule would superfluously equate identical types. Eliminating the conversion rule ``unstucks'' proofs of progress, as the head term in an application must be in canonical form (a $\lambda$-binding).
+% Systems with type computation typically include a \emph{type conversion} rule, in which a term $M$ at type $\tau$ may be converted to type $\upsilon$ provided that $\tau = \upsilon$. But this rule complicates type checking (\cf{} $\TypeJ {\Gamma, x : \tau} {x} {\upsilon}$, which is well-typed if $\tau \equiv \upsilon$ and ill-typed otherwise) and impedes \emph{preservation/progress} (inverting the head term in an application $\TypeJ \Gamma {M\, N} {\upsilon}$ may yield a conversion rather than a canonical $\lambda$-binding). Type conversion is typically decided by reducing types to normal forms and performing a syntactic equality check. In fact, the presence of normal forms permits the system to eliminate the type conversion rule entirely: terms may be indexed by types in normal form, and thus any use of the conversion rule would superfluously equate identical types. Eliminating the conversion rule ``unstucks'' proofs of progress, as the head term in an application must be in canonical form (a $\lambda$-binding).
 
 Type normalization is necessary but challenging to prove. An equational theory for System \FO involves only one nontrivial equation: $\beta$-reduction. The presence of higher-order row types and type operators introduces an abundance of nontrivial type equalities, e.g., the reduction of a map over a row. Likewise, subtle boundary cases arise when constructing record and variant types from nested rows. For these reasons, extant higher-order row-typed systems have only presented incomplete equational theories~\citep{HubersM23}, elaborated away the intricacies of row computation~\citep{TooheyCJX26}, or merely conjectured normalization of type reduction.~\citep{Chlipala10}
 
@@ -289,7 +289,7 @@ We specify an evaluation function as taking the least fixed-point of the variant
 eval : μ (Σ BoolF) → Σ {'True ▹ ⊤ , 'False ▹ ⊤}
 \end{rosi}
 
-Observe first that $\mu$, the least fixed-point type operator in \Rome, expects its input to be canonically $\lambda$-bound, otherwise the types of term constants such as \R{out} \R{:} \R{μ BoolF} \R{→} \R{BoolF (μ BoolF)} cannot compute. As \R{Σ BoolF} has kind $\TypeK \to \TypeK$ in an empty context, this \emph{should} be the case. But then the expression \R{Σ BoolF} must (in-line and) normalize to: 
+Observe first that $\mu$, the least fixed-point type operator in \Rome, expects its input to be canonically $\lambda$-bound, otherwise the types of term constants such as \R{out} \R{:} \R{μ BoolF} \R{→} \R{BoolF (μ BoolF)} cannot compute. But then the expression \R{Σ BoolF} must (in-line and) normalize to:  % As \R{Σ BoolF} has kind $\TypeK \to \TypeK$ in an empty context, this \emph{should} be the case. But then the expression \R{Σ BoolF} must (in-line and) normalize to: 
 
 \begin{rosi}
 λ b. Σ {'True ▹ ⊤ , 'False ▹ ⊤ , 
@@ -323,7 +323,7 @@ row LamF = {'Lam ▹ λ x. x ,
             'Var ▹ Const Nat}
 \end{rosi}
 
-Using row polymorphism and the \emph{row containment} predicates \R{BoolF < y} and \R{LamF < (y  ∖  BoolF)}, we specify that \R{desugar} can operate on any row $z$ that includes at least the \R{BoolF} fields and, once those fields are removed, still contains the \R{LamF} fields. This formulation provides a powerful abstraction, enabling \R{desugar} to process any AST that incorporates Boolean constructors.
+Using row polymorphism and the \emph{row containment} predicates (i) \R{BoolF < z} and (ii) \R{LamF < (z  ∖  BoolF)}, we specify that (i) \R{desugar} can operate on any row $z$ that includes at least the \R{BoolF} fields and (ii) once those fields are removed, still contains the \R{LamF} fields. In other words, we can desugar \emph{any} AST that incorporates syntax for $\lambda$-calculus and Booleans expressions. % This formulation provides a powerful abstraction, enabling \R{desugar} to process any AST that incorporates Boolean constructors.
 
 \begin{rosi}
 desugar : ∀ z : R[* → *]. BoolF < z, 
@@ -349,7 +349,7 @@ This section defines the \Rome{} type system. \Cref{fig:kinding} gives the kindi
 \Cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. We have highlighted the syntax that extends System \Fome in \cref{fig:syntax-types}. Labels (i.e., record field and variant constructor names) live at the type level, and are classified by kind $\LabK$. Rows of kind $\kappa$ are classified by $\RowK \kappa$. When possible, we use $\phi$ for type functions, $\rho$ for types of row kind, and $\xi$ for types of label kind. 
 
  % \Source{Kinds.Syntax}
- \paragraph{Mechanized Representations \SourceP{Kinds.Syntax}} The types \Datatype[Kinds.Syntax]{Kind} and \Datatype[Kinds.Syntax]{KEnv} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
+ \paragraph{Mechanized representations \SourceP{Kinds.Syntax}} The types \Datatype[Kinds.Syntax]{Kind} and \Datatype[Kinds.Syntax]{KEnv} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
 
 \begin{code}[hide]
 module Syntax where
@@ -392,7 +392,7 @@ Care must be taken that the instantiation of variable labels does not introduce 
 
 Lastly, the syntax $\Mapp \phi \rho$ maps the type operator $\phi$ across a row $\rho$, and the syntax $\rho_2 \Compl \rho_1$ denotes the \emph{row complement} of $\rho_{2}$ by $\rho_{1}$, analogous to set complements.
 
-\paragraph{Mechanized Representations \SourceP{Types.Syntax}}
+\paragraph{Mechanized representations \SourceP{Types.Syntax}}
 Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a normal form, and hence the \Datatype[Types.Syntax]{Pred} type generalizes over both via the \Var{Ty} parameter. For example, predicates housing \Datatype[Types.Syntax]{Type}s are described by \Datatype{Pred} \Symbol{(}\Datatype{Type} \GVar{Δ} \Constructor{R[}\GVar{κ}\Constructor{]}\Symbol{)}.
 \begin{AgdaAlign}
 \begin{code} 
@@ -450,7 +450,7 @@ Second, The constructor \Constructor[Types.Syntax][Type.⦅\Underscore⦆]{⦅\U
           Type Δ R[ κ ]
 \end{code}
 
-\Ni Unlike with \Function{NotLabel} $\kappa$, the \Function{Ordered} \Var{xs} predicate is not trivially irrelevant, nor does it compute to \Datatype{⊤} or \Datatype{⊥} on closed terms. However, it is decidable, as witnessed by the function \Function{ordered?} \Var{xs}. In turn, it can be \emph{squashed} via the Agda Standard Library's~\citep{AgdaStdLib} \Type{\Name[Relation]{Nullary.Decidable.Core}{True}} operator, which computes to \Datatype{⊤} when \Var{xs} is well-ordered and \Datatype{⊥} otherwise. This reproduces the same desirable properties of the \Function{NotLabel} predicate. In particular, we have that \Constructor{⦅} \Var{xs} \Constructor{⦆} \Var{ω}$_{xs}$ \Datatype{≡} \Constructor{⦅} \Var{ys} \Constructor{⦆} \Var{ω}$_{ys}$ iff \Var{xs} \Datatype{≡} \Var{ys} (\Function[Types.Syntax]{cong-⦅\Underscore⦆}).
+\Ni Unlike \Function{NotLabel} $\kappa$, the \Function{Ordered} \Var{xs} predicate is not (i) trivially irrelevant, nor does it (ii) compute to \Datatype{⊤} or \Datatype{⊥} on closed terms. However, that it is decidable (via \Function{ordered?} \Var{xs}) allows evidence to be \emph{squashed} via the \Type{\Name[Relation]{Nullary.Decidable.Core}{True}} operator~\citep{AgdaStdLib}, yielding a type that satifies both (i) and (ii), and with the desired congruence property that \Constructor{⦅} \Var{xs} \Constructor{⦆} \Var{ω}$_{xs}$ \Datatype{≡} \Constructor{⦅} \Var{ys} \Constructor{⦆} \Var{ω}$_{ys}$ iff \Var{xs} \Datatype{≡} \Var{ys} (\Function[Types.Syntax]{cong-⦅\Underscore⦆}).
 
 \subsection{Type Equivalence and Reduction}
 \label{sec:type-equivalence}
@@ -496,7 +496,7 @@ The interesting rules describe row complement computation and the interplay of $
 
 \Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it (\Function[Types.Derivable]{eq-Πλ}, \Source{Types.Derivable}). 
 
-\paragraph{Mechanized Representations \SourceP{Types.Equivalence}}
+\paragraph{Mechanized representations \SourceP{Types.Equivalence}}
 Equivalence on predicates and types is represented mechanically by the typed relations (\Datatype[Types.Equivalence][\Underscore≡ₜ\Underscore]{≡ₜ}) and (\Datatype[Types.Equivalence][\Underscore≡ₚ\Underscore]{≡ₚ}).
 
 \begin{AgdaAlign}
@@ -516,7 +516,7 @@ Equivalence on predicates and types is represented mechanically by the typed rel
 \label{sec:normal-forms}
 
 
-The directed type equivalence relation yields normal forms. The syntax of normal types is given in \cref{fig:syntax-normal}.
+The directed type equivalence relation yields normal forms. The syntax of normal types is given in \cref{fig:syntax-normal}. Differences from the type syntax (\cref{fig:syntax-types}) and kinding rules (\cref{fig:kinding}) have been shaded for discussion.
 
 \input{figures/syntax-normal}
 
@@ -526,7 +526,7 @@ We distinguish singleton rows $\{\LabTy n \Normal \tau\}$ with neutral labels fr
 
 % Using \paragraph{} Here is adding a MASSIVE space above the text;
 % \fakeparagraph is just an alias for italicized bold text with a newline.
-\paragraph{Mechanized Representations \SourceP{NormalTypes.Syntax}} Normal and neutral types are represented intrinsically as the following types.
+\paragraph{Mechanized representations \SourceP{NormalTypes.Syntax}} Normal and neutral types are represented intrinsically as the following types.
 
 \begin{AgdaAlign}
 \begin{code}
@@ -544,13 +544,13 @@ We distinguish singleton rows $\{\LabTy n \Normal \tau\}$ with neutral labels fr
 
 \Cref{fig:embedding} defines an embedding of normal (\Function[NormalTypes.Syntax][⇑ₜ]{⇑}) and neutral types (\Function[NormalTypes.Syntax][⇑ₙₑ]{⇑ₙₑ}) back to \Datatype{Type} syntax, which can be used as a reference for the mechanized constructor names for \Datatype{Type}s, \Datatype{NeutralType}s, and \Datatype{NormalType}s. The definitions \Function[NormalTypes.Syntax][⇑ₚ]{⇑ₚ} and \Function[NormalTypes.Syntax][⇑ᵣ]{⇑ᵣ} map embedding over the types contained in predicates and row literals; we use a typeclass (\Record[NormalTypes.Syntax]{EmbedTC}) so that the symbol \Typeclass{⇑} hereafter applies to rows, predicates, and neutral types alike.
 
-We must also prove, via \Function[NormalTypes.Syntax][⇑ₒ]{⇑ₒ}, that embedding preserves ordering. Some bookkeeping is necessary, as the evidence of the row's well-ordering (\Var{ω} \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}) is squashed. However, since the \Function{Ordered} predicate is decidable (via \Function{ordered?}), we can reproduce evidence, and vice versa: The function \Function{\Name[Relation]{Nullary.Decidable.Core}{toWitness}} converts $\omega$ \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)} into evidence of type \Function{Ordered} \Var{xs}, with \Function{\Name[Relation]{Nullary.Decidable.Core}{fromWitness}} its inverse. This bookkeeping is packaged into the helper \Function[Types.Syntax]{ωmap} for convenience, which produces (squashed) evidence that \Var{ys} is well-ordered provided (i) (squashed) evidence that \Var{xs} is well-ordered, and (ii) a map of type \Function{Ordered} \Var{xs} \Symbol{→} \Function{Ordered} \Var{ys}. % \Function{True} (\Function{ordered?} \Var{ys}) provided a map of type (\Function{Ordered} \Var{xs} \Symbol{→} \Function{Ordered} \Var{ys}) and a witness of type \Function{True} (\Function{ordered?} \Var{xs}).
+We must also prove, via \Function[NormalTypes.Syntax][⇑ₒ]{⇑ₒ}, that embedding preserves ordering. Some bookkeeping is necessary, as the evidence of the row's well-ordering (\Var{ω} \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}) is squashed. However, decidability of \Function{Ordered} \Var{xs} allows evidence to be reproduced, and vice versa: the function \Function{\Name[Relation]{Nullary.Decidable.Core}{toWitness}} converts $\omega$ \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)} into evidence of type \Function{Ordered} \Var{xs}, with \Function{\Name[Relation]{Nullary.Decidable.Core}{fromWitness}} its inverse. This bookkeeping is packaged into the helper \Function[Types.Syntax]{ωmap} for convenience. %, which produces (squashed) evidence that \Var{ys} is well-ordered provided (i) (squashed) evidence that \Var{xs} is well-ordered, and (ii) a map of type \Function{Ordered} \Var{xs} \Symbol{→} \Function{Ordered} \Var{ys}. % \Function{True} (\Function{ordered?} \Var{ys}) provided a map of type (\Function{Ordered} \Var{xs} \Symbol{→} \Function{Ordered} \Var{ys}) and a witness of type \Function{True} (\Function{ordered?} \Var{xs}).
 
 \begin{figure}[t]
 \begin{AgdaAlign}
 \begin{code}[hide]
 module Embedding where
-  open import Rome.Types.Syntax
+  open import Rome.Types.Syntax hiding (ωmap)
   import Rome.NormalTypes.Syntax as Rωμ
   open import Rome.NormalTypes.Syntax hiding (⇑ ; ⇑ₙₑ ; ⇑ₒ)
   open import Rome.Kinds.GVars
@@ -578,6 +578,10 @@ module Embedding where
   ⇑  (l ▹ₙ τ)   = ⇑ₙₑ l ▹ ⇑ τ
   ⇑  (F $ ν)  = ⇑ F $ ⇑ₙₑ ν
   ⇑  (⦅ xs ⦆ ω)  = ⦅ ⇑ᵣ xs ⦆ (ωmap ⇑ₒ ω)
+    where 
+      ωmap : (Ordered xs → Ordered ys) → 
+             True (ordered? xs) → True (ordered? ys)
+      ωmap f ω = fromWitness (f (toWitness ω))
 \end{code}
 \begin{code}[hide]
   ⇑ₒ = Rωμ.⇑ₒ
@@ -598,7 +602,7 @@ module Embedding where
 Our development occupies a sweet spot in intrinsically well-typed syntax. Because variables are well-scoped and types are well-kinded, relations and functions defined on types preserve kind and context definitionally. This reduces the overhead of tedious well-formedness predicates and preservation lemmas. 
 
 
-Reaping the benefits of intrinsic syntax while dodging the downfalls is largely thanks to the \Rome{} calculus's stratification of types from kinds. Intrinsic syntax is notoriously prone to ``transport hell'' \citep{SaffrichTM24, ChenNFT26}, in which effectively equivalent terms are indexed by unfortunately unequal indices. Notably absent from our mechanized representations are inductively-defined renamings and substitutions, which in turn prevents constructors for \emph{explicit substitution} in the syntax of types. Because \Rome{} enjoys a stratification of types from kinds, no substitution calculus is necessary, as substitution and renaming may be defined functionally without unpleasant circularity. Instead, following \citet{ChapmanKNW19}, we use a higher-order representation of renamings and substitutions. Hence we inherit the benefits of functions (e.g., associativity of composition) without encumbering definitions with the painful transports on indices that come from explicit substitutions.
+Reaping the benefits of intrinsic syntax while dodging the downfalls is largely thanks to the \Rome{} calculus's stratification of types from kinds. Intrinsic syntax is notoriously prone to ``transport hell'' \citep{SaffrichTM24, ChenNFT26}, in which effectively equivalent terms are indexed by unfortunately unequal indices. Notably absent from our Mechanized representations are inductively-defined renamings and substitutions, which in turn prevents constructors for \emph{explicit substitution} in the syntax of types. Because \Rome{} enjoys a stratification of types from kinds, no substitution calculus is necessary, as substitution and renaming may be defined functionally without unpleasant circularity. Instead, following \citet{ChapmanKNW19}, we use a higher-order representation of renamings and substitutions. Hence we inherit the benefits of functions (e.g., associativity of composition) without encumbering definitions with the painful transports on indices that come from explicit substitutions.
 
 \subsection{Renamings}
 
@@ -1078,7 +1082,7 @@ Recall that we may only construct record types in normal form at kind $\TypeK$, 
 
 Next, when applying \Function{⟨Π⟩} to a function, we expand the semantic $\lambda$-binding outwards. Thereafter, we apply rule \errule{assoc$_\Pi$} to explain how \Function{⟨Π⟩} operates on a single operand. We implement rule \errule{$\Pi$} directly in the last equation: the application of \Function{⟨Π⟩} to a row-kinded input $\rho$ is simply the mapping of \Function{⟨Π⟩}  over $\rho$.
 
-These two rules characterize the computational interaction of $\Pi$ and $\Sigma$ with higher-order and nested rows. We implement row computation via our semantic helpers. The fact that the semantic helpers resemble their syntactic equational rules, modulo some plumbing, is a desirable feature of our implementation.
+% These two rules characterize the computational interaction of $\Pi$ and $\Sigma$ with higher-order and nested rows. We implement row computation via our semantic helpers. The fact that the semantic helpers resemble their syntactic equational rules, modulo some plumbing, is a desirable feature of our implementation.
 
 \paragraph{Evaluation}
 A semantic environment (\Type[NBE.Normalization]{SemEnv}) maps type variables to semantic types, and thus the identity environment (\Type[NBE.Normalization]{idEnv}) fixes the meaning of variables. Evaluation (\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}, \cref{fig:evaluation}) maps \Datatype{Type}s to semantic types, given a suitable semantic environment.
@@ -1479,7 +1483,7 @@ module ConsistencyStatement where
 \end{AgdaAlign}
 
 
-We define a logical relation for consistency (\Function[Metatheory.Consistency.Relation][⟦\Underscore⟧≈\Underscore]{⟦\Dash⟧≈\Dash}) by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ is equivalent to the embedding of $V$. In other words, $\tau$ and $V$ are identified up to type equivalence.
+We define a logical relation for consistency (\Function[Metatheory.Consistency.Relation][⟦\Underscore⟧≈\Underscore]{⟦\Dash⟧≈\Dash}) by relating types to semantic objects. The first two cases state the purpose of the relation: $\tau$ relates to $V$ at ground kind when $\tau$ and $V$ are equivalent.
 
 \begin{AgdaAlign}
 \begin{code}[hide]
@@ -1662,7 +1666,7 @@ A natural corollary of the fundamental lemma is that the substitution of \Var{τ
 
 \paragraph{Completeness}
 
-\emph{Completeness} \SourceP{Metatheory.Completeness} is a simple corollary of consistency. The derivation is given below using custom support (\Function[Types.Equivalence][\Underscore≡ₜ⟨\Underscore⟩\Underscore]{\Dash≡ₜ⟨\Dash⟩\Dash}, \Source{Types.Equivalence}) for equational reasoning over type equivalence. The helper \Function[Types.Equivalence]{inst} reflects propositional equality to type equivalence, and the suffix (\Constructor[Types.Equivalence][≡ₜ-Groupoid]{⁻¹}) witnesses symmetry of type equivalence.
+\emph{Completeness} \SourceP{Metatheory.Completeness} is a simple corollary of consistency. The derivation is given below using custom support (\Module[Types.Equivalence][≡ₜ-Reasoning]{\Dash≡ₜ⟨\Dash⟩\Dash}, \Source{Types.Equivalence}) for equational reasoning over type equivalence. The helper \Function[Types.Equivalence]{inst} reflects propositional equality to type equivalence, and the suffix (\Constructor[Types.Equivalence][≡ₜ-Groupoid]{⁻¹}) witnesses symmetry of type equivalence.
 
 \begin{AgdaAlign}
 \begin{code}[hide] 
@@ -1726,14 +1730,20 @@ Another area worth exploration is reusability, \ala{} \citet{AllaisACMM21} or \c
 
 \subsection{Other Higher-Order Row Calculi}
 
-Existing formalizations of row calculi with type-level computation differ in both the expressiveness of their row language and the way they account for type equivalence. We distinguish denotational approaches from elaboration-based approaches, which translate source types into a target calculus with an established metatheory.
+Existing formalizations of row calculi with type-level computation differ in both the expressiveness of their row language and in their semantic accounts. We distinguish denotational approaches from elaboration-based approaches, which translate source types into a target calculus with an established metatheory.
 
-\paragraph{Denotational approaches}
+\paragraph{Denotational semantics} System \RO (the predecessor to \Rome) is given a denotational semantics by \Citet{HubersM23}, whose soundness result shows that equivalent types have the same denotation, and that well-typed terms inhabit the denotations of their types. This establishes semantic soundness of the equational theory, but does not characterize normal forms or give a complete decision procedure for type equivalence.
 
-\Citet{HubersM23} give a denotational semantics for System \RO's kinds, types, and terms. Their soundness theorem shows that equivalent types have the same denotation, and that well-typed terms inhabit the denotations of their types. This establishes semantic soundness of the equational theory, but does not characterize normal forms or give a complete decision procedure for type equivalence.
+\paragraph{Elaboration-based semantics} In contrast, \Citet{Chlipala10} elaborates Ur, a web-programming based language with type-level records, to Rocq~\citep{Rocq}, but only conjectures that a terminating and confluent type-reduction procedure could be given. \Citet{TooheyCJX26} elaborate their system $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. But, unlike our normalizer, their proof relies on a logical relation that lives in \Datatype{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms. % In contrast, our normalizer operates directly on higher-order rows and must account explicitly for row computation.
 
-\paragraph{Elaboration-based approaches}
-\Citet{Chlipala10} describes \emph{featherweight Ur}, a language with type-level records and an elaboration into Rocq~\citep{Rocq}. The development does not provide a normalization procedure for Ur's own definitional equality. Instead, the author conjectures that a terminating and confluent procedure could be given. More recently, \Citet{TooheyCJX26} give an elaboration semantics for $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. In contrast, our normalizer operates directly on higher-order rows and must account explicitly for row computation. Moreover, their proof relies on a logical relation for normalization that lives in \Datatype{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms.
+% Existing formalizations of row calculi with type-level computation differ in both the expressiveness of their row language and the way they account for type equivalence. We distinguish denotational approaches from elaboration-based approaches, which translate source types into a target calculus with an established metatheory.
+
+% \paragraph{Denotational approaches}
+
+% \Citet{HubersM23} give a denotational semantics for System \RO's kinds, types, and terms. Their soundness theorem shows that equivalent types have the same denotation, and that well-typed terms inhabit the denotations of their types. This establishes semantic soundness of the equational theory, but does not characterize normal forms or give a complete decision procedure for type equivalence.
+
+% \paragraph{Elaboration-based approaches}
+% \Citet{Chlipala10} describes \emph{featherweight Ur}, a language with type-level records and an elaboration into Rocq~\citep{Rocq}. The development does not provide a normalization procedure for Ur's own definitional equality. Instead, the author conjectures that a terminating and confluent procedure could be given. More recently, \Citet{TooheyCJX26} give an elaboration semantics for $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. In contrast, our normalizer operates directly on higher-order rows and must account explicitly for row computation. Moreover, their proof relies on a logical relation for normalization that lives in \Datatype{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms.
 
 \subsection{NbE and Intrinsic Mechanization}
 
@@ -1741,7 +1751,9 @@ Existing formalizations of row calculi with type-level computation differ in bot
 Our NbE construction follows the intrinsic syntax and logical-relation techniques of \Citet{ChapmanKNW19}, who in turn build on \Citet{AllaisBM13}. As in those works, the choice of normal and neutral forms determines whether reflection, reification, and renaming are stable under intrinsic indexing. For $\Rome$, this choice must additionally account for neutral labels, inert maps, ordered row literals, and residual complements.
 
 \paragraph{Dependent type theories}
-Normalization by evaluation has also been mechanized in Agda for substantially richer type theories, particularly dependent type theory \citep{Abel13,AbelC14,AbelAHPMSS19}. These developments address challenges that are largely orthogonal to ours, such as explicit substitutions and the transport of context and type indices through dependent syntax. We focus instead on the interaction between higher-order row computation and the semantic invariants required by reification. Pinning down a precise treatment of explicit substitutions is still ongoing research. \Citet{AltenkirchK16B} use quotient inductive-inductive types (via postulating constructors and eliminators), while \Citet{ChenNFT26} investigate this approach in Cubical Agda, where higher inductive types are supported by the ambient theory. In $\Rome$, the term--type--kind stratification allows us to retain ordinary inductive syntax and propositional equality throughout the development. This keeps normalization executable and avoids features forbidden by the trusted \emph{--safe} flag.
+Normalization by evaluation has also been mechanized in Agda for substantially richer type theories, particularly dependent type theory \citep{Abel13,AbelC14,AbelAHPMSS19}. These developments address challenges that are largely orthogonal to ours, such as explicit substitutions and the transport of context and type indices through dependent syntax. We focus instead on the interaction between higher-order row computation and the semantic invariants required by reification. 
+
+Pinning down a precise treatment of explicit substitutions is still ongoing research. \Citet{AltenkirchK16B} use quotient inductive-inductive types (via postulating constructors and eliminators), while \Citet{ChenNFT26} investigate this approach in Cubical Agda, where higher inductive types are supported by the ambient theory. In $\Rome$, the term--type--kind stratification allows us to retain ordinary inductive syntax and propositional equality throughout the development. This keeps normalization executable and avoids features forbidden by the trusted \emph{--safe} flag.
 \fi
 
 % \clearpage

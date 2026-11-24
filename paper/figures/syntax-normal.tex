@@ -1,20 +1,20 @@
-\begin{figure}[t]
+\begin{figure}
 \begin{gather*}
 \begin{array}{r@{\hspace{7px}}l@{\qquad\qquad}r@{\hspace{7px}}l}
   \text{Type variables} & \alpha \in \mathcal A &
-  \text{Labels} & \ell \in \mathcal L
+  \text{Label literals} & \ell \in \mathcal L
 \end{array} \\
 \begin{doublesyntaxarray}
   \mcl{\text{Ground Kinds}}  & \gamma   & ::= & \TypeK \mid \LabK \\
-  \mcl{\text{Kinds}}         & \kappa    & ::= & \gamma\mid \kappa \to \kappa \mid  \RowK \kappa \\
-  \mcl{\text{Predicates}} & {\Normal \pi} & ::= & \LeqP {\Normal \tau} {\Normal \tau} \\
-  \mcl{\text{Row Literals}}   & \NormalRows \ni \Normal \rho    & ::= & {\RowIx i 0 m {\LabTy {\ell_i} {\Normal {\tau_i}}}} \\
+  \mcl{\text{Kinds}}         & \kappa    & ::= & \shade{\gamma} \mid \kappa \to \kappa \mid  \RowK \kappa \\
+  \mcl{\text{Predicates}} & {\Normal \pi} & ::= & \LeqP {\Normal \tau} {\Normal \tau} \mid \PlusP {\Normal \tau} {\Normal \rho} {\Normal \rho} \\
+  \mcl{\text{Row Literals}}   & \NormalRows \ni \Normal \rho    & ::= & \shade{\RowIx i 0 m {\LabTy {\ell_i} {\Normal {\tau_i}}}} \\
   \mcl{\text{Neutral Types}} & n    & ::= & \alpha \mid n \, {\Normal \tau}  \\
-  \mcl{\text{Normal Types}}  & \NormalTypes \ni \Normal \tau, \Normal \phi & ::= & n \mid {\Mapp {\hat{\phi}} {n} \mid \Normal{\rho}} \mid \Normal{\pi} \then \Normal{\tau} \\
+  \mcl{\text{Normal Types}}  & \NormalTypes \ni \Normal \tau, \Normal \phi & ::= & n \mid \shade{\Mapp {\hat{\phi}} {n} \mid \Normal{\rho}} \mid \Normal{\pi} \then \Normal{\tau} \\
                              &       &     & \mid &  \forall \alpha\co\kappa. \Normal{\tau} \mid \lambda \alpha\co\kappa. \Normal{\tau}  \\ 
                              &       &     & \mid & \Normal \tau \to \Normal \tau \mid \mu\, \Normal \tau \\
-                             &       &     & \mid & {\{\LabTy n {\Normal \tau}\}} \mid \ell \mid {{\Normal \tau} \Compl {\Normal \tau}}  \\
-                             &       &     & \mid & {{\KFam \Pi \TypeK} {\Normal \tau} \mid {\KFam \Sigma \TypeK} {\Normal \tau}} 
+                             &       &     & \mid & \shade{\{\LabTy n {\Normal \tau}\}} \mid \ell \mid \shade{{\Normal \tau} \Compl {\Normal \tau}}  \\
+                             &       &     & \mid & \shade{{\KFam \Pi \TypeK}\, {\Normal \tau} \mid {\KFam \Sigma \TypeK}\, {\Normal \tau}} 
 \end{doublesyntaxarray}
 \end{gather*}
 \begin{small}
