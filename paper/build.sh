@@ -1,1 +1,0 @@
-agda --latex --latex-dir=. NBE.lagda && latexmk -c NBE.tex && latexmk -pdf NBE.tex

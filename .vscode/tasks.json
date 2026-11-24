@@ -2,6 +2,20 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Clean .tex",
+      "type": "shell",
+      "command": "cd ${fileDirname}; latexmk -c ${fileBasenameNoExtension}.tex ; latexmk -c ${fileBasename};",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },    
+    {
       "label": "Compile Agda to PDF",
       "type": "shell",
       "command": "cd ${fileDirname}; agda --latex --latex-dir=. ${fileBasename}; if ($LASTEXITCODE -eq 0) { latexmk -pdf ${fileBasenameNoExtension}.tex }",
@@ -14,6 +28,20 @@
         "panel": "shared"
       },
       "problemMatcher": []
-    }
+    },
+  {
+      "label": "Compile Agda to PDF (Only Scope Checking)",
+      "type": "shell",
+      "command": "cd ${fileDirname}; agda --latex --only-scope-checking --latex-dir=. ${fileBasename}; if ($LASTEXITCODE -eq 0) { latexmk -pdf ${fileBasenameNoExtension}.tex }",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }    
   ]
 }

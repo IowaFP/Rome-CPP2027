@@ -1,0 +1,44 @@
+\begin{figure*}[t]
+\centering
+{\footnotesize
+\begin{gather*}
+\fbox{$\TEqvJ \Delta \tau \tau \kappa$}
+\\
+\ib{\irule[\erule{$\beta$}]{\KindJ \Delta {(\lambda \alpha\co\kappa. \tau) \, \upsilon} {\kappa'}}{\TEqvJ \Delta {(\lambda \alpha\co\kappa. \tau)\,\upsilon} {\tau[\upsilon/\alpha]} {\kappa'}}}
+\isp
+\ib{\irule[\erule{$\eta$}]{\KindJ \Delta \phi {\kappa_1 \to \kappa_2}}{\TEqvJ \Delta {\phi} {\lambda \alpha. \phi\, \alpha} {\kappa_1 \to \kappa_2}}}
+\isp
+\ib{\irule[\erule{map$_\mathsf{id}$}]{\KindJ \Delta \rho {\RowK\kappa}}{\TEqvJ \Delta \rho {\Mapp {(\lambda \alpha. \alpha)} \rho} {\RowK\kappa}}}
+\\
+\ib{\irule[\erule{map}]{\KindJ \Delta \phi {\kappa_1 \to \kappa_2} \quad \KindJ \Delta {\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}} {\RowK{\kappa_1}}}{\TEqvJ \Delta {\Mapp {\phi} {\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}}} {\RowIx i 0 n {\LabTy {\ell_i} {\phi\,\tau_i}}} {\RowK{\kappa_2}}}}
+\isp
+\ib{\irule[\erule{map$_\Labels$}]{\KindJ \Delta \phi {\kappa_1 \to \kappa_2} \quad \KindJ \Delta {\Row {\LabTy {\xi} {\tau}}} {\RowK{\kappa_1}}}{\TEqvJ \Delta {\Mapp {\phi} {\Row {\LabTy {\xi} {\tau}}}} {\Row {\LabTy {\xi} {\phi\,\tau}}} {\RowK{\kappa_2}}}}
+\\
+\ib{\irule[\erule{map$_\circ$}]{\KindJ \Delta {\phi_1} {\kappa_2 \to \kappa_3} \quad \KindJ \Delta {\phi_2} {\kappa_1 \to \kappa_2} \quad \KindJ \Delta \rho {\RowK {\kappa_1}}}{\TEqvJ \Delta {\Mapp {\phi_1} {(\Mapp {\phi_2} \rho)}} {\Mapp {(\phi_1 \circ \phi_2)} \rho} {\kappa_3}}}
+\quad
+\text{where } \phi_1 \circ \phi_2 = \lambda \alpha. \phi_1 \, (\phi_2 \, \alpha)
+\\
+\ib{\irule[\erule{$\setminus$}]{\KindJ \Delta {\RowIx i 0 n {\LabTy {\xi_i} {\tau_i}}} {\RowK \kappa} \quad \KindJ \Delta {\RowIx j 0 m {\LabTy {\xi_j} {\tau_j}}} {\RowK \kappa}}{\TEqvJ \Delta {{\Row {\LabTy {\xi_i} {\tau_i}}} \Compl {\Row {\LabTy {\xi_j} {\tau_j}}}} {\Subtract \, {\Row {\LabTy {\xi_i} {\tau_i}}} \, {\Row{\LabTy {\xi_j} {\tau_j}}}} {\RowK \kappa}}}
+\isp
+\ib{\irule[\erule{map$_{\setminus}$}]{\KindJ \Delta {\phi} {\kappa_1 \to \kappa_2} \quad \KindJ \Delta {\rho_i} {\RowK {\kappa_1}}}{\TEqvJ \Delta {\Mapp {\phi} {(\rho_2 \setminus \rho_1)}} {\Mapp \phi {\rho_2} \setminus {\Mapp \phi {\rho_1}}} {\kappa_2}}}
+\\
+\ib{\irule[\erule{assoc$_\Xi$}]{\KindJ \Delta \rho {\RowK {\kappa_1 \to \kappa_2}} \quad \KindJ \Delta \tau \kappa_1}{\TEqvJ \Delta {(\KFam \Xi {\kappa_1 \to \kappa_2} \rho) \, \tau} {\KFam \Xi {\kappa_2} (\rho \, \Flap \, \tau)} {\kappa_2}}!{\Xi \in \Set {\Pi, \Sigma}}}
+\isp
+\ib{\irule[\erule{$\Xi$}]{\KindJ \Delta \rho {\RowK {\RowK {\kappa}}}}{\TEqvJ \Delta {\KFam \Xi {\RowK \kappa} \, \rho} {\Mapp {{\KFam \Xi \kappa}} \rho} {\RowK {\kappa}}}!{\Xi \in \{ \Pi , \Sigma \}}}
+\\
+\text{where } \rho \, \Flap \, \tau = \Mapp {(\lambda f. f \, \tau)} \rho
+\qquad
+\fbox{$\Subtract \, \rho \, \rho$}
+\quad
+\begin{aligned}[t]
+  \Subtract \, \EmptyRow \, \rho &= \EmptyRow \\
+  \Subtract \, \Row {\LabTy \ell \tau, \rho_2} \, \rho_1 &=
+    \begin{cases}
+      \Subtract \, \rho_2 \, \rho_1 & \text{if } \ell \in \rho_{1} \\
+      \Row {\LabTy \ell \tau, \Subtract \, \rho_2 \, \rho_1} & \text{otherwise}
+    \end{cases}
+\end{aligned}
+\end{gather*}}
+\caption{Type equivalence}
+\label{fig:equivalence}
+\end{figure*}

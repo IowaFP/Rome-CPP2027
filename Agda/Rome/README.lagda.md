@@ -19,11 +19,11 @@ Rome should compile on slightly older/newer versions. At the time of writing, Ag
 For those seeking a brief exposé: the main claims of our paper
 are given by: 
 
-1. [Canonicity of normal types](./NormalTypes/Properties/Canonicity.agda)
-2. [Stability, idempotency, and surjectivity of normalization](./Metatheory/NBE/Stability.agda)
-3. [Soundness of the equational theory](./Metatheory/NBE/Soundness.agda)
-4. [Consistency of the equational theory](./Metatheory/NBE/Consistency.agda)
-4. [Completeness of the equational theory](./Metatheory/NBE/Completeness.agda)
+1. [Canonicity of normal types](./Metatheory/Canonicity.agda)
+2. [Stability, idempotency, and surjectivity of normalization](./Metatheory/Stability.agda)
+3. [Soundness of the equational theory](./Metatheory/Soundness.agda)
+4. [Consistency of the equational theory](./Metatheory/Consistency.agda)
+4. [Completeness of the equational theory](./Metatheory/Completeness.agda)
 5. [Decidability of Type Equivalence](./Metatheory/Decidability.agda)
 
 # Technical Overview
@@ -50,11 +50,13 @@ We borrow some notation and conventions from HoTT, e.g. we write:
 open import Rome.Prelude.Groupoids public
 ```
 
-We also add some functionality for Homotopies in:
+We also add some functionality for homotopies in:
 
 ```agda 
 open import Rome.Prelude.Homotopies public
 ``` 
+
+Although these are rarely used used. 
 
 The modules `Levels` and `Sets`
 
@@ -100,7 +102,7 @@ The syntax of types, row literals, and predicates is defined in:
 open import Rome.Kinds.Syntax public
 ``` 
 
-Type renaming and substitution are defined in: 
+Type renaming (§4.2) and substitution (§4.2) are defined in: 
 
 ```agda 
 open import Rome.Types.Renaming public
@@ -116,12 +118,14 @@ open import Rome.Types.Properties.Substitution public
 
 ### Type Equivalence (§3.3)
 
-The inductive relation `_≡t_` for type equivalence, as well as its metatheoretic properties, are defined (resp.) in:
+The inductive relation `_≡ₜ_` for type equivalence, predicate equivalence (≡ₚ), and row literal equivalence (≡ᵣ), as well as their metatheoretic properties, are defined in:
 
 ```agda 
 open import Rome.Types.Equivalence public
 open import Rome.Types.Properties.Equivalence public
 ```
+
+We also define instances for Groupoid Syntax and a module permitting equational reasoning (see e.g. [Metatheory.Completeness](./Metatheory/Completeness.agda)) in Types.Equivalence.
 
 The claim in §3.3 that Π and Σ commute over λ-bindings is given in:
 
@@ -146,7 +150,7 @@ open import Rome.NormalTypes.Properties.Renaming public
 open import Rome.NormalTypes.Properties.Substitution public
 ``` 
 
-That normal type equality (§7.5) is decidable is defined in: 
+That normal type equality is syntactically decidable (§7.5) is decidable is defined in: 
 
 ```agda 
 open import Rome.NormalTypes.Properties.Decidability public
@@ -179,7 +183,7 @@ open import Rome.NBE.Normalization public
 
 ## Metatheory (§7)
 
-most main theorems and lemmas are housed in `Rome.Metatheory`, with some exception: 
+most main theorems and lemmas are housed in `Rome.Metatheory`.
 
 ### Canonicity of Normal Types
 
@@ -214,7 +218,7 @@ We also require a great deal of congruence lemmas, given in:
 open import Rome.Metatheory.Soundness.Congruence public
 ``` 
 
-Finally, the fundamental lemma and soundness are proven in: 
+Finally, the fundamental lemma and soundness claim are proven in: 
 
 ```agda 
 open import Rome.Metatheory.Soundness public 
@@ -244,11 +248,16 @@ open import Rome.Metatheory.Completeness public
 
 ### Normalization 
 
-That the step relation is normalizing is proved, at least in essence, by:
+That the step relation is normalizing is proven, at least in essence, by:
 
 ```agda
 open import Rome.Metatheory.Normalization public
 ``` 
+
+We don't show, crucially, that if a type τ is in normal form then τ ↛...
+But I tinkered with this and believe it to be possible. The major impediment is that we do not define equivalence (≡ₜ) as the RST closure of a step-relation. So to prove that a given type does not step, we must restrict `_≡ₜ_`, via a recursive predicate, down to just the steps which are not reflexive, symmetric, or transitive. This gets sort of messy quickly, and is future work. 
+
+This fact was pointed out by a reviewer, and in response I have dampened some claims of normalization in the text. However I believe that, provided the refactoring necessary, it would follow fairly easily. I don't have any reason to suspect it isn't true. 
 
 ### Decidability of Type Equivalence
 

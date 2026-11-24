@@ -264,8 +264,8 @@
 \newcommand\EVals{\mathcal N_{\mathcal Q}}
 \newcommand\Unit\bullet
 
-\newcommand\Record[2][]{\langle #2 \rangle} % \ifthenelse{\equal{#1}{}}{}{_{#1}}}
-\newcommand\Variant[3][]{\langle \LabTerm {#2} {#3} \rangle} % \ifthenelse{\equal{#1}{}}{}{_{#1}}}
+\newcommand\record[2][]{\langle #2 \rangle} % \ifthenelse{\equal{#1}{}}{}{_{#1}}}
+\newcommand\variant[3][]{\langle \LabTerm {#2} {#3} \rangle} % \ifthenelse{\equal{#1}{}}{}{_{#1}}}
 \newcommand\SynV[2][]{\langle \mathsf{syn} \, #2 \rangle} % \ifthenelse{\equal{#1}{}}{}{_{#1}}}
 
 % \newcommand\InlineOn{\lstMakeShortInline{!}}
@@ -447,6 +447,8 @@
   { \__agda_link_cmd:nnnn \AgdaDatatype {#1} {#2} {#3} }
 \NewDocumentCommand{\Type}{O{} O{} m}
   { \__agda_link_cmd:nnnn \AgdaFunction {#1} {#2} {#3} }
+\NewDocumentCommand{\Record}{O{} O{} m}
+  { \__agda_link_cmd:nnnn \AgdaRecord {#1} {#2} {#3} }  
 \NewDocumentCommand{\Term}{O{} O{} m}
   { \__agda_link_cmd:nnnn \AgdaFunction {#1} {#2} {#3} }
 \NewDocumentCommand{\Function}{O{} O{} m}
@@ -465,3 +467,5 @@
 \newcommand\GVar[1]{\AgdaGeneralizable{#1}}
 \newcommand\Op[1]{\AgdaOperator{#1}}
 \newcommand\Underscore{\AgdaUnderscore}
+
+\newcommand\fakeparagraph[1]{\textbf{\textit{#1}}.}

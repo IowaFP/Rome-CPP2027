@@ -1,0 +1,64 @@
+
+\begin{figure}[t]
+\fbox{$\KindJ \Delta \pi {\RowK \kappa}$}\, \fbox{$\KindJ \Delta \tau \kappa$}
+{\footnotesize
+\begin{gather*}
+\ib{\irule[\ksrule{$\lesssim$}]
+  {\KindJ \Delta {\rho_{i}} {\RowK \kappa}};
+  {\KindJ \Delta {\LeqP {\rho_{1}} {\rho_{2}}} {\RowK \kappa}}}
+\rsp
+\ib{\irule[\ksrule{$\cdot$}]
+  {\KindJ \Delta {\rho_{i}} {\RowK \kappa}};
+  {\KindJ \Delta {\PlusP {\rho_{1}} {\rho_{2}} {\rho_3}} {\RowK \kappa}}}
+\\
+\ib{\irule[\ksrule{lab}]
+          {};
+          {\KindJ \Delta \ell \LabK}}
+\rsp
+\ib{\irule[\ksrule{$\then$}]
+  {\KindJ \Delta \pi {\RowK \kappa}} 
+  {\KindJ \Delta \tau \TypeK};
+  {\KindJ \Delta {\pi \then \tau} {\TypeK}}}
+\\
+\ib{\irule[\ksrule{row}]
+          {\KindJ \Delta {\ell_i} \LabK}
+          {\KindJ \Delta {\tau_i} \kappa}
+          {\forall i < j. \, \ell_i < \ell_j};
+          {\KindJ \Delta {\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}} {\RowK \kappa}}}
+\\
+\rsp 
+\ib{\irule[\krrule{rsing}]
+          {\KindJ \Delta {\xi} \LabK}
+          {\KindJ \Delta {\tau} \kappa};
+          {\KindJ \Delta {\{\LabTy \xi \tau\}} {\RowK \kappa}}}          
+\\
+\ib{\irule[\krrule{map}]
+          {\KindJ \Delta \phi {\kappa_1 \to \kappa_2}}
+          {\KindJ \Delta \rho {\RowK {\kappa_1}}};
+          {\KindJ \Delta {\Mapp \phi \rho } {\RowK{\kappa_2}}}}
+\\
+\ib{\irule[\krrule{compl}]
+          {\KindJ \Delta {\rho_2} {\RowK\kappa}}
+          {\KindJ \Delta {\rho_1} {\RowK\kappa}};
+          {\KindJ \Delta {\rho_2 \Compl \rho_1} {\RowK\kappa}}}
+\\
+\ib{\irule[\krrule{const}]
+  {T : \kappa};
+  {\KindJ \Delta T \kappa}}
+\\[3pt]
+\fbox{$T : \kappa$} \quad
+\begin{aligned}
+(\to) &: \TypeK \to \TypeK \to \TypeK \\
+\mu &: (\TypeK \to \TypeK) \to \TypeK
+\end{aligned}
+\quad
+\begin{aligned}
+\KFam \Pi \kappa &: \RowK \kappa \to \kappa \\
+\KFam \Sigma \kappa &: \RowK \kappa \to \kappa
+\end{aligned}
+\\[-2pt]
+\text{where } \kappa \notin \mathcal K = \{ \LabK, \RowK \kappa, \kappa' \to \kappa \mid \kappa \in \mathcal K \}
+\end{gather*}}
+\caption{Kinding}
+\label{fig:kinding}
+\end{figure}
