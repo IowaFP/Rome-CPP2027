@@ -1452,7 +1452,7 @@ The fundamental lemma for the soundness relation states that equivalent types ev
   fund-≈ = Soundness.fund-≈
 \end{code}
 
-Soundness follows from the fundamental lemma in the identity semantic environment. Explicitly, reification of the fundamental lemma tells us that $\text{reify (}\, \Sem{\tau_1}\, \text{idEnv)} \equiv \text{reify (}\, \Sem{\tau_2}\, \text{idEnv)}$, which is precisely the elaboration of $\Norm \, \tau_1 \equiv \, \Norm \, \tau_2$.
+Soundness follows from the fundamental lemma in the identity semantic environment. Explicitly, reification of the fundamental lemma tells us that \Function{reify} (\Typeclass{⟦} \Var{τ₁} \Typeclass{⟧} \Term{idEnv}) \Datatype{≡} \Function{reify} (\Typeclass{⟦} \Var{τ₂} \Typeclass{⟧} \Term{idEnv}), which is precisely the elaboration of \Typeclass{⇓} \Var{τ₁} \Datatype{≡} \Typeclass{⇓} \Var{τ₂}.
 
 \begin{code}
   soundness : ∀ {τ₁ τ₂ : Type Δ κ} → 
@@ -1666,7 +1666,7 @@ A natural corollary of the fundamental lemma is that the substitution of \Var{τ
 
 \paragraph{Completeness}
 
-\emph{Completeness} \SourceP{Metatheory.Completeness} is a simple corollary of consistency. The derivation is given below using custom support (\Module[Types.Equivalence][≡ₜ-Reasoning]{\Dash≡ₜ⟨\Dash⟩\Dash}, \Source{Types.Equivalence}) for equational reasoning over type equivalence. The helper \Function[Types.Equivalence]{inst} reflects propositional equality to type equivalence, and the suffix (\Constructor[Types.Equivalence][≡ₜ-Groupoid]{⁻¹}) witnesses symmetry of type equivalence.
+\emph{Completeness} \SourceP{Metatheory.Completeness} is a simple corollary of consistency. The derivation is given below using custom support (\Record[Types.Equivalence][≡ₜ-Reasoning]{\Dash≡ₜ⟨\Dash⟩\Dash}, \Source{Types.Equivalence}) for equational reasoning over type equivalence. The helper \Function[Types.Equivalence]{inst} reflects propositional equality to type equivalence, and the suffix (\Constructor[Types.Equivalence][≡ₜ-Groupoid]{⁻¹}) witnesses symmetry of type equivalence.
 
 \begin{AgdaAlign}
 \begin{code}[hide] 
