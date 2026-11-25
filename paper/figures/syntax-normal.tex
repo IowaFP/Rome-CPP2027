@@ -9,26 +9,26 @@
   \mcl{\text{Kinds}}         & \kappa    & ::= & \shade{\gamma} \mid \kappa \to \kappa \mid  \RowK \kappa \\
   \mcl{\text{Predicates}} & {\Normal \pi} & ::= & \LeqP {\Normal \tau} {\Normal \tau} \mid \PlusP {\Normal \tau} {\Normal \rho} {\Normal \rho} \\
   \mcl{\text{Row Literals}}   & \NormalRows \ni \Normal \rho    & ::= & \shade{\RowIx i 0 m {\LabTy {\ell_i} {\Normal {\tau_i}}}} \\
-  \mcl{\text{Neutral Types}} & n    & ::= & \alpha \mid n \, {\Normal \tau}  \\
-  \mcl{\text{Normal Types}}  & \NormalTypes \ni \Normal \tau, \Normal \phi & ::= & n \mid \shade{\Mapp {\hat{\phi}} {n} \mid \Normal{\rho}} \mid \Normal{\pi} \then \Normal{\tau} \\
+  \mcl{\text{Neutral Types}} & \nu    & ::= & \alpha \mid \nu \, {\Normal \tau}  \\
+  \mcl{\text{Normal Types}}  & \NormalTypes \ni \Normal \tau, \Normal \phi & ::= & \nu \mid \shade{\Mapp {\hat{\phi}} {\nu} \mid \Normal{\rho}} \mid \Normal{\pi} \then \Normal{\tau} \\
                              &       &     & \mid &  \forall \alpha\co\kappa. \Normal{\tau} \mid \lambda \alpha\co\kappa. \Normal{\tau}  \\ 
                              &       &     & \mid & \Normal \tau \to \Normal \tau \mid \mu\, \Normal \tau \\
-                             &       &     & \mid & \shade{\{\LabTy n {\Normal \tau}\}} \mid \ell \mid \shade{{\Normal \tau} \Compl {\Normal \tau}}  \\
+                             &       &     & \mid & \shade{\{\LabTy \nu {\Normal \tau}\}} \mid \ell \mid \shade{{\Normal \tau} \Compl {\Normal \tau}}  \\
                              &       &     & \mid & \shade{{\KFam \Pi \TypeK}\, {\Normal \tau} \mid {\KFam \Sigma \TypeK}\, {\Normal \tau}} 
 \end{doublesyntaxarray}
 \end{gather*}
 \begin{small}
 \begin{gather*}
-\fbox{$\KindJNF \Delta {\Normal \tau} {\kappa}$} \, \fbox{$\KindJNE \Delta {n} {\kappa}$} \\
+\fbox{$\KindJNF \Delta {\Normal \tau} {\kappa}$} \, \fbox{$\KindJNE \Delta {\nu} {\kappa}$} \\
 \ib{
   \irule[\kruleNF{ne}]
-    {\KindJNE \Delta n \shade{\gamma}};
-    {\KindJNF \Delta n \shade{\gamma}}}
+    {\KindJNE \Delta \nu \shade{\gamma}};
+    {\KindJNF \Delta \nu \shade{\gamma}}}
 \rsp
 \ib{
   \irule[\kruleNF{$\triangleright$}]
-    {\shade{\KindJNE \Delta {n} {\LabK}}}{\KindJNF \Delta {\Normal \tau} \kappa};
-    {\KindJNF \Delta {\LabTy n {\Normal \tau}}{\RowK \kappa}}}
+    {\shade{\KindJNE \Delta {\nu} {\LabK}}}{\KindJNF \Delta {\Normal \tau} \kappa};
+    {\KindJNF \Delta {\LabTy \nu {\Normal \tau}}{\RowK \kappa}}}
 \\
 \ib{
   \irule[\kruleNF{$\Compl$}]
