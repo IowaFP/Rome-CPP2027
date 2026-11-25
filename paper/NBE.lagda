@@ -1,6 +1,5 @@
 \documentclass[sigplan,screen]{acmart}
-% \settopmatter{printccs=true,printacmref=true}
- 
+
 \usepackage{accents}        % accents below math symbols
 \usepackage{amsfonts}       % math fonts and blackboards
 \usepackage{amsthm}         % theorem environments
@@ -25,7 +24,6 @@
 \usepackage[para]{footmisc}                % paragraph-style footnotes
 \usepackage[utf8]{inputenc}                % UTF-8 source text encoding
 \usepackage[T1]{fontenc}                   % T1 output font encoding
-% \usepackage[svgnames, dvipsnames]{xcolor}  % named colors and shading
 \usepackage[capitalize,noabbrev]{cleveref} % capitalized cross-refs
 \usepackage[normalem]{ulem}                % text underlining/striking
 \PassOptionsToPackage{unicode}{hyperref}
@@ -69,9 +67,9 @@
 % ACM Stuff
 
 %%% The following is specific to CPP '27 and the paper
-    %%% 'Normalization by Evaluation of Higher-Order Rows'
-    %%% by Alexander Hubers and J. Garrett Morris.
-    %%%
+%%% 'Normalization by Evaluation of Higher-Order Rows'
+%%% by Alexander Hubers and J. Garrett Morris.
+%%%
 \setcopyright{cc}
 \setcctype{by-nc-nd}
 \acmDOI{10.1145/3871849.3871874}
@@ -151,9 +149,10 @@ open import Rome.Prelude
 
 % -----------------------------------------------------------------------------
 % Abstract
+% N.B. Abstract deliberately lacks custom macros & commands
 
 \begin{abstract}
-Row types map labels to types, and are used to \emph{structurally} type records and variants. The presence of higher-order rows, in which labels map to types of higher kind, introduces nontrivial forms of type computation. This paper presents a sound and complete equational theory for types in \Rome{} (pronounced ``Rome''), a higher-order row type theory. We normalize \Rome{} types by evaluation in the interactive proof assistant Agda. Moreover, we contribute extensions to logical relation techniques for intrinsic mechanization to prove this procedure is stable, sound, and complete. As a result, we obtain the first decidable type-conversion algorithm for a higher-order row type theory.
+Row types map labels to types, and are used to \emph{structurally} type records and variants. The presence of higher-order rows, in which labels map to types of higher kind, introduces nontrivial forms of type computation. This paper presents a sound and complete equational theory for types in \textrm{R$\omega\mu$} (pronounced ``Rome''), a higher-order row type theory. We normalize \textrm{R$\omega\mu$} types by evaluation in the interactive proof assistant Agda. Moreover, we contribute extensions to logical relation techniques for intrinsic mechanization to prove this procedure is stable, sound, and complete. As a result, we obtain the first decidable type-conversion algorithm for a higher-order row type theory.
 \end{abstract}
 
 % -----------------------------------------------------------------------------
@@ -164,9 +163,6 @@ Row types map labels to types, and are used to \emph{structurally} type records 
 % -----------------------------------------------------------------------------
 % Introduction
 
-% \section{Link test}
-% Here is a link where the text and the route differ \Link{Types.Syntax}{Types}. Here is a link to source \Source{Types}. Here is an anchored linked to the definition \Name{Types.Syntax}{Type}. Here is an Agda-formatted link to \Datatype[Types.Syntax]{Type}.
-
 \section{Introduction}
 \label{sec:intro}
 \ifintro
@@ -175,22 +171,13 @@ Row types, as introduced by \citet{wand87}, describe type-level associations of 
 
 Systems with type equivalence $\Infix{\TEqv}$ and type computation typically include a \emph{type conversion} rule, in which a term $M$ at type $\tau$ may be converted to type $\upsilon$ provided some derivation of $\tau \TEqv \upsilon$. But this rule (i) complicates decidability, and (ii) impedes preservation and progress. For (i), consider the judgment $\TypeJ {\Gamma, x : \tau} {x} {\upsilon}$, which is well-typed if $\tau \TEqv \upsilon$ and ill-typed otherwise. Likewise, when analyzing an application $\TypeJ \Gamma {M\, N} {\upsilon}$ in a proof of (ii), inverting the head term $\TypeJ \Gamma M {\tau \to \upsilon}$  may yield a conversion, leaving the proof \emph{stuck}. 
 
-% The way out is typically to index terms by types in \emph{normal form}, thereby rendering the conversion rule redundant. That is, we needn't equate syntactically identical (normal) types. This reduces the problems above to a matter of \emph{type normalization}. Of course, that invocation of conversion is superfluous only holds if any two types it might equate are indeed derivably equivalent. That is, we not only must map types to normal forms, but such a procedure must necessarily be \emph{sound} and \emph{complete}.
-
-% Type conversion is typically decided by reducing types to normal forms and performing a syntactic equality check. In fact, we can eliminate the conversion rule entirely: that terms are indexed by normal forms means any use of the conversion rule superfluously equates identical types. Of course, that such a use is superfluous only holds if any two types it might equate are indeed derivably equivalent. That is, we not only must map types to normal forms, but such a procedure must necessarily be \emph{sound} and \emph{complete}.
-
-
-% Systems with type computation typically include a \emph{type conversion} rule, in which a term $M$ at type $\tau$ may be converted to type $\upsilon$ provided that $\tau = \upsilon$. But this rule complicates type checking (\cf{} $\TypeJ {\Gamma, x : \tau} {x} {\upsilon}$, which is well-typed if $\tau \equiv \upsilon$ and ill-typed otherwise) and impedes \emph{preservation/progress} (inverting the head term in an application $\TypeJ \Gamma {M\, N} {\upsilon}$ may yield a conversion rather than a canonical $\lambda$-binding). Type conversion is typically decided by reducing types to normal forms and performing a syntactic equality check. In fact, the presence of normal forms permits the system to eliminate the type conversion rule entirely: terms may be indexed by types in normal form, and thus any use of the conversion rule would superfluously equate identical types. Eliminating the conversion rule ``unstucks'' proofs of progress, as the head term in an application must be in canonical form (a $\lambda$-binding).
-
 The typical way out is to index terms by types in \emph{normal form}, thereby rendering the conversion rule redundant. (That is, we needn't equate syntactically identical types.) This reduces the problems above to a matter of \emph{type normalization}. Of course, that invocations of the conversion rule are redundant only holds if any two types we might equate are indeed derivably equivalent. That is, we not only must map types to normal forms, but such a procedure must necessarily be \emph{sound} and \emph{complete}.
 
 This can be challenging to prove. An equational theory for System \FO involves only one nontrivial equation: $\beta$-reduction. But the presence of higher-order row types and type operators introduces an abundance of nontrivial type equalities, e.g., the reduction of a map over a row. For this reason, extant higher-order row-typed systems have until now only presented incomplete equational theories~\citep{HubersM23}, elaborated away the intricacies of row computation~\citep{TooheyCJX26}, or instead conjectured confluence and termination of type reduction.~\citep{Chlipala10}
 
-% Likewise, subtle boundary cases arise when constructing record and variant types from nested rows, or applying records of type operators to types.
-
 This paper closes this metatheoretic gap. We introduce \Rome{} (pronounced ``Rome''), a novel row calculus extending System \RO~\citep{HubersM23} with row mapping, iso-recursive types, and a novel complement operator on rows. We provide a sound and complete equational theory of \Rome{} types and prove that this theory is normalizing with respect to a normalization function.
 
-This involves two key contributions. First, we implement a \emph{normalization by evaluation} (NbE) procedure that maps types to normal forms. This procedure is not only responsible for reducing along nontrivial row type equalities, but also for identifying the precise normal and neutral forms of rows and row operations. Second, we prove the equational theory via two Kripke-style logical relations, which are noted by \Citet{AbelAHPMSS19} as an important but challenging mechanization technique. Our contributions are mechanized in the interactive theorem prover Agda.   % \Citet{AbelAHPMSS19} highlight the challenge of \emph{Kripke-style logical relations} on \emph{intrinsically well-typed terms}, for which ``developing [logical relation] proofs for realistic languages can require an almost heroic mechanization effort in existing general-purpose proof assistants.'' Our development follows \citet{AllaisBM13} and \citet{ChapmanKNW19} in contributing additional tooling for this known challenge. Our artifact serves as a reference for future NbE and logical-relation proofs of normalization for systems with computation beyond $\beta$-reduction.
+This involves two key contributions. First, we implement a \emph{normalization by evaluation} (NbE) procedure that maps types to normal forms. This procedure is not only responsible for reducing along nontrivial row type equalities, but also for identifying the precise normal and neutral forms of rows and row operations. Second, we prove the equational theory via two Kripke-style logical relations, which are noted by \Citet{AbelAHPMSS19} as an important but challenging mechanization technique. Our contributions are mechanized in the interactive theorem prover Agda.  
 
 In contrast to mechanized developments where normalization predicates live in a proof-irrelevant universe (e.g., that of \citet{TooheyCJX26}), our development is \emph{constructive}: we do not merely assert the existence of normal forms, but rather compute a normal form $\hat{\tau}$ for each type $\tau$. Moreover, decidability of the equational theory is constructive: given types $\KindJ \Delta \tau \kappa$ and $\KindJ \Delta \upsilon \kappa$, we can either (i) compute a derivation of $\TEqvJ \Delta \tau \upsilon \kappa$, or (ii) show no such derivation can exist.   
 
@@ -343,7 +330,7 @@ row LamF = {'Lam ▹ λ x. x ,
             'Var ▹ Const Nat}
 \end{rosi}
 
-Using row polymorphism and the \emph{row containment} predicates (i) \R{BoolF < z} and (ii) \R{LamF < (z  ∖  BoolF)}, we specify that (i) \R{desugar} can operate on any row \R{z} that includes at least the \R{BoolF} fields and (ii) once those fields are removed, still contains the \R{LamF} fields. In other words, we can desugar \emph{any} AST that incorporates syntax for $\lambda$-Calculus and Booleans expressions. % This formulation provides a powerful abstraction, enabling \R{desugar} to process any AST that incorporates Boolean constructors.
+Using row polymorphism and the \emph{row containment} predicates (i) \R{BoolF < z} and (ii) \R{LamF < (z  ∖  BoolF)}, we specify that (i) \R{desugar} can operate on any row \R{z} that includes at least the \R{BoolF} fields and (ii) once those fields are removed, still contains the \R{LamF} fields. In other words, we can desugar \emph{any} AST that incorporates syntax for $\lambda$-Calculus and Booleans expressions.
 
 \begin{rosi}
 desugar : ∀ z : R[* → *]. BoolF < z, 
@@ -420,7 +407,6 @@ Our mechanization is \emph{intrinsic}, meaning types are indexed by context and 
   data Type (Δ : KEnv) : Kind → Set
 \end{code}
 
-% TODO[Agda-inline][The Ordered stuff... agda uses a different font]
 The type synonym \Function[Types.Syntax]{RowLiteral} defines row literals as lists of label-type associations; like with \Datatype{Pred}, this definition may be reused for normal forms, and so is parameterized by \Var{Ty}. The predicate \Function[Types.Syntax]{Ordered} \Var{xs} asserts that the row literal \Var{xs} is well-ordered on labels. The function \Function[Types.Syntax]{ordered?} witnesses that this predicate is decidable.
 
 
@@ -544,8 +530,6 @@ Normalization reduces applications and maps except when a variable blocks comput
 
 We distinguish singleton rows $\{\LabTy \nu \Normal \tau\}$ with neutral labels from row literals $\RowIx i 0 m {\LabTy {\ell_i} {\Normal {\tau_i}}}$ with literal labels $\ell_i$. A row is otherwise an inert map $\Mapp \phi \nu$ or the complement of two rows $\Normal{\tau_2} \Compl \Normal{\tau_1}$. We require in the kinding of normal row complements \kruleNF{$\Compl$} that one (or both) rows are not literal, otherwise the complement would compute. By consequence of $\eta$-expansion, records and variants need only be formed at kind $\TypeK$. The remaining normal type syntax and normal kinding rules do not differ from their counterparts in \cref{fig:syntax-types} and \cref{fig:kinding}.
 
-% Using \paragraph{} Here is adding a MASSIVE space above the text;
-% \fakeparagraph is just an alias for italicized bold text with a newline.
 \paragraph{Mechanized representations \SourceP{NormalTypes.Syntax}} Normal and neutral types are represented intrinsically as the following types.
 
 \begin{AgdaAlign}
@@ -564,7 +548,7 @@ We distinguish singleton rows $\{\LabTy \nu \Normal \tau\}$ with neutral labels 
 
 \Cref{fig:embedding} defines an embedding of normal (\Function[NormalTypes.Syntax][⇑ₜ]{⇑}) and neutral types (\Function[NormalTypes.Syntax][⇑ₙₑ]{⇑ₙₑ}) back to \Datatype{Type} syntax, which can be used as a reference for the mechanized constructor names for \Datatype{Type}s, \Datatype{NeutralType}s, and \Datatype{NormalType}s. The definitions \Function[NormalTypes.Syntax][⇑ₚ]{⇑ₚ} and \Function[NormalTypes.Syntax][⇑ᵣ]{⇑ᵣ} map embedding over the types contained in predicates and row literals; we use a typeclass (\Record[NormalTypes.Syntax]{EmbedTC}) so that the symbol \Typeclass{⇑} hereafter applies to rows, predicates, and neutral types alike.
 
-We must also prove, via \Function[NormalTypes.Syntax][⇑ₒ]{⇑ₒ}, that embedding preserves ordering. Some bookkeeping is necessary, as the evidence of the row's well-ordering (\Var{ω} \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}) is squashed. However, decidability of \Function{Ordered} \Var{xs} allows evidence to be reproduced, and vice versa: the function \Function{\Name[Relation]{Nullary.Decidable.Core}{toWitness}} converts $\omega$ \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)} into evidence of type \Function{Ordered} \Var{xs}, with \Function{\Name[Relation]{Nullary.Decidable.Core}{fromWitness}} its inverse. This bookkeeping is packaged into the helper \Function[Types.Syntax]{ωmap} for convenience. %, which produces (squashed) evidence that \Var{ys} is well-ordered provided (i) (squashed) evidence that \Var{xs} is well-ordered, and (ii) a map of type \Function{Ordered} \Var{xs} \Symbol{→} \Function{Ordered} \Var{ys}. % \Function{True} (\Function{ordered?} \Var{ys}) provided a map of type (\Function{Ordered} \Var{xs} \Symbol{→} \Function{Ordered} \Var{ys}) and a witness of type \Function{True} (\Function{ordered?} \Var{xs}).
+We must also prove, via \Function[NormalTypes.Syntax][⇑ₒ]{⇑ₒ}, that embedding preserves ordering. Some bookkeeping is necessary, as the evidence of the row's well-ordering (\Var{ω} \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)}) is squashed. However, decidability of \Function{Ordered} \Var{xs} allows evidence to be reproduced, and vice versa: the function \Function{\Name[Relation]{Nullary.Decidable.Core}{toWitness}} converts $\omega$ \Symbol{:} \Type{True} \Symbol{(}\Function{ordered?} \Var{xs}\Symbol{)} into evidence of type \Function{Ordered} \Var{xs}, with \Function{\Name[Relation]{Nullary.Decidable.Core}{fromWitness}} its inverse. This bookkeeping is packaged into the helper \Function[Types.Syntax]{ωmap} for convenience.
 
 \begin{figure}[t]
 \begin{AgdaAlign}
@@ -732,7 +716,6 @@ module SemTypes where
     SemType Δ₁ _ = ⊥
 \end{code}
 
-
 \paragraph{Functions} We interpret arrow-kinded types as \emph{Kripke function spaces} \citep{JungT93, Abel13}, which permit the application of interpreted function $\KindJ {\Delta_1} \phi {\kappa_1 \to \kappa_2}$ at any environment $\Delta_2$ provided a renaming from $\Delta_1$ into $\Delta_2$. The Kripke flavor here is that environments may be viewed as \emph{worlds}, and so each Kripke function returns a type in any \emph{reachable} environment.
 
 \begin{code}[hide]
@@ -877,8 +860,6 @@ module ReflectReify where
 \label{fig:reflection}
 \end{figure}
 
-
-
 Reflection asserts that neutral forms have semantic representations. We define reflection (\Function[NBE.Normalization]{reflect}, \cref{fig:reflection}) mutually recursively with reification (\Function[NBE.Normalization]{reify}, \cref{fig:reification}). Types at kind $\TypeK$ and $\LabK$ can be promoted straightforwardly with the \Constructor{ne} constructor. Neutral types at arrow kind must be expanded into Kripke functions: The input \Var{v} has type \Type{SemType} $\Delta_2$ $\kappa_1$ and must be reified, while the function \Var{φ} is kinded in environment $\Delta_1$ and so must be renamed to $\Delta_2$, the environment of \Var{v}. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by \Symbol{(}\Op{λ} \Var{r} $\to$ \Term{reflect}\Symbol{)}. This equation implements rule \erule{map$_\mathsf{id}$} for neutral types.
 
 \subsection{Reification}
@@ -1004,7 +985,6 @@ We define semantic application (\Function[NBE.Normalization][\Underscore⟨·⟩
   F ⟨·⟩ V = F id V
 \end{code}
 
-
 \Ni Semantic application implements $\beta$-reduction. 
 
 \paragraph{Semantic mapping}
@@ -1103,8 +1083,6 @@ Recall that we may only construct record types in normal form at kind $\TypeK$, 
 
 Next, when applying \Function{⟨Π⟩} to a function, we expand the semantic $\lambda$-binding outwards. Thereafter, we apply rule \errule{assoc$_\Pi$} to explain how \Function{⟨Π⟩} operates on a single operand. We implement rule \errule{$\Pi$} directly in the last equation: the application of \Function{⟨Π⟩} to a row-kinded input $\rho$ is simply the mapping of \Function{⟨Π⟩}  over $\rho$.
 
-% These two rules characterize the computational interaction of $\Pi$ and $\Sigma$ with higher-order and nested rows. We implement row computation via our semantic helpers. The fact that the semantic helpers resemble their syntactic equational rules, modulo some plumbing, is a desirable feature of our implementation.
-
 \paragraph{Evaluation}
 A semantic environment (\Type[NBE.Normalization]{SemEnv}) maps type variables to semantic types, and thus the identity environment (\Type[NBE.Normalization]{idEnv}) fixes the meaning of variables. Evaluation (\Function[NBE.Normalization][⟦\Underscore⟧ₜ]{⟦\Underscore⟧}, \cref{fig:evaluation}) maps \Datatype{Type}s to semantic types, given a suitable semantic environment.
 
@@ -1172,7 +1150,6 @@ A semantic environment (\Type[NBE.Normalization]{SemEnv}) maps type variables to
 \caption{Evaluation}
 \label{fig:evaluation}
 \end{figure}
-
 
 We describe only the interesting cases of evaluation. The first equation states that variables evaluate to their meaning in environment $\eta$. As desired, the equations for application (\Constructor{\Underscore{}·\Underscore{}}), row complement (\Constructor{\Underscore{}∖\Underscore{}}), record and variant operators (\Constructor{Π} and \Constructor{Σ}), and mapping (\Constructor{\Underscore{}\$\Underscore{}}) defer to the semantic helpers defined in this section. (The operation \Function[NBE.Normalization][\Underscore⟨∖⟩\Underscore]{⟨∖⟩′} is the semantic complement operator for row literals lifted to \Datatype{SemRow}s.) Evaluation of labeled singletons must check if the label is a neutral variable \Var{ν} or label literal $\ell$, making sure to only construct row literals with literal labels. The evaluation of row literals (\Function[NBE.Normalization][⟦\Underscore⟧ᵣ]{⟦\Underscore⟧ᵣ}) is effectively inverse to \Function{reifyRow} (\cref{fig:reification}). In each case, we employ our smart constructors for semantic row literals. We have an obligation to prove that evaluation preserves the ordering evidence \Var{ω}, which is performed by the auxiliary lemma \Function[NBE.Normalization][⟦\Underscore⟧ₒ]{⟦\Underscore⟧ₒ} denoting ordered row literal evidence to ordered semantic row evidence.
 
@@ -1609,30 +1586,6 @@ module FundConsistencyStatement where
   reify-⟦⟧≈ = Consistency.reify-⟦⟧≈
 \end{code}
 
-% \paragraph{Logical environments}
-% We pointwise relate syntactic substitutions with semantic environments.
-
-% \begin{code}
-%   ⟦_⟧≈ₑ_ : Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
-%   ⟦_⟧≈ₑ_ {Δ₁ = Δ₁} σ η = 
-%     ∀ {κ : Kind} (α : TVar Δ₁ κ) → ⟦ σ α ⟧≈ η α
-% \end{code}
-
-% \Ni  As expected, the identity substitution relates to the identity semantic environment (\Function[Metatheory.Consistency.Relation]{idEnv-⟦⟧≈}). The constructor \Constructor[Types.Equivalence][\Underscore≡ₜ\Underscore.eq-refl]{eq-refl} witnesses reflexivity of type equivalence.
-
-% \begin{code}[hide]
-%   -- in the def below, either ` or idEnv need to be told what Δ₁ is,
-%   -- which is ugly to use an implicit for. This is a small little presentational
-%   -- lie---we'll introduce its environment as an implicit of the module.
-%   module _ {Δ : KEnv} where
-%     open import Rome.NBE renaming (idEnv to ie)
-%     idEnv = ie {Δ = Δ}
-% \end{code}
-% \begin{code}
-%     idEnv-⟦⟧≈ : ⟦ ` ⟧≈ₑ idEnv
-%     idEnv-⟦⟧≈ _ = reflect-⟦⟧≈ eq-refl
-% \end{code}
-
 \paragraph{The fundamental lemma}
 
 The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is related to its evaluation in semantic environment $\eta$:
@@ -1683,7 +1636,6 @@ A natural corollary of the fundamental lemma is that the substitution of \Var{τ
   consistency = reify-⟦⟧≈ ∘ ⊢⟦_⟧≈
 \end{code}
 \end{AgdaAlign}
-
 
 \paragraph{Completeness}
 
@@ -1747,7 +1699,7 @@ We conclude with a discussion of design decisions, related row calculi, and othe
 \subsection{Notable Consequences of Design}
 \secref{consistency} claims that consistency is equivalently a claim of weak normalization. However, we do not crucially show that the embedding of a given normal type $\tau$ takes no further steps (i.e., that \Function{¬} \Function{∃[} \Var{υ} \Function{]} (\Function{⇑} \Var{τ} \Datatype{≡ₜ} \Var{υ})). This is a consequence of having mechanized the full equivalence relation, rather than the reflexive, transitive, and symmetric closure of a step relation. A commitment to the latter may have facilitated a stronger discussion of type reduction as a rewrite theory, and other claims thereof (e.g., confluence). 
 
-Another area worth exploration is reusability, \ala{} \citet{AllaisACMM21} or \citet{Saffrich24}. That is, which definitions and claims require induction, and which could instead be module parameters? Future work could provide a modular interface for metatheory, where the user need only supply the definitions of \emph{some} types and theorems.  % Work in progress by the authors seeks to relate denotational and operational semantics of \Rome's term structure, which requires a level-stratification of kinds and types. This results in a massive duplication of data types, begging the question: what may be abstracted? That is, which definitions and claims require induction over the structure of ASTs, and which could instead be parameterized? Future work could provide a modular interface for metatheory, where the user need only supply the definitions of \emph{some} types and theorems. 
+Another area worth exploration is reusability, \ala{} \citet{AllaisACMM21} or \citet{Saffrich24}. That is, which definitions and claims require induction, and which could instead be module parameters? Future work could provide a modular interface for metatheory, where the user need only supply the definitions of \emph{some} types and theorems.
 
 \subsection{Other Higher-Order Row Calculi}
 
@@ -1755,16 +1707,7 @@ Existing formalizations of row calculi with type-level computation differ in bot
 
 \paragraph{Denotational semantics} System \RO (the predecessor to \Rome) is given a denotational semantics by \Citet{HubersM23}, whose soundness result shows that equivalent types have the same denotation, and that well-typed terms inhabit the denotations of their types. This establishes semantic soundness of the equational theory, but does not characterize normal forms or give a complete decision procedure for type equivalence.
 
-\paragraph{Elaboration-based semantics} In contrast, \Citet{Chlipala10} elaborates Ur, a web-programming based language with type-level records, to Rocq~\citep{Rocq}, but only conjectures that a terminating and confluent type-reduction procedure could be given. \Citet{TooheyCJX26} elaborate their system $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. But, unlike our normalizer, their proof relies on a logical relation that lives in \Datatype{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms. % In contrast, our normalizer operates directly on higher-order rows and must account explicitly for row computation.
-
-% Existing formalizations of row calculi with type-level computation differ in both the expressiveness of their row language and the way they account for type equivalence. We distinguish denotational approaches from elaboration-based approaches, which translate source types into a target calculus with an established metatheory.
-
-% \paragraph{Denotational approaches}
-
-% \Citet{HubersM23} give a denotational semantics for System \RO's kinds, types, and terms. Their soundness theorem shows that equivalent types have the same denotation, and that well-typed terms inhabit the denotations of their types. This establishes semantic soundness of the equational theory, but does not characterize normal forms or give a complete decision procedure for type equivalence.
-
-% \paragraph{Elaboration-based approaches}
-% \Citet{Chlipala10} describes \emph{featherweight Ur}, a language with type-level records and an elaboration into Rocq~\citep{Rocq}. The development does not provide a normalization procedure for Ur's own definitional equality. Instead, the author conjectures that a terminating and confluent procedure could be given. More recently, \Citet{TooheyCJX26} give an elaboration semantics for $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. In contrast, our normalizer operates directly on higher-order rows and must account explicitly for row computation. Moreover, their proof relies on a logical relation for normalization that lives in \Datatype{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms.
+\paragraph{Elaboration-based semantics} In contrast, \Citet{Chlipala10} elaborates Ur, a web-programming based language with type-level records, to Rocq~\citep{Rocq}, but only conjectures that a terminating and confluent type-reduction procedure could be given. \Citet{TooheyCJX26} elaborate their system $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. But, unlike our normalizer, their proof relies on a logical relation that lives in \Datatype{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms. 
 
 \subsection{NbE and Intrinsic Mechanization}
 
@@ -1777,9 +1720,9 @@ Normalization by evaluation has also been mechanized in Agda for substantially r
 Pinning down a precise treatment of explicit substitutions is still ongoing research. \Citet{AltenkirchK16B} use quotient inductive-inductive types (via postulating constructors and eliminators), while \Citet{ChenNFT26} investigate this approach in Cubical Agda, where higher inductive types are supported by the ambient theory. In $\Rome$, the term--type--kind stratification allows us to retain ordinary inductive syntax and propositional equality throughout the development. This keeps normalization executable and avoids features forbidden by the trusted \emph{--safe} flag.
 \fi
 
-% \clearpage
-% \appendix
-
+\section*{Data Availability Statement}
+\label{sec:data}
+Our Agda mechanization of \Rome{} is available online \citep{Artifact, GithubArtifact}.
 
 \bibliography{NBE}
 \end{document}
