@@ -1,5 +1,5 @@
-\documentclass[sigplan,screen,10pt]{acmart}
-\settopmatter{printfolios=true,printccs=true,printacmref=true}
+\documentclass[sigplan,screen]{acmart}
+% \settopmatter{printccs=true,printacmref=true}
  
 \usepackage{accents}        % accents below math symbols
 \usepackage{amsfonts}       % math fonts and blackboards
@@ -17,6 +17,7 @@
 \usepackage{xparse}         % for better conditional formatting of \newcommands
 \usepackage{tikz}           % Diagrams
 \usepackage{tikz-cd}        % Commutative Diagrams
+\usepackage{microtype}      % As requested by Camera-Ready Author Instructions
 
 % -----------------------------------------------------------------------------
 % Configured packages
@@ -64,33 +65,42 @@
 % Removes vertical space before and after Agda code blocks
 \AgdaNoSpaceAroundCode
 
-% Set counter to 0 (for abstract)
-\setcounter{section}{0}
-
-% Not sure if this is forbade by ACM, but it avoids huge blocks of whitespace 
-% that \flushbottom introduces to avoid placing new \sections in a column 
-% where that \section's leading sentence might be on the next page.
-\raggedbottom
-
 % -----------------------------------------------------------------------------
 % ACM Stuff
 
-\setcopyright{rightsretained}
-\acmPrice{}
+%%% The following is specific to CPP '27 and the paper
+    %%% 'Normalization by Evaluation of Higher-Order Rows'
+    %%% by Alexander Hubers and J. Garrett Morris.
+    %%%
+\setcopyright{cc}
+\setcctype{by-nc-nd}
+\acmDOI{10.1145/3871849.3871874}
 \acmYear{2027}
 \copyrightyear{2027}
-\acmNumber{CPP}
-% \received{2026-11-25}
-% \received[accepted]{2026-11-25}
-\citestyle{acmauthoryear}
+\acmISBN{979-8-4007-3146-4/2027/01}
+\acmConference[CPP '27]{Proceedings of the 16th ACM SIGPLAN International Conference on Certified Programs and Proofs}{January 11--12, 2027}{Mexico City, Mexico}
+\acmBooktitle{Proceedings of the 16th ACM SIGPLAN International Conference on Certified Programs and Proofs (CPP '27), January 11--12, 2027, Mexico City, Mexico}
+\acmSubmissionID{poplws27cppmain-p14-p}
+\received{2026-09-10}
+\received[accepted]{2026-11-10}
+
+%% Bibliography style
 \bibliographystyle{ACM-Reference-Format}
-% \acmDOI{10.1145/3571196}
-% \acmSubmissionID{popl23main-p17-p}
-% \acmJournal{PACMPL}
-% \acmVolume{7}
-% \acmArticle{3}
-% \acmMonth{1}
-% \fancyfoot{}
+\citestyle{acmauthoryear}  %% For author/year citations
+
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10003752.10003790.10011740</concept_id>
+<concept_desc>Theory of computation~Type theory</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Theory of computation~Type theory}
+
+\keywords{row types, normalization by evaluation, Agda}
 
 % -----------------------------------------------------------------------------
 % Title and Authors
@@ -98,25 +108,22 @@
 \title{Normalization by Evaluation of Higher-Order Rows}
 \author{Alex Hubers}
 \orcid{0000-0002-6237-3326}
-\affiliation{
-  \department{Department of Computer Science}
-  \institution{The University of Iowa}
-  \streetaddress{14 MacLean Hall}
+\affiliation{%
+  \institution{University of Iowa}
   \city{Iowa City}
-  \state{Iowa}
-  \country{USA}}
+  \country{USA}
+}
 \email{alexander-hubers@uiowa.edu}
 
 \author{J. Garrett Morris}
 \orcid{0000-0002-3992-1080}
-\affiliation{
-  \department{Department of Computer Science}
-  \institution{The University of Iowa}
-  \streetaddress{14 MacLean Hall}
+\affiliation{%
+  \institution{University of Iowa}
   \city{Iowa City}
-  \state{Iowa}
-  \country{USA}}
+  \country{USA}
+}
 \email{garrett-morris@uiowa.edu}
+
 
 % -----------------------------------------------------------------------------
 % Section conditionals
@@ -136,8 +143,6 @@
 
 \begin{document}
 
-\maketitle
-
 \begin{code}[hide]
 {-# OPTIONS -W noUnreachableClauses #-}
 module NBE where 
@@ -147,8 +152,14 @@ open import Rome.Prelude
 % -----------------------------------------------------------------------------
 % Abstract
 
-\section*{Abstract}
+\begin{abstract}
 Row types map labels to types, and are used to \emph{structurally} type records and variants. The presence of higher-order rows, in which labels map to types of higher kind, introduces nontrivial forms of type computation. This paper presents a sound and complete equational theory for types in \Rome{} (pronounced ``Rome''), a higher-order row type theory. We normalize \Rome{} types by evaluation in the interactive proof assistant Agda. Moreover, we contribute extensions to logical relation techniques for intrinsic mechanization to prove this procedure is stable, sound, and complete. As a result, we obtain the first decidable type-conversion algorithm for a higher-order row type theory.
+\end{abstract}
+
+% -----------------------------------------------------------------------------
+% Title
+
+\maketitle
 
 % -----------------------------------------------------------------------------
 % Introduction
@@ -162,7 +173,7 @@ Row types map labels to types, and are used to \emph{structurally} type records 
 
 Row types, as introduced by \citet{wand87}, describe type-level associations of labels to types. Rows can be used dually to type \emph{records} (i.e., classes and objects) and \emph{variants} (i.e., algebraic data types). Recent row type systems~\citep{HubersM23,Chlipala10,Chlipala16, TooheyCJX26} use higher-order rows to describe meta- and generic programs. However, these calculi lack a formal metatheory of type computation.
 
-Systems with type equivalence $\Infix{\TEqv}$ and type computation typically include a \emph{type conversion} rule, in which a term $M$ at type $\tau$ may be converted to type $\upsilon$ provided some derivation of $\tau \TEqv \upsilon$. But this rule (i) complicates decidability, and (ii) impedes preservation and progress. For (i), consider the judgment $\TypeJ {\Gamma, x : \tau} {x} {\upsilon}$, which is well-typed if $\tau \TEqv \upsilon$ and ill-typed otherwise. Likewise, when analyzing an application $\TypeJ \Gamma {M\, N} {\upsilon}$ in a proof of (ii), inverting the head term $\TypeJ \Gamma M {\tau \to \upsilon}$  via may yield a conversion, leaving the proof \emph{stuck}. 
+Systems with type equivalence $\Infix{\TEqv}$ and type computation typically include a \emph{type conversion} rule, in which a term $M$ at type $\tau$ may be converted to type $\upsilon$ provided some derivation of $\tau \TEqv \upsilon$. But this rule (i) complicates decidability, and (ii) impedes preservation and progress. For (i), consider the judgment $\TypeJ {\Gamma, x : \tau} {x} {\upsilon}$, which is well-typed if $\tau \TEqv \upsilon$ and ill-typed otherwise. Likewise, when analyzing an application $\TypeJ \Gamma {M\, N} {\upsilon}$ in a proof of (ii), inverting the head term $\TypeJ \Gamma M {\tau \to \upsilon}$  may yield a conversion, leaving the proof \emph{stuck}. 
 
 % The way out is typically to index terms by types in \emph{normal form}, thereby rendering the conversion rule redundant. That is, we needn't equate syntactically identical (normal) types. This reduces the problems above to a matter of \emph{type normalization}. Of course, that invocation of conversion is superfluous only holds if any two types it might equate are indeed derivably equivalent. That is, we not only must map types to normal forms, but such a procedure must necessarily be \emph{sound} and \emph{complete}.
 
@@ -171,7 +182,7 @@ Systems with type equivalence $\Infix{\TEqv}$ and type computation typically inc
 
 % Systems with type computation typically include a \emph{type conversion} rule, in which a term $M$ at type $\tau$ may be converted to type $\upsilon$ provided that $\tau = \upsilon$. But this rule complicates type checking (\cf{} $\TypeJ {\Gamma, x : \tau} {x} {\upsilon}$, which is well-typed if $\tau \equiv \upsilon$ and ill-typed otherwise) and impedes \emph{preservation/progress} (inverting the head term in an application $\TypeJ \Gamma {M\, N} {\upsilon}$ may yield a conversion rather than a canonical $\lambda$-binding). Type conversion is typically decided by reducing types to normal forms and performing a syntactic equality check. In fact, the presence of normal forms permits the system to eliminate the type conversion rule entirely: terms may be indexed by types in normal form, and thus any use of the conversion rule would superfluously equate identical types. Eliminating the conversion rule ``unstucks'' proofs of progress, as the head term in an application must be in canonical form (a $\lambda$-binding).
 
-The typical way out is to index terms by types in \emph{normal form}, thereby rendering the conversion rule redundant. That is, we needn't equate syntactically identical types. This reduces the problems above to a matter of \emph{type normalization}. Of course, that invocations of the conversion rule are redundant only holds if any two types we might equate are indeed derivably equivalent. That is, we not only must map types to normal forms, but such a procedure must necessarily be \emph{sound} and \emph{complete}.
+The typical way out is to index terms by types in \emph{normal form}, thereby rendering the conversion rule redundant. (That is, we needn't equate syntactically identical types.) This reduces the problems above to a matter of \emph{type normalization}. Of course, that invocations of the conversion rule are redundant only holds if any two types we might equate are indeed derivably equivalent. That is, we not only must map types to normal forms, but such a procedure must necessarily be \emph{sound} and \emph{complete}.
 
 This can be challenging to prove. An equational theory for System \FO involves only one nontrivial equation: $\beta$-reduction. But the presence of higher-order row types and type operators introduces an abundance of nontrivial type equalities, e.g., the reduction of a map over a row. For this reason, extant higher-order row-typed systems have until now only presented incomplete equational theories~\citep{HubersM23}, elaborated away the intricacies of row computation~\citep{TooheyCJX26}, or instead conjectured confluence and termination of type reduction.~\citep{Chlipala10}
 
@@ -324,7 +335,7 @@ desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
 \end{rosi}
 
 \paragraph{Predicates and containment}
-Perhaps instead we wish to desugar \emph{all} Boolean constructs to the untyped $\lambda$-calculus: 
+Perhaps instead we wish to desugar \emph{all} Boolean constructs to the untyped $\lambda$-Calculus: 
 
 \begin{rosi}
 row LamF = {'Lam ▹ λ x. x , 
@@ -332,7 +343,7 @@ row LamF = {'Lam ▹ λ x. x ,
             'Var ▹ Const Nat}
 \end{rosi}
 
-Using row polymorphism and the \emph{row containment} predicates (i) \R{BoolF < z} and (ii) \R{LamF < (z  ∖  BoolF)}, we specify that (i) \R{desugar} can operate on any row \R{z} that includes at least the \R{BoolF} fields and (ii) once those fields are removed, still contains the \R{LamF} fields. In other words, we can desugar \emph{any} AST that incorporates syntax for $\lambda$-calculus and Booleans expressions. % This formulation provides a powerful abstraction, enabling \R{desugar} to process any AST that incorporates Boolean constructors.
+Using row polymorphism and the \emph{row containment} predicates (i) \R{BoolF < z} and (ii) \R{LamF < (z  ∖  BoolF)}, we specify that (i) \R{desugar} can operate on any row \R{z} that includes at least the \R{BoolF} fields and (ii) once those fields are removed, still contains the \R{LamF} fields. In other words, we can desugar \emph{any} AST that incorporates syntax for $\lambda$-Calculus and Booleans expressions. % This formulation provides a powerful abstraction, enabling \R{desugar} to process any AST that incorporates Boolean constructors.
 
 \begin{rosi}
 desugar : ∀ z : R[* → *]. BoolF < z, 
@@ -686,6 +697,7 @@ module SubId where
 \ifNbE
 
 \input{figures/nbe}
+
 
 Normalization by evaluation \SourceP{NBE.Normalization} consists of three key domains and three functions over these domains (\cref{fig:nbe}). We define the syntax of types, neutral and normal forms, and the embedded domain of semantic types. From there we \emph{reflect} neutral types to semantic types, \emph{reify} from semantic types to normal types, and \emph{evaluate} (\Function{⟦\Underscore⟧}) types to semantic types. The composition of these functions yields procedures for (i) \emph{normalization} (\Function[NBE.Normalization][⇓ₜ]{⇓}) from types to normal types, and (ii) \emph{$\eta$-expansion} (\Function[NBE.Normalization]{η-norm}) from neutral to normal types.
 
@@ -1076,7 +1088,7 @@ The defining equations for the reduction of $\Pi$ is given below (\Function[NBE.
   ⟨Π⟩ : SemType Δ R[ κ ] → SemType Δ κ 
   ⟨Π⟩ {κ = ★} x = Π (reify x)
   ⟨Π⟩ {κ = κ₁ `→ κ₂} F = λ r v → ⟨Π⟩ (renSem r F ⟨?⟩ v)
-  ⟨Π⟩ {κ = R[ κ ]} ρ = const ⟨Π⟩ ⟨$⟩ ρ
+  ⟨Π⟩ {κ = R[ κ ]} ρ = (λ r → ⟨Π⟩) ⟨$⟩ ρ
 \end{code}
 \begin{code}[hide]
   ⟨Π⟩ {κ = L} x = lab "impossible"
@@ -1164,7 +1176,7 @@ A semantic environment (\Type[NBE.Normalization]{SemEnv}) maps type variables to
 
 We describe only the interesting cases of evaluation. The first equation states that variables evaluate to their meaning in environment $\eta$. As desired, the equations for application (\Constructor{\Underscore{}·\Underscore{}}), row complement (\Constructor{\Underscore{}∖\Underscore{}}), record and variant operators (\Constructor{Π} and \Constructor{Σ}), and mapping (\Constructor{\Underscore{}\$\Underscore{}}) defer to the semantic helpers defined in this section. (The operation \Function[NBE.Normalization][\Underscore⟨∖⟩\Underscore]{⟨∖⟩′} is the semantic complement operator for row literals lifted to \Datatype{SemRow}s.) Evaluation of labeled singletons must check if the label is a neutral variable \Var{ν} or label literal $\ell$, making sure to only construct row literals with literal labels. The evaluation of row literals (\Function[NBE.Normalization][⟦\Underscore⟧ᵣ]{⟦\Underscore⟧ᵣ}) is effectively inverse to \Function{reifyRow} (\cref{fig:reification}). In each case, we employ our smart constructors for semantic row literals. We have an obligation to prove that evaluation preserves the ordering evidence \Var{ω}, which is performed by the auxiliary lemma \Function[NBE.Normalization][⟦\Underscore⟧ₒ]{⟦\Underscore⟧ₒ} denoting ordered row literal evidence to ordered semantic row evidence.
 
-\paragraph{Normalization} Finally, normalization (\Function[NBE.Normalization][⇓ₜ]{⇓}) in the NbE approach is simply the composition of reification after evaluation.  
+\paragraph{Normalization} Finally, normalization (\Function[NBE.Normalization][⇓ₜ]{⇓}) is simply the composition of reification after evaluation.  
 
 \begin{code}
   ⇓ : Type Δ κ → NormalType Δ κ 
