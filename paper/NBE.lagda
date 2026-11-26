@@ -1029,8 +1029,8 @@ We define mapping (\Function[NBE.Normalization][\Underscore⟨$⟩\Underscore]{�
 \end{code}
 \begin{code}
   _⟨$⟩_ {κ₁ = κ₁} {κ₂ = κ₂} F (l ▹ τ) = l ▹ (F ⟨·⟩ τ)
-  F ⟨$⟩ row (n , P) q = 
-    row (n , map₂ (F id) ∘ P) (orderedMap₂ (F id) q)
+  F ⟨$⟩ row (n , P) ω = 
+    row (n , map₂ (F id) ∘ P) (orderedMap₂ (F id) ω)
   F ⟨$⟩ ((ρ₂ ∖ ρ₁) {nr}) = 
     ((F ⟨$⟩ ρ₂) ∖ (F ⟨$⟩ ρ₁)) {NotRowLiteral$ nr}
   F ⟨$⟩ (G $ n) = (λ r → F r ∘ G r) $ n
@@ -1232,7 +1232,7 @@ module Canonicity where
   row-canonicity-∅ : (ρ : NormalType ∅ R[ κ ]) → 
                      Σ[ xs ∈ RowLiteral (NormalType ∅ κ) ] 
                      Σ[ ω ∈ True (ordered? xs) ] 
-                     (ρ ≡ ⦅ xs ⦆ q)
+                     (ρ ≡ ⦅ xs ⦆ ω)
   row-canonicity-∅ (⦅ xs ⦆ ω) = xs , ω , refl
 \end{code}
 \begin{code}[hide]
@@ -1408,7 +1408,7 @@ Finally, we relate row literals of equal length by a pointwise relation of their
 
 \begin{AgdaAlign}
 \begin{code}
-  _≈_ {κ = R[ κ ]} (row (n , P) p) (row (m , Q) q) with 
+  _≈_ {κ = R[ κ ]} (row (n , P) p) (row (m , Q) ω) with 
     n ≡ℕ? m 
   ... | yes refl = (i : Fin m) →  P i ≈₂ Q i
     where
