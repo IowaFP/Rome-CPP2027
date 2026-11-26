@@ -29,26 +29,9 @@
 \PassOptionsToPackage{unicode}{hyperref}
 
 % -----------------------------------------------------------------------------
-% Conditionals:
-%   - set `comments` to true to render text box comments
-%   - set `mono` to true to render pdf without colored syntax highlighting
-%     (better for printing to black and white, since some colors are 
-%      quite light.)
-
-\newif\ifcomments\commentstrue
-\newif\ifmono\monofalse
-  
-% -----------------------------------------------------------------------------
 % My packages
 
-\ifmono
-\usemintedstyle{bw}
-\usepackage[bw]{./sty/agda}
-\else
-\usemintedstyle{rosi-agda}
-\usepackage{./sty/agda}
-\fi 
-
+\usepackage{agda}
 \usepackage{./sty/mathwidth}
 \usepackage{./sty/infer}
 \usepackage{./sty/NBE}
@@ -56,12 +39,25 @@
 \usepackage{./sty/environments}
 \usepackage{./sty/unicode}
 
+% -----------------------------------------------------------------------------
+% Conditionals:
+%   - set `comments` to true to render text box comments
+%   - set `mono` to true to render pdf without colored syntax highlighting
+%     (better for printing to black and white, since some colors are 
+%      quite light.)
+
+\newif\ifcomments\commentstrue
 
 % -----------------------------------------------------------------------------
 % Some configuration
 
+\usemintedstyle{rosi-agda}
+
 % Removes vertical space before and after Agda code blocks
 \AgdaNoSpaceAroundCode
+
+% Check for margin violations
+% \setlength{\overfullrule}{5pt}
 
 % -----------------------------------------------------------------------------
 % ACM Stuff
@@ -136,6 +132,7 @@
 \newif\ifmetatheory\metatheorytrue
 \newif\ifrelatedWork\relatedWorktrue
 
+
 % -----------------------------------------------------------------------------
 % Document
 
@@ -188,13 +185,13 @@ In summary, this paper contributes:
 
 \begin{enumerate}
   \item \Rome{}'s types, kinds, and equational theory \cref{sec:rome};
-  \item a classification of the normal and neutral forms required for higher-order rows, including inert maps, neutral-label rows, and residual row complements \cref{sec:normal-forms};
-  \item an NbE algorithm whose semantic operations implement $\beta$-reduction, row mapping and complements, and nested row computation (\S\ref{sec:NbE} and \S\ref{sec:evaluation});  
+  \item a classification of the normal and neutral forms required for higher-order rows and row computation;
+  \item an NbE algorithm that implements row computation (\S\ref{sec:NbE} and \S\ref{sec:evaluation});  
   \item mechanized proofs of stability, soundness, and completeness in Agda, yielding a decision procedure for \Rome{} type equivalence \cref{sec:metatheory}; and
   \item a \emph{fully safe} Agda artifact witnessing the computability of normal forms and type equivalence.
 \end{enumerate}
 
-Our artifact is free and available on Github~\citep{GithubArtifact} for quick browsing and Zenodo~\citep{Artifact} for long-term archival; modules, definitions, and mechanized claims are also \href{\DocBase}{hyperlinked} throughout the paper.
+Our artifact is free and available on Github~\citep{GithubArtifact} for quick browsing and Zenodo~\citep{Artifact} for long-term archival. Modules, definitions, and mechanized claims are also \href{\DocBase}{hyperlinked} throughout the paper.
 \fi 
 
 % -----------------------------------------------------------------------------
@@ -204,7 +201,7 @@ Our artifact is free and available on Github~\citep{GithubArtifact} for quick br
 \label{sec:rows-in-action}
 \ifrowsInAction
 
-We begin by illustrating some of the novel type computation features in \Rome. Code excerpts are formatted \ala{} \Rosi~\citep{Rosi}, an experimental implementation of \Rome. The corresponding \Rosi{} terms are given in full \href{\RosiCode}{online}~\citep{GithubArtifact}.
+We begin by illustrating some of the novel type computation features in \Rome. Code excerpts are formatted \ala{} \Rosi~\citep{Rosi}, an experimental implementation of \Rome. The corresponding \Rosi{} terms are given in full online (\href{\RosiCode}{RowsInAction.ro}, \citep{GithubArtifact}).
 
 \paragraph{Row types} Rows in \Rome{} are a type-level representation of record fields and variant constructors.  A \emph{row} is simply an association of labels to types, like so:
 \begin{rosi} 
@@ -355,8 +352,7 @@ This section defines the \Rome{} type system. \Cref{fig:kinding} gives the kindi
 
 \Cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. We have highlighted the syntax that extends System \Fome in \cref{fig:syntax-types}. Labels (i.e., record field and variant constructor names) live at the type level, and are classified by kind $\LabK$. Rows of kind $\kappa$ are classified by $\RowK \kappa$. When possible, we use $\phi$ for type functions, $\rho$ for types of row kind, and $\xi$ for types of label kind. 
 
- % \Source{Kinds.Syntax}
- \paragraph{Mechanized representations \SourceP{Kinds.Syntax}} The types \Datatype[Kinds.Syntax]{Kind} and \Datatype[Kinds.Syntax]{KEnv} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
+ \paragraph{Mechanized representations \SourceP{Kinds.Syntax}{Kinds.Syntax}} The types \Datatype[Kinds.Syntax]{Kind} and \Datatype[Kinds.Syntax]{KEnv} represent kinds and kinding environments, respectively. Kinding environments are right-growing lists of kinds.
 
 \begin{code}[hide]
 module Syntax where
@@ -399,7 +395,7 @@ Care must be taken that the instantiation of variable labels does not introduce 
 
 Lastly, the syntax $\Mapp \phi \rho$ maps the type operator $\phi$ across a row $\rho$, and the syntax $\rho_2 \Compl \rho_1$ denotes the \emph{row complement} of $\rho_{2}$ by $\rho_{1}$, analogous to set complements.
 
-\paragraph{Mechanized representations \SourceP{Types.Syntax}}
+\paragraph{Mechanized representations \SourceP{Types.Syntax}{Types.Syntax}}
 Our mechanization is \emph{intrinsic}, meaning types are indexed by context and kind. The shape of predicates does not differ be they constraining a \emph{type} or a normal form, and hence the \Datatype[Types.Syntax]{Pred} type generalizes over both via the \Var{Ty} parameter. For example, predicates housing \Datatype[Types.Syntax]{Type}s are described by \Datatype{Pred} \Symbol{(}\Datatype{Type} \GVar{Δ} \Constructor{R[}\GVar{κ}\Constructor{]}\Symbol{)}.
 \begin{AgdaAlign}
 \begin{code} 
@@ -407,7 +403,7 @@ Our mechanization is \emph{intrinsic}, meaning types are indexed by context and 
   data Type (Δ : KEnv) : Kind → Set
 \end{code}
 
-The type synonym \Function[Types.Syntax]{RowLiteral} defines row literals as lists of label-type associations; like with \Datatype{Pred}, this definition may be reused for normal forms, and so is parameterized by \Var{Ty}. The predicate \Function[Types.Syntax]{Ordered} \Var{xs} asserts that the row literal \Var{xs} is well-ordered on labels. The function \Function[Types.Syntax]{ordered?} witnesses that this predicate is decidable.
+The type synonym \Function[Types.Syntax]{RowLiteral} defines row literals as lists of label-type associations. Like with \Datatype{Pred}, this definition may be reused for normal forms, and so is parameterized by \Var{Ty}. The predicate \Function[Types.Syntax]{Ordered} \Var{xs} asserts that the row literal \Var{xs} is well-ordered on labels. The function \Function[Types.Syntax]{ordered?} witnesses that this predicate is decidable.
 
 
 \begin{code}[hide]
@@ -445,7 +441,6 @@ Two sets of \Datatype{Type} constructors are interesting. First, the conditions 
     Π     : {nl : NotLabel κ} → Type Δ (R[ κ ] `→ κ)
     Σ     : {nl : NotLabel κ} → Type Δ (R[ κ ] `→ κ)
 \end{code}
-\end{AgdaAlign}
 
  The \Function{NotLabel} $\kappa$ predicate computes to \Term{\Name[Data]{Empty}{⊥}} when $\kappa \in \mathcal K$ and \Term{\Name[Agda]{Builtin.Unit}{⊤}} otherwise, making it \emph{irrelevant}. Hence congruence over $\Pi$ and $\Sigma$ may be defined without regard for this evidence. That is, we have \Constructor{Π} \Symbol{\{}\Var{nl₁}\Symbol{\}} \Var{ρ₁} \Datatype{≡} \Constructor{Π} \Symbol{\{}\Var{nl₂}\Symbol{\}} \Var{ρ₂} iff \Var{ρ₁} \Datatype{≡} \Var{ρ₂} (\Function[Types.Syntax]{cong-Π}).
 
@@ -455,6 +450,7 @@ Second, The constructor \Constructor[Types.Syntax][Type.⦅\Underscore⦆]{⦅\U
     ⦅_⦆ : (xs : RowLiteral (Type Δ κ)) → True (ordered? xs) →
           Type Δ R[ κ ]
 \end{code}
+\end{AgdaAlign}
 
 \Ni Unlike \Function{NotLabel} $\kappa$, the \Function{Ordered} \Var{xs} predicate is not (i) trivially irrelevant, nor does it (ii) compute to \Datatype{⊤} or \Datatype{⊥} on closed terms. However, that it is decidable (via \Function{ordered?} \Var{xs}) allows evidence to be \emph{squashed} via the \Type{\Name[Relation]{Nullary.Decidable.Core}{True}} operator~\citep{AgdaStdLib}, yielding a type that satifies both (i) and (ii), and with the desired congruence property that \Constructor{⦅} \Var{xs} \Constructor{⦆} \Var{ω}$_{xs}$ \Datatype{≡} \Constructor{⦅} \Var{ys} \Constructor{⦆} \Var{ω}$_{ys}$ iff \Var{xs} \Datatype{≡} \Var{ys} (\Function[Types.Syntax]{cong-⦅\Underscore⦆}).
 
@@ -500,10 +496,10 @@ The interesting rules describe row complement computation and the interplay of $
     {\kappa_1 \to \kappa_2}}}
 \]}
 
-\Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it (\Function[Types.Derivable]{eq-Πλ}, \Source{Types.Derivable}). 
+\Ni but the rules \erule{$\beta$}, \erule{$\eta$}, \erule{map$_\Labels$}, and \errule{assoc$_\Xi$} are in fact sufficient to derive it (\Function[Types.Derivable]{eq-Πλ}, \Source{Types.Derivable}{Types.Derivable}). 
 
-\paragraph{Mechanized representations \SourceP{Types.Equivalence}}
-Equivalence on predicates and types is represented mechanically by the typed relations (\Datatype[Types.Equivalence][\Underscore≡ₜ\Underscore]{≡ₜ}) and (\Datatype[Types.Equivalence][\Underscore≡ₚ\Underscore]{≡ₚ}).
+\paragraph{Mechanized representations \SourceP{Types.Equivalence}{Types.\-Equiv\-alence}}
+Equ\-iv\-alence on predicates and types is represented mechanically by the typed relations (\Datatype[Types.Equivalence][\Underscore≡ₜ\Underscore]{≡ₜ}) and (\Datatype[Types.Equivalence][\Underscore≡ₚ\Underscore]{≡ₚ}).
 
 \begin{AgdaAlign}
 \begin{code}
@@ -530,7 +526,7 @@ Normalization reduces applications and maps except when a variable blocks comput
 
 We distinguish singleton rows $\{\LabTy \nu \Normal \tau\}$ with neutral labels from row literals $\RowIx i 0 m {\LabTy {\ell_i} {\Normal {\tau_i}}}$ with literal labels $\ell_i$. A row is otherwise an inert map $\Mapp \phi \nu$ or the complement of two rows $\Normal{\tau_2} \Compl \Normal{\tau_1}$. We require in the kinding of normal row complements \kruleNF{$\Compl$} that one (or both) rows are not literal, otherwise the complement would compute. By consequence of $\eta$-expansion, records and variants need only be formed at kind $\TypeK$. The remaining normal type syntax and normal kinding rules do not differ from their counterparts in \cref{fig:syntax-types} and \cref{fig:kinding}.
 
-\paragraph{Mechanized representations \SourceP{NormalTypes.Syntax}} Normal and neutral types are represented intrinsically as the following types.
+\paragraph{Mechanized representations \SourceP{NormalTypes.Syntax}{NormalTypes.\-Syntax}} Normal and neutral types are represented intrinsically as the following types.
 
 \begin{AgdaAlign}
 \begin{code}
@@ -665,7 +661,7 @@ module SubId where
   open import Rome.Kinds ; open import Rome.Types ; open import Rome.NormalTypes
 \end{code} 
 \begin{code}
-  sub-id : ∀ (τ : Type Δ κ) → τ [ ` ]ₛ ≡ τ
+  sub-id : (τ : Type Δ κ) → τ [ ` ]ₛ ≡ τ
 \end{code}
 \begin{code}[hide]
   import Rome.Types.Properties.Substitution as Substitution
@@ -683,14 +679,13 @@ module SubId where
 \input{figures/nbe}
 
 
-Normalization by evaluation \SourceP{NBE.Normalization} consists of three key domains and three functions over these domains (\cref{fig:nbe}). We define the syntax of types, neutral and normal forms, and the embedded domain of semantic types. From there we \emph{reflect} neutral types to semantic types, \emph{reify} from semantic types to normal types, and \emph{evaluate} (\Function{⟦\Underscore⟧}) types to semantic types. The composition of these functions yields procedures for (i) \emph{normalization} (\Function[NBE.Normalization][⇓ₜ]{⇓}) from types to normal types, and (ii) \emph{$\eta$-expansion} (\Function[NBE.Normalization]{η-norm}) from neutral to normal types.
+Normalization by evaluation \SourceP{NBE.Normalization}{NBE.Normalization} consists of three key domains and three functions over these domains (\cref{fig:nbe}). We define the syntax of types, neutral and normal forms, and the embedded domain of semantic types. From there we \emph{reflect} neutral types to semantic types, \emph{reify} from semantic types to normal types, and \emph{evaluate} (\Function{⟦\Underscore⟧}) types to semantic types. The composition of these functions yields procedures for (i) \emph{normalization} (\Function[NBE.Normalization][⇓ₜ]{⇓}) from types to normal types, and (ii) \emph{$\eta$-expansion} (\Function[NBE.Normalization]{η-norm}) from neutral to normal types.
 
 \subsection{Residualizing Semantics}
 \label{sec:residual-semantics}
 
-We define our semantic domain \SourceP{NBE.Syntax} in Agda recursively over the syntax of kinds. Our semantics is \emph{residualizing}~\citep{Lindley05} because we distinguish \emph{values} in the semantic domain (functions and rows) from \emph{residual values} (unbound variables, applications with a variable in head position, and normal forms) at ground kind. Hence semantic types are residual values at kinds $\TypeK$ and $\LabK$.
+We define our semantic domain \SourceP{NBE.Syntax}{NBE.Syntax} in Agda recursively over the syntax of kinds. Our semantics is \emph{residualizing}~\citep{Lindley05} because we distinguish \emph{values} in the semantic domain (functions and rows) from \emph{residual values} (unbound variables, applications with a variable in head position, and normal forms) at ground kind. Hence semantic types are residual values at kinds $\TypeK$ and $\LabK$.
 
-\begin{AgdaAlign}
 \begin{code}[hide]
 module SemTypes where
   open import Rome.Kinds.Syntax public 
@@ -704,6 +699,7 @@ module SemTypes where
       A : Set
 \end{code}
 
+\begin{AgdaAlign}
 \begin{code}[hide]
   module _ where private
 \end{code}
@@ -715,9 +711,11 @@ module SemTypes where
 \begin{code}[hide]
     SemType Δ₁ _ = ⊥
 \end{code}
+\end{AgdaAlign}
 
 \paragraph{Functions} We interpret arrow-kinded types as \emph{Kripke function spaces} \citep{JungT93, Abel13}, which permit the application of interpreted function $\KindJ {\Delta_1} \phi {\kappa_1 \to \kappa_2}$ at any environment $\Delta_2$ provided a renaming from $\Delta_1$ into $\Delta_2$. The Kripke flavor here is that environments may be viewed as \emph{worlds}, and so each Kripke function returns a type in any \emph{reachable} environment.
 
+\begin{AgdaAlign}
 \begin{code}[hide]
   module _ where private
     SemType : KEnv → Kind → Set
@@ -732,20 +730,24 @@ module SemTypes where
 \begin{code}[hide]
     SemType _ _ = ⊥
 \end{code}
+\end{AgdaAlign}
 
 Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are canonically $\lambda$-bound, and hence our definition of \Datatype{SemType} needn't account for the evaluation of arrow-kinded variables. Contrast our definition with that of \citet{ChapmanKNW19}, for which the evaluation of e.g. the variable \Var{v} $:$ $\TypeK \to \TypeK$ is \Function{left} \Symbol{(}\Constructor{`} \Var{v}\Symbol{)}: 
 
 % We disable the NoUnreachableClauses warning at the start of this file
 % so that the following unreachable equation does not throw an error
+\begin{AgdaAlign}
 \begin{code}
     SemType Δ (κ₁ `→ κ₂) = 
         NeutralType Δ (κ₁ `→ κ₂) 
      or KripkeFunction Δ κ₁ κ₂
-\end{code} 
+\end{code}
+\end{AgdaAlign}
 
 
 \paragraph{Row literals} We define the interpretation of row literals ${\RowIx i 0 n {\LabTy {\ell_i} {\tau_i}}}$ as the type \Type{Row} \Symbol{(}\Type{SemType} $\Delta$ $\kappa$\Symbol{)}, which is defined generically over arbitrary type \GVar{A} \Symbol{:} \Prim{Set} below. The \Type[NBE.Syntax]{Row} type is a finitely indexed map. We choose this representation because operations like row mapping can be expressed as function composition. We will commonly refer to the empty row and cons case on \Type{Row}s as \Function[NBE.Syntax]{ε} and (\Function[NBE.Syntax][_⨾⨾_]{⨾⨾}), respectively.
 
+\begin{AgdaAlign}
 \begin{code}
   Row : Set → Set 
   Row A = Σ[ n ∈ ℕ ] (Fin n → Label × A)
@@ -754,8 +756,6 @@ Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are ca
   OrderedRow : Row A → Set
   OrderedRow _ = ⊤
 \end{code}
-
-
 \begin{code}[hide]
   ε : Row A 
   ε = 0 , λ ()
@@ -763,9 +763,10 @@ Because we choose to reason modulo $\eta$-equivalence, arrow-kinded types are ca
   a ⨾⨾ (n , P) = suc n , λ { fzero → a 
                           ; (fsuc x) → P x }
 \end{code}
-
+\end{AgdaAlign}
 
 \paragraph{Semantic rows, in full}
+\begin{AgdaAlign}
 \begin{code}[hide]
 module SemRows where
   open import Rome.Kinds
@@ -775,17 +776,21 @@ module SemRows where
 \end{code}
 \begin{code}[hide]
 \end{code}
+\end{AgdaAlign}
 
 Not all row-kinded semantic types are row literals. We must account for \emph{inert} row kinded types for which neutral types halt reduction to row literals. For example, the singleton $\Row {\LabTy \nu \tau}$ is not a row literal because its label is neutral. In summary, a semantic row is either: a row literal, a neutral-labeled row singleton, an inert map, or an inert row complement.  In order to enforce rule \erule{map$_\circ$}---that the nested map $\Mapp{\phi_{1}}{(\Mapp{\phi_{2}}{\rho})}$ be recomposed to $\Mapp{(\phi_{1} \circ \phi_{2})}{\rho}$---we want to represent the type operator in inert maps functionally. However, a direct attempt in doing so runs afoul of Agda's positivity checker. Consider the following definition of \Type[NBE.Syntax]{SemRow} for an inert map constructor:
+\begin{AgdaAlign}
 \begin{code} 
   data SemRow (Δ : KEnv) : Kind → Set where
     _$_ : KripkeFunction Δ κ₁ κ₂ → 
             NeutralType Δ R[ κ₁ ] → SemRow Δ R[ κ₂ ]
 \end{code}
+\end{AgdaAlign}
 
 The Kripke function argument has both a negative occurrence and a non-strictly positive occurrence of \Datatype{SemType}, and so Agda rejects this definition (correctly) as ill-founded. We recover a well-founded definition following a subtle encoding trick found in \citet{AllaisBM13}. For the negative occurrence, it is sufficient to instead quantify over \emph{neutral type} arguments; for the non-strictly positive occurrence, we parameterize \Type{SemRow} by a functor $\mathcal T$ \Symbol{:} \Datatype{KEnv} $\to$ \Prim{Set}, which serves as a placeholder for \Datatype{SemType} $(\Dash)$ \GVar{κ}. 
 
 \begin{figure}[t]
+\begin{AgdaAlign}
 \begin{code}[hide]
 module Caveat where
   open import Rome.Kinds
@@ -799,12 +804,12 @@ module Caveat where
 \end{code}
 \begin{code}
   data SemRow Δ₁ 𝒯 where
-    _$_ : (∀  {Δ₂} → Renaming Δ₁ Δ₂ → 
-                NeutralType Δ₂ κ₁ → 𝒯 Δ₂) → 
+    _$_ : (∀ {Δ₂} → Renaming Δ₁ Δ₂ → 
+           NeutralType Δ₂ κ₁ → 𝒯 Δ₂) → 
             NeutralType Δ₁ R[ κ₁ ] → 
             SemRow Δ₁ 𝒯 R[ κ₂ ]
     _▹_ : ∀ {κ} → NeutralType Δ₁ L → 
-            𝒯 Δ₁ → SemRow Δ₁ 𝒯 R[ κ ]
+           𝒯 Δ₁ → SemRow Δ₁ 𝒯 R[ κ ]
     row : (ρ : Row (𝒯 Δ₁)) → OrderedRow ρ → 
           SemRow Δ₁ 𝒯 R[ κ ]
     _∖_ : (ρ₂ ρ₁ : SemRow Δ₁ 𝒯 R[ κ ]) → 
@@ -817,11 +822,14 @@ module Caveat where
   NotRowLiteral (ρ ∖ ρ₁) = ⊤
   NotRowLiteral (φ $ ρ) = ⊤
 \end{code}
+\end{AgdaAlign}
 \caption{Semantic rows}
 \label{fig:semrow}
 \end{figure}
 
 The constructors in \cref{fig:semrow} specify inert maps, singleton rows with neutral label, row literals, and inert row complements. As in the syntax, we require predicates that row literals are well-ordered and row complements have at most one row literal. Finally, we adjust the definition of \Type{SemType} $\Delta$ \Constructor{R[} $\kappa$ \Constructor{]} accordingly so that $\mathcal T =$ \Datatype{SemType} $(\Dash)$ \GVar{κ}.
+
+\begin{AgdaAlign}
 \begin{code}[hide]
   SemType : KEnv → Kind → Set 
 \end{code}
@@ -835,27 +843,31 @@ The constructors in \cref{fig:semrow} specify inert maps, singleton rows with ne
   SemType Δ₁ (κ₁ `→ κ₂) = ∀ {Δ₂} → Renaming Δ₁ Δ₂ → 
               SemType Δ₂ κ₁ → SemType Δ₂ κ₂
 \end{code}
-
 \end{AgdaAlign}
 
 \subsection{Reflection}
+
+\begin{figure}[t]
 \begin{AgdaAlign}
 \begin{code}[hide]
-module ReflectReify where
+module Reflect where
   open import Rome.Kinds.Syntax ; open import Rome.Kinds.GVars 
   open import Rome.Types ; open import Rome.NormalTypes
   open import Rome.NBE.Syntax ; open import Rome.NBE.Renaming
-\end{code}
-\begin{figure}[t]
+\end{code}  
 \begin{code}
   reflect : NeutralType Δ κ → SemType Δ κ
-  reify : SemType Δ κ → NormalType Δ κ
-  
-  reflect {κ = ★} τ            = ne τ
-  reflect {κ = L} τ            = ne τ
+  reify   : SemType Δ κ → NormalType Δ κ
+  reflect {κ = ★} τ       = ne τ
+  reflect {κ = L} τ        = ne τ
   reflect {κ = κ₁ `→ κ₂} φ = λ r v → reflect (ren r φ · reify v)
-  reflect {κ = R[ κ ]} ρ       = (λ r → reflect) $ ρ 
+  reflect {κ = R[ κ ]} ρ   = (λ r → reflect) $ ρ
 \end{code}
+\begin{code}[hide]
+  import Rome.NBE.Normalization as Norm 
+  reify = Norm.reify
+\end{code}
+\end{AgdaAlign}
 \caption{Reflection}
 \label{fig:reflection}
 \end{figure}
@@ -866,32 +878,41 @@ Reflection asserts that neutral forms have semantic representations. We define r
 \label{sec:reification}
 
 \begin{figure}[t]
+\begin{AgdaAlign}
 \begin{code}[hide]
-  reifyNRL : ∀ (ρ₁ ρ₂ : SemRow Δ (λ Δ′ → SemType Δ′ κ) R[ κ ]) → 
+module Reify where
+  open import Rome.Kinds.Syntax ; open import Rome.Kinds.GVars 
+  open import Rome.Types ; open import Rome.NormalTypes
+  open import Rome.NBE.Syntax ; open import Rome.NBE.Renaming
+  open import Rome.NBE.Normalization 
+    hiding (reify ; reifyRow ; reifyRow⃗ ; reifyRowOrdered )
+  reify   : SemType Δ κ → NormalType Δ κ
+  reifyNRL : {ρ₁ ρ₂ : SemRow Δ (λ Δ′ → SemType Δ′ κ) R[ κ ]} → 
                      (nr : NotRowLiteral ρ₁ or NotRowLiteral ρ₂) → notRowLiteralNF (reify ρ₁) or notRowLiteralNF (reify ρ₂)
-  reifyNRL′ : ∀ (ρ₁ ρ₂ : SemRow Δ (λ Δ′ → SemType Δ′ κ) R[ κ ]) → 
+  reifyNRL′ : (ρ₁ ρ₂ : SemRow Δ (λ Δ′ → SemType Δ′ κ) R[ κ ]) → 
                      (nr : NotRowLiteral ρ₁ or NotRowLiteral ρ₂) → notRowLiteralNF (reify ((ρ₁ ∖ ρ₂) {nr}))
 \end{code}
 \begin{code}
   reifyRow : Row (SemType Δ κ) → 
              RowLiteral (NormalType Δ κ)
-  reifyRow⃗ : (n : ℕ) → (Fin n → Label × SemType Δ κ) → 
+  reifyRow⃗ : (n : ℕ) → 
+              (Fin n → Label × SemType Δ κ) → 
               RowLiteral (NormalType Δ κ)
 \end{code}
 \begin{code}[hide]
   reifyRowOrdered⃗  : (n : ℕ) → (P : Fin n → Label × SemType Δ κ) → 
                       OrderedRow (n , P) → 
                       Ordered (reifyRow⃗ n P)
-  reifyRowOrdered : ∀ {Δ : KEnv} {κ : Kind} {ρ : Row (SemType Δ κ)} → OrderedRow ρ →  Ordered (reifyRow ρ)
+  reifyRowOrdered : {Δ : KEnv} {κ : Kind} {ρ : Row (SemType Δ κ)} → OrderedRow ρ →  Ordered (reifyRow ρ)
 \end{code}
 \begin{code}
   reify {κ = ★} τ = τ
   reify {κ = L} τ = τ
-  reify {κ = κ₁ `→ κ₂} φ = `λ (reify (φ S (reflect {κ = κ₁} ((` Z)))))
+  reify {κ = κ₁ `→ κ₂} φ = `λ (reify (φ S (reflect (` Z))))
   reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
-  reify {κ = R[ κ ]} (φ $ τ) =  (`λ (reify (φ S (` Z))) $ τ)
+  reify {κ = R[ κ ]} (φ $ τ) =  `λ (reify (φ S (` Z))) $ τ
   reify {κ = R[ κ ]} ((ρ₂ ∖ ρ₁) {q}) = 
-    (reify ρ₂ ∖ reify ρ₁) {fromWitness (reifyNRL ρ₂ ρ₁ q)}
+    (reify ρ₂ ∖ reify ρ₁) {fromWitness (reifyNRL q)}
   reify {κ = R[ κ ]} (row ρ ω) = 
     ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ω))
 
@@ -907,12 +928,12 @@ Reflection asserts that neutral forms have semantic representations. We define r
     l₁<l₂ , (reifyRowOrdered⃗ (suc n) (P ∘ fsuc) ih)
   reifyRowOrdered {ρ = n , P} q = reifyRowOrdered⃗ n P q
 
-  reifyNRL (x₁ ▹ x₂) ρ₂ (left x) = left tt
-  reifyNRL ((ρ₁ ∖ ρ₃) {nr}) ρ₂ (left x) = left (reifyNRL′ ρ₁ ρ₃ nr)
-  reifyNRL (φ $ ρ) ρ₂ (left x) = left tt
-  reifyNRL ρ₁ (x ▹ x₁) (right y) = right tt
-  reifyNRL ρ₁ ((ρ₂ ∖ ρ₃) {nr}) (right y) = right (reifyNRL′ ρ₂ ρ₃ nr)
-  reifyNRL ρ₁ ((φ $ ρ₂)) (right y) = right tt
+  reifyNRL {ρ₁ = x₁ ▹ x₂} {ρ₂} (left x) = left tt
+  reifyNRL {ρ₁ = (ρ₁ ∖ ρ₃) {nr}} {ρ₂} (left x) = left (reifyNRL′ ρ₁ ρ₃ nr)
+  reifyNRL {ρ₁ = φ $ ρ} {ρ₂} (left x) = left tt
+  reifyNRL {ρ₁ = ρ₁} {x ▹ x₁} (right y) = right tt
+  reifyNRL {ρ₁ = ρ₁} {(ρ₂ ∖ ρ₃) {nr}} (right y) = right (reifyNRL′ ρ₂ ρ₃ nr)
+  reifyNRL {ρ₁ = ρ₁} {ρ₂ = φ $ ρ₂} (right y) = right tt
   
   reifyNRL′ (x₁ ▹ x₂) ρ₂ (left x) = tt
   reifyNRL′ (ρ₁ ∖ ρ₃) ρ₂ (left x) = tt
@@ -926,13 +947,16 @@ Reflection asserts that neutral forms have semantic representations. We define r
 \end{code}
 \caption{Reification}
 \label{fig:reification}
-\end{figure}
 \end{AgdaAlign}
+\end{figure}
 
-Reification asserts that semantic values have syntactic representations, and is a little more involved (\cref{fig:reification}). The first two equations are expected ($\tau$ is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion. Here we see why we choose to interpret functions with a Kripke flavor, as the weakening renaming \Constructor[Kinds.Syntax][TVar.S]{S} is crucial to permitting $\phi$ to operate over the just-introduced type variable \Constructor{` Z}. The remaining equations describe the reification of the four row cases. In the $\Mapp \phi \tau$ case, we must reify the neutral Kripke function $\phi$ analogously to the reification of type operators. We reify row literals effectively by mapping reification over the contents of each semantic row, reconstructing a list as we go along. A straightforward definition of \Function[NBE.Normalization]{reifyRow} might attempt to induct over the \Type{Row} argument's length (its first component), which Agda's termination checker rejects. This is because the recursive call in the successor case will be over $(n , P \circ \text{fsuc})$, where the second component is not structurally smaller. We bypass this restriction by instead recursing over the curried form \Function[NBE.Normalization]{reifyRow⃗}. In both the row literal and row complement case, some bookkeeping is necessary to ensure that (respectively) reification respects row orderedness and reification does not produce row literals from inert rows.
+Reification asserts that semantic values have syntactic representations, and is a little more involved (\cref{fig:reification}). The first two equations are expected ($\tau$ is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion. Here we see why we choose to interpret functions with a Kripke flavor, as the weakening renaming \Constructor[Kinds.Syntax][TVar.S]{S} is crucial to permitting $\phi$ to operate over the just-introduced type variable \Constructor{` Z}. 
+
+The remaining equations describe the reification of the four row cases. In the $\Mapp \phi \tau$ case, we must reify the neutral Kripke function $\phi$ analogously to the reification of type operators. We reify row literals effectively by mapping reification over the contents of each semantic row, reconstructing a list as we go along. A straightforward definition of \Function[NBE.Normalization]{reifyRow} might attempt to induct over the \Type{Row} argument's length (its first component), which Agda's termination checker rejects. This is because the recursive call in the successor case will be over $(n , P \circ \text{fsuc})$, where the second component is not structurally smaller. We bypass this restriction by instead recursing over the curried form \Function[NBE.Normalization]{reifyRow⃗}. In both the row literal and row complement case, some bookkeeping is necessary to ensure that (respectively) reification respects row orderedness and reification does not produce row literals from inert rows.
 
 Finally, the \Datatype{NormalType} constructor \Constructor{ne} stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence the composition of reflection and reification effectively $\eta$-expands neutral types.
 
+\begin{AgdaAlign}
 \begin{code}[hide]
 module ηNorm where 
   open import Rome.Types
@@ -943,16 +967,19 @@ module ηNorm where
   η-norm : NeutralType Δ κ → NormalType Δ κ 
   η-norm = reify ∘ reflect
 \end{code}
+\end{AgdaAlign}
 
 \Ni This function forms the \emph{identity substitution} on normal types:
 
+\begin{AgdaAlign}
 \begin{code}
-  subNF-id : ∀ (τ : NormalType Δ κ) → τ [ η-norm ∘ ` ]ₛ ≡ τ 
+  subNF-id : (τ : NormalType Δ κ) → τ [ η-norm ∘ ` ]ₛ ≡ τ 
 \end{code}
 \begin{code}[hide]
   import Rome.NormalTypes.Properties.Substitution as Substitution
   subNF-id = Substitution.subₜNF-id
 \end{code}
+\end{AgdaAlign}
 \fi
 
 % -----------------------------------------------------------------------------
@@ -996,16 +1023,17 @@ We define mapping (\Function[NBE.Normalization][\Underscore⟨$⟩\Underscore]{�
            SemType Δ R[ κ₂ ]
 \end{code}
 \begin{code}[hide]
-  NotRowLiteral$ : ∀ {Δ : KEnv} {κ₁ : Kind} {κ₂ : Kind} {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : SemRow Δ (λ Δ′ → SemType Δ′ κ₁) R[ κ₁ ]} → 
-                NotRowLiteral ρ₂ or NotRowLiteral ρ₁ → NotRowLiteral (F ⟨$⟩ ρ₂) or NotRowLiteral (F ⟨$⟩ ρ₁)
+  NotRowLiteral$ : {Δ : KEnv} {κ₁ : Kind} {κ₂ : Kind} {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : SemRow Δ (λ Δ′ → SemType Δ′ κ₁) R[ κ₁ ]} → 
+                NotRowLiteral ρ₂ or NotRowLiteral ρ₁ → 
+                NotRowLiteral (F ⟨$⟩ ρ₂) or NotRowLiteral (F ⟨$⟩ ρ₁)
 \end{code}
 \begin{code}
   _⟨$⟩_ {κ₁ = κ₁} {κ₂ = κ₂} F (l ▹ τ) = l ▹ (F ⟨·⟩ τ)
-  F ⟨$⟩ row (n , P) q = row (n , map₂ (F id) ∘ P) 
-    (orderedMap₂ (F id) q)
-  F ⟨$⟩ ((ρ₂ ∖ ρ₁) {nr}) = ((F ⟨$⟩ ρ₂) ∖ (F ⟨$⟩ ρ₁)) 
-    {NotRowLiteral$ nr}
-  F ⟨$⟩ (G $ n) = (λ {Δ′} r → F r ∘ G r) $ n
+  F ⟨$⟩ row (n , P) q = 
+    row (n , map₂ (F id) ∘ P) (orderedMap₂ (F id) q)
+  F ⟨$⟩ ((ρ₂ ∖ ρ₁) {nr}) = 
+    ((F ⟨$⟩ ρ₂) ∖ (F ⟨$⟩ ρ₁)) {NotRowLiteral$ nr}
+  F ⟨$⟩ (G $ n) = (λ r → F r ∘ G r) $ n
 \end{code}
 \begin{code}[hide]
   NotRowLiteral$ {F = F} {x₁ ▹ x₂} {ρ₁} (left x) = left tt
@@ -1033,7 +1061,8 @@ The mapping of $\phi$ over a complement is distributive, following rule \errule{
   {-# TERMINATING #-}
 \end{code}
 \begin{code}
-  _⟨∖⟩_ : (ρ₂ ρ₁ : Row (SemType Δ κ)) → Row (SemType Δ κ)
+  _⟨∖⟩_ : (ρ₂ ρ₁ : Row (SemType Δ κ)) → 
+          Row (SemType Δ κ)
   (zero , P) ⟨∖⟩ ρ = ε 
   (suc n , P) ⟨∖⟩ ρ with P fzero
   ... | (l , τ) = if l In? ρ then
@@ -1052,6 +1081,7 @@ The semantic helper above implements the subtract function given in \cref{fig:eq
 \paragraph{Semantic flap}
 We define a semantic version of the flap operator (\Function[NBE.Normalization][\Underscore⟨?⟩\Underscore]{⟨?⟩}) as follows. This definition is auxiliary but helpful in tidying code.
 
+\begin{AgdaAlign}
 \begin{code}
   apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
   apply a = λ r F → F ⟨·⟩ (renSem r a)
@@ -1059,6 +1089,7 @@ We define a semantic version of the flap operator (\Function[NBE.Normalization][
            SemType Δ κ₁ → SemType Δ R[ κ₂ ]
   f ⟨?⟩ a = apply a ⟨$⟩ f 
 \end{code}
+\end{AgdaAlign}
 
 \paragraph{Semantic $\Pi$ and $\Sigma$} 
 \label{sec:semantic-Pi}
@@ -1075,7 +1106,7 @@ The defining equations for the reduction of $\Pi$ is given below (\Function[NBE.
   ⟨Σ⟩ : SemType Δ R[ κ ] → SemType Δ κ 
   ⟨Σ⟩ {κ = ★} x = Σ (reify x)
   ⟨Σ⟩ {κ = κ₁ `→ κ₂} F = λ r v → ⟨Σ⟩ (renSem r F ⟨?⟩ v)
-  ⟨Σ⟩ {κ = R[ κ ]} ρ = (λ _ v → ⟨Σ⟩ v) ⟨$⟩ ρ  
+  ⟨Σ⟩ {κ = R[ κ ]} ρ = (λ r → ⟨Σ⟩) ⟨$⟩ ρ  
   ⟨Σ⟩ {κ = L} _ = lab "impossible"
 \end{code}
  
@@ -1107,16 +1138,16 @@ A semantic environment (\Type[NBE.Normalization]{SemEnv}) maps type variables to
   ⟦_⟧ₚ (ρ₁ ≲ ρ₂) η = reify (⟦ ρ₁ ⟧ η) ≲ reify (⟦ ρ₂ ⟧ η)
 \end{code}
 \begin{code}
-  ⟦ ` v ⟧ η       = η v
-  ⟦ τ₁ · τ₂ ⟧ η   = (⟦ τ₁ ⟧ η) ⟨·⟩ (⟦ τ₂ ⟧ η)
+  ⟦ ` v ⟧ η     = η v
+  ⟦ τ₁ · τ₂ ⟧ η = (⟦ τ₁ ⟧ η) ⟨·⟩ (⟦ τ₂ ⟧ η)
   ⟦ ρ₂ ∖ ρ₁ ⟧ η = ⟦ ρ₂ ⟧ η ⟨∖⟩′ ⟦ ρ₁ ⟧ η
-  ⟦ Π ⟧ η         = λ _ v → ⟨Π⟩ v
-  ⟦ Σ ⟧ η         = λ _ v → ⟨Σ⟩ v
-  ⟦ f $ a ⟧ η     = ⟦ f ⟧ η ⟨$⟩ ⟦ a ⟧ η
+  ⟦ Π ⟧ η       = λ r → ⟨Π⟩
+  ⟦ Σ ⟧ η       = λ r → ⟨Σ⟩
+  ⟦ f $ a ⟧ η   = ⟦ f ⟧ η ⟨$⟩ ⟦ a ⟧ η
   ⟦ ξ ▹ τ ⟧ η with ⟦ ξ ⟧ η 
-  ... | ne ν       = (ν ▹ ⟦ τ ⟧ η)
-  ... | lab l      = row (1 , λ { fzero → (l , ⟦ τ ⟧ η) }) tt
-  ⟦ ⦅ ρ ⦆ ω ⟧ η   = row 
+  ... | ne ν    = (ν ▹ ⟦ τ ⟧ η)
+  ... | lab l   = row (1 , λ { fzero → (l , ⟦ τ ⟧ η) }) tt
+  ⟦ ⦅ ρ ⦆ ω ⟧ η  = row 
     (⟦ ρ ⟧ᵣ η) 
     (⟦ toWitness ω ⟧ₒ η)
     where
@@ -1155,10 +1186,12 @@ We describe only the interesting cases of evaluation. The first equation states 
 
 \paragraph{Normalization} Finally, normalization (\Function[NBE.Normalization][⇓ₜ]{⇓}) is simply the composition of reification after evaluation.  
 
+\begin{AgdaAlign}
 \begin{code}
   ⇓ : Type Δ κ → NormalType Δ κ 
   ⇓ τ = reify (⟦ τ ⟧ idEnv)
 \end{code}
+\end{AgdaAlign}
 
 \Ni Similar definitions can be given for the evaluation and normalization of predicates and row literals, which are grouped under the typeclass methods \Typeclass{⟦\Underscore{}⟧} (\Record[NBE.Normalization]{EvaluateTC}) and \Typeclass{⇓} (\Record[NBE.Normalization]{NormalizeTC}).
 \fi
@@ -1179,22 +1212,28 @@ module Canonicity where
   open import Rome.Types ; open import Rome.NormalTypes
   open import Rome.Kinds 
 \end{code}
-\emph{Canonicity} \SourceP{Metatheory.Canonicity} asserts that arrow, row, and label-kinded normal types have certain canonical forms. In any context an arrow-kinded type is canonically $\lambda$-bound:
+\end{AgdaAlign}
+
+\emph{Canonicity} \SourceP{Metatheory.Canonicity}{Metatheory.Canonicity} asserts that arrow, row, and label-kinded normal types have certain canonical forms. In any context an arrow-kinded type is canonically $\lambda$-bound:
+
+\begin{AgdaAlign}
 \begin{code}
   arrow-canonicity : (f : NormalType Δ (κ₁ `→ κ₂)) → 
                      Σ[ τ ∈ (NormalType (Δ , κ₁) κ₂) ] 
                      (f ≡ `λ τ)
   arrow-canonicity (`λ f) = f , refl
 \end{code}
+\end{AgdaAlign}
 
 \Ni A row in an empty context is necessarily a row literal:
 
+\begin{AgdaAlign}
 \begin{code}
   row-canonicity-∅ : (ρ : NormalType ∅ R[ κ ]) → 
-                    Σ[ xs ∈ RowLiteral (NormalType ∅ κ) ] 
-                    Σ[ q ∈ True (ordered? xs) ] 
-                    (ρ ≡ ⦅ xs ⦆ q)
-  row-canonicity-∅ (⦅ xs ⦆ q) = xs , q , refl
+                     Σ[ xs ∈ RowLiteral (NormalType ∅ κ) ] 
+                     Σ[ ω ∈ True (ordered? xs) ] 
+                     (ρ ≡ ⦅ xs ⦆ q)
+  row-canonicity-∅ (⦅ xs ⦆ ω) = xs , ω , refl
 \end{code}
 \begin{code}[hide]
   row-canonicity-∅ (ne x) = ⊥-elim (noNeutrals x)
@@ -1202,11 +1241,13 @@ module Canonicity where
   row-canonicity-∅ (l ▹ₙ ρ) = ⊥-elim (noNeutrals l)
   row-canonicity-∅ ((φ $ ρ)) = ⊥-elim (noNeutrals ρ)
 \end{code}
+\end{AgdaAlign}
 
 \Ni And a label-kinded type is necessarily a label literal:
 
+\begin{AgdaAlign}
 \begin{code}
-  label-canonicity-∅ : ∀ (l : NormalType ∅ L) → 
+  label-canonicity-∅ : (l : NormalType ∅ L) → 
                        Σ[ ℓ ∈ Label ] (l ≡ lab ℓ)
   label-canonicity-∅ (lab s) = s , refl
 \end{code}
@@ -1217,34 +1258,39 @@ module Canonicity where
 
 \subsection{Stability}
 
-\begin{AgdaAlign}
 \begin{code}[hide]
 module Metatheory where
   open import Rome.Types ; open import Rome.NormalTypes
   open import Rome.Kinds
   open import Rome.NBE
 \end{code}
-Stability \SourceP{Metatheory.Stability} asserts that embedding (\Typeclass{⇑}) is right-inverse to normalization (\Typeclass{⇓}):
 
+Stability \SourceP{Metatheory.Stability}{Metatheory.Stability} asserts that embedding (\Typeclass{⇑}) is right-inverse to normalization (\Typeclass{⇓}):
+
+\begin{AgdaAlign}
 \begin{code}
-  stability : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ 
+  stability : (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ 
 \end{code}
 \begin{code}[hide]
   import Rome.Metatheory.Stability as Stability
   stability = Stability.stability
 \end{code}
+\end{AgdaAlign}
 
 \Ni \emph{Stability} implies \Function[Metatheory.Stability]{idempotency} of normalization:
+\begin{AgdaAlign}
 \begin{code}
-  idempotency : ∀ (τ : Type Δ κ) → 
+  idempotency : (τ : Type Δ κ) → 
                 ((⇑ ∘ ⇓) ∘ (⇑ ∘ ⇓)) τ ≡ (⇑ ∘ ⇓) τ 
   idempotency τ = cong ⇑ (stability (⇓ τ)) 
 \end{code} 
+\end{AgdaAlign}
 
 \Ni and \Function[Metatheory.Stability]{surjectivity}:
 
+\begin{AgdaAlign}
 \begin{code}
-  surjectivity : ∀ (τ : NormalType Δ κ) → 
+  surjectivity : (τ : NormalType Δ κ) → 
                  Σ[ υ ∈ Type Δ κ ] (⇓ υ ≡ τ)
   surjectivity τ = ⇑ τ , stability τ
 \end{code}
@@ -1252,19 +1298,19 @@ Stability \SourceP{Metatheory.Stability} asserts that embedding (\Typeclass{⇑}
 
 \subsection{Soundness}
 \label{sec:soundness} 
-\emph{Soundness} \SourceP{Metatheory.Soundness} of the equational theory states that if $\TEqvJ \Delta \tau \upsilon \kappa$, then $\tau$ and $\upsilon$ normalize to the same form.
+\emph{Soundness} \SourceP{Metatheory.Soundness}{Metatheory.Soundness} of the equational theory states that if $\TEqvJ \Delta \tau \upsilon \kappa$, then $\tau$ and $\upsilon$ normalize to the same form.
 \begin{AgdaAlign}
 \begin{code}[hide]
-module SoundnessStatement where
-  open import Rome.Types ; open import Rome.NormalTypes
-  open import Rome.Kinds ; open import Rome.NBE
+  module SoundnessStatement {Δ} {κ} (τ υ : Type Δ κ) where
+    open import Rome.Types ; open import Rome.NormalTypes
+    open import Rome.Kinds ; open import Rome.NBE
 \end{code} 
 \begin{code}
-  soundness : ∀ {τ υ : Type Δ κ} → τ ≡ₜ υ → ⇓ τ ≡ ⇓ υ
+    soundness : τ ≡ₜ υ → ⇓ τ ≡ ⇓ υ
 \end{code}
 \begin{code}[hide]
-  import Rome.Metatheory.Soundness as Soundness
-  soundness = Soundness.soundness
+    import Rome.Metatheory.Soundness as Soundness
+    soundness = Soundness.soundness
 \end{code}
 \end{AgdaAlign}
 
@@ -1295,9 +1341,8 @@ module Uniformity where
       (r₂ : Renaming Δ₂ Δ₃) 
       (V₁ V₂ : SemType Δ₂ κ₁) →
       V₁ ≈ V₂ → 
-      (renSem r₂ (φ r₁ V₁)) ≈ (renKripke r₁ φ r₂ (renSem r₂ V₂))
-
-  PointEqual-≈ : ∀ (φ ψ : KripkeFunction Δ₁ κ₁ κ₂) → Set
+      renSem r₂ (φ r₁ V₁) ≈ renKripke r₁ φ r₂ (renSem r₂ V₂)
+  PointEqual-≈ : (φ ψ : KripkeFunction Δ₁ κ₁ κ₂) → Set
   PointEqual-≈ {Δ₁ = Δ₁} {κ₁ = κ₁} φ ψ = 
     ∀ {Δ₂} (r : Renaming Δ₁ Δ₂) {V₁ V₂ : SemType Δ₂ κ₁} → 
     V₁ ≈ V₂ → 
@@ -1330,18 +1375,22 @@ module SoundnessRelation where
   _≈_ {κ = R[ κ ]} (l₁ ▹ τ₁) (l₂ ▹ τ₂) = (l₁ ≡ l₂) × τ₁ ≈ τ₂
   _≈_ {κ = R[ κ ]} (ρ₁ ∖ ρ₂) (ρ₃ ∖ ρ₄) = ρ₁ ≈ ρ₃ × ρ₂ ≈ ρ₄
 \end{code}
+\end{AgdaAlign}
 
 \Ni In the arrow case, we assert that the Kripke functions $\phi$ and $\psi$ are \emph{uniform} (\Function[Metatheory.Soundness.Relation]{Uniform}) and \emph{extensionally equivalent} to one another ((\Function[Metatheory.Soundness.Relation]{PointEqual-≈}), \cref{fig:uniformity-and-PE}). 
 
+\begin{AgdaAlign}
 \begin{code}
   _≈_ {Δ₁} {κ = κ₁ `→ κ₂} φ ψ = 
     Uniform φ × Uniform ψ × PointEqual-≈ {Δ₁} φ ψ 
 \end{code}
+\end{AgdaAlign}
 
 \Ni Uniformity states that passing a renaming $r_2$ to a Kripke function is equivalent to renaming it algorithmically---that is, semantic renaming (\Function[NBE.Renaming]{renSem}) commutes with Kripke renaming. The uniformity property is attributable to \citet{AllaisBM13} but simplified by \citet{ChapmanKNW19}. The \Function{PointEqual-≈} predicate circumvents any need to postulate functional extensionality. Rather, we assert that two Kripke functions $\phi$ and $\psi$ map equivalent inputs to equivalent outputs under all renamings.
 
 Some plumbing is necessary in the case that we are equating two inert maps $\Mapp {\phi} {\nu_1}$ and $\Mapp {\psi} {\nu_2}$: 
 
+\begin{AgdaAlign}
 \begin{code}
   _≈_ {κ = R[ κ₂ ]} (_$_ {κ₁} φ ν₁) (_$_ {κ₁′} ψ ν₂) with 
     κ₁ ≡k? κ₁′ 
@@ -1351,15 +1400,17 @@ Some plumbing is necessary in the case that we are equating two inert maps $\Map
 \begin{code}[hide]
   ... | no _ = ⊥  
 \end{code}
+\end{AgdaAlign}
 
-\Ni Kind equality is decidable (\Function[Kinds.Properties.Decidability][\Underscore≡ₖ\Underscore]{≡ₖ}), which lets us relate inert maps only when the domains of $\phi$ and $\psi$ (that is, $\kappa_{1}$ and $\kappa_1'$) are equivalent. The predicates \Function[Metatheory.Soundness.Relation]{UniformNE} and \Function[Metatheory.Soundness.Relation]{PointEqualNE-≈} are entirely analogous to \Function{Uniform} and \Function{PointEqual-≈} except that they describe Kripke functions in which the domain is a \Datatype{NeutralType} rather than \Type{SemType}. 
+\Ni Kind equality is decidable (\Function[Kinds.Properties.Decidability][\Underscore≡ₖ\Underscore]{≡ₖ}), which lets us relate inert maps only when the domains of $\phi$ and $\psi$ (that is, $\kappa_{1}$ and $\kappa_1'$) are equivalent. The predicates \Function[Metatheory.Soundness.Relation]{UniformNE} and \Function[Metatheory.Soundness.Relation][PointEqualNE-≈]{PointEqual\-NE\--≈} are entirely analogous to \Function{Uniform} and \Function{PointEqual-≈} except that they describe Kripke functions in which the domain is a \Datatype{NeutralType} rather than \Type{SemType}. 
 
 Finally, we relate row literals of equal length by a pointwise relation of their contents. Maps with unequal domain kinds (above) and row literals with differing lengths (below) are each mapped to \Datatype{⊥}.
 
+\begin{AgdaAlign}
 \begin{code}
   _≈_ {κ = R[ κ ]} (row (n , P) p) (row (m , Q) q) with 
     n ≡ℕ? m 
-  ... | yes refl = ∀ (i : Fin m) →  P i ≈₂ Q i
+  ... | yes refl = (i : Fin m) →  P i ≈₂ Q i
     where
       _≈₂_ : ∀ {A} → (x y : A × SemType Δ κ) → Set
       (l₁ , τ₁) ≈₂ (l₂ , τ₂) = l₁ ≡ l₂ × τ₁ ≈ τ₂    
@@ -1391,9 +1442,11 @@ module FundSoundness where
 \begin{code}[hide]
   reflect-≈ = Soundness.reflect-≈
 \end{code}
+\end{AgdaAlign}
 
 \Ni Dually, equivalent semantic objects reify to propositionally equal types: 
 
+\begin{AgdaAlign}
 \begin{code}
   reify-≈ : {V₁ V₂ : SemType Δ κ} → 
             V₁ ≈ V₂ → reify V₁ ≡ reify V₂ 
@@ -1401,9 +1454,11 @@ module FundSoundness where
 \begin{code}[hide]
   reify-≈ = Soundness.reify-≈
 \end{code}
+\end{AgdaAlign}
 
 Crucial to most proofs is that the soundness relation forms a \emph{partial equivalence} (PER), meaning it is symmetric and transitive but not reflexive. As with all PERs, of course, we have a quasi-reflexive property: provided $V_1$ relates to \emph{some} $V_2$, then both $V_1$ and $V_2$ relate to themselves.
 
+\begin{AgdaAlign}
 \begin{code}[hide]
   module _ {V₁ V₂ : SemType Δ κ} where 
 \end{code}
@@ -1415,18 +1470,23 @@ Crucial to most proofs is that the soundness relation forms a \emph{partial equi
     refl-≈ˡ = Soundness.refl-≈ˡ
     refl-≈ʳ = Soundness.refl-≈ʳ
 \end{code}
+\end{AgdaAlign}
 
 
 \paragraph{Logical environments}
 We lift the soundness relation to a pointwise equivalence on semantic environments.
 
+\begin{AgdaAlign}
 \begin{code}
-  _≈ₑ_ : {Δ₁ : KEnv} (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
+  _≈ₑ_ : (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
   _≈ₑ_ {Δ₁ = Δ₁} η₁ η₂ = 
     ∀ {κ} (x : TVar Δ₁ κ) → η₁ x ≈ η₂ x
 \end{code}
+\end{AgdaAlign}
 
 \Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by \Function[Metatheory.Soundness.Relation]{idEnv-≈}. 
+
+\begin{AgdaAlign}
 \begin{code}[hide]
   module _ {Δ : KEnv} where 
     idEnv = ie {Δ}
@@ -1435,34 +1495,42 @@ We lift the soundness relation to a pointwise equivalence on semantic environmen
     idEnv-≈ : idEnv ≈ₑ idEnv
     idEnv-≈ _ = reflect-≈ refl
 \end{code}
+\end{AgdaAlign}
 
 \paragraph{The fundamental lemma}
 
 The fundamental lemma for the soundness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental lemma is by induction over the type equivalence witness \Var{τ₁} \Datatype{≡ₜ} \Var{τ₂}.
+
+\begin{AgdaAlign}
+\begin{code}[hide]
+  module _ {Δ₁} {Δ₂} {κ} {η₁ η₂ : SemEnv Δ₁ Δ₂} {τ₁ τ₂ : Type Δ₁ κ} where
+\end{code}
 \begin{code}
-  fund-≈ : ∀ {η₁ η₂ : SemEnv Δ₁ Δ₂}
-           {τ₁ τ₂ : Type Δ₁ κ} → 
-           η₁ ≈ₑ η₂ → 
-           τ₁ ≡ₜ τ₂ → 
-          ⟦ τ₁ ⟧ η₁ ≈ ⟦ τ₂ ⟧ η₂
+    fund-≈ : η₁ ≈ₑ η₂ → 
+             τ₁ ≡ₜ τ₂ → 
+             ⟦ τ₁ ⟧ η₁ ≈ ⟦ τ₂ ⟧ η₂
 \end{code}
 \begin{code}[hide]
-  fund-≈ = Soundness.fund-≈
+    fund-≈ = Soundness.fund-≈
 \end{code}
+\end{AgdaAlign}
 
-Soundness follows from the fundamental lemma in the identity semantic environment. Explicitly, reification of the fundamental lemma tells us that \Function{reify} (\Typeclass{⟦} \Var{τ₁} \Typeclass{⟧} \Term{idEnv}) \Datatype{≡} \Function{reify} (\Typeclass{⟦} \Var{τ₂} \Typeclass{⟧} \Term{idEnv}), which is precisely the elaboration of \Typeclass{⇓} \Var{τ₁} \Datatype{≡} \Typeclass{⇓} \Var{τ₂}.
+Soundness follows from the fundamental lemma in the identity semantic environment. Explicitly, reification of the fundamental lemma tells us that \Function{reify} (\Typeclass{⟦} \Var{τ} \Typeclass{⟧} \Term{idEnv}) \Datatype{≡} \Function{reify} (\Typeclass{⟦} \Var{υ} \Typeclass{⟧} \Term{idEnv}), which is precisely the elaboration of \Typeclass{⇓} \Var{τ} \Datatype{≡} \Typeclass{⇓} \Var{υ}.
 
+\begin{AgdaAlign}
+\begin{code}[hide]
+  module SoundnessAgain {Δ} {κ} (τ υ : Type Δ κ) where
+\end{code}
 \begin{code}
-  soundness : ∀ {τ₁ τ₂ : Type Δ κ} → 
-                τ₁ ≡ₜ τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
-  soundness = reify-≈ ∘ (fund-≈ idEnv-≈)
+    soundness : τ ≡ₜ υ → ⇓ τ ≡ ⇓ υ
+    soundness = reify-≈ ∘ (fund-≈ idEnv-≈)
 \end{code}
 \end{AgdaAlign}
 
 \subsection{Consistency}
 \label{sec:consistency}
 
-\emph{Consistency} \SourceP{Metatheory.Consistency} states that every type is equivalent to its normalization. Viewing equivalence as reduction, this is equivalently a claim of \emph{(weak) normalization}: each type has \emph{some} reduction sequence to a normal form.
+\emph{Consistency} \SourceP{Metatheory.Consistency}{Metatheory.Consistency} states that every type is equivalent to its normalization. Viewing equivalence as reduction, this is equivalently a claim of \emph{(weak) normalization}: each type has \emph{some} reduction sequence to a normal form.
 
 \begin{AgdaAlign} 
 \begin{code}[hide]
@@ -1472,7 +1540,7 @@ module ConsistencyStatement where
   open import Rome.NBE
 \end{code}
 \begin{code}
-  consistency : ∀ (τ : Type Δ κ) → τ ≡ₜ ⇑ (⇓ τ)
+  consistency : (τ : Type Δ κ) → τ ≡ₜ ⇑ (⇓ τ)
 \end{code}
 \begin{code}[hide]
   import Rome.Metatheory.Consistency as Consistency
@@ -1501,9 +1569,11 @@ module ConsistencyRelation where
   ⟦_⟧≈_ {κ = ★} τ V = τ ≡ₜ ⇑ V
   ⟦_⟧≈_ {κ = L} τ V = τ ≡ₜ ⇑ V
 \end{code}
+\end{AgdaAlign}
 
 \Ni Two Kripke functions are related when they map related inputs to related outputs under all renamings. That our system reduces modulo $\eta$-equivalence simplifies this definition, which needn't account for when $\phi$ is neutral.
 
+\begin{AgdaAlign}
 \begin{code}
   ⟦_⟧≈_ {Δ₁} {κ = κ₁ `→ κ₂} f φ = 
       ∀ {Δ₂} (r : Renaming Δ₁ Δ₂) 
@@ -1512,17 +1582,21 @@ module ConsistencyRelation where
       ⟦ τ ⟧≈ V → 
       ⟦ ren r f · τ ⟧≈ (renKripke r φ ⟨·⟩ V)
 \end{code}
+\end{AgdaAlign}
 
 That a type $\tau$ is equivalent to an inert map $\Mapp \phi \nu$ requires the identification of some equivalent type $\Mapp f {\Embed\, \nu}$ such that $f$ is related to $\phi$. Of course, $\phi$ is not a \Type{SemType} (its domain is a neutral type), and so the definition \Function[Metatheory.Consistency.Relation]{ConsistentKripkeNE} mirrors the logic above for relating functional types modulo a neutral domain argument.
 
+\begin{AgdaAlign}
 \begin{code}
   ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (φ $ ν) = 
     Σ[ f ∈ (Type Δ (_ `→ κ)) ] 
       ((τ ≡ₜ f $ ⇑ ν) × ConsistentKripkeNE f φ)
 \end{code}
+\end{AgdaAlign}
 
 \Ni The cases for row singletons and row complements follow the same pattern: we identify a type equivalent to the desired semantic form, then assert that form coheres with the relation.
 
+\begin{AgdaAlign}
 \begin{code}
   ⟦_⟧≈_ {Δ} {κ = R[ κ ]} τ (l ▹ V) = 
     (τ ≡ₜ (⇑ l ▹ ⇑ (reify V))) 
@@ -1532,9 +1606,11 @@ That a type $\tau$ is equivalent to an inert map $\Mapp \phi \nu$ requires the i
     × ⟦ ⇑ (reify ρ₂) ⟧≈ ρ₂ 
     × ⟦ ⇑ (reify ρ₁) ⟧≈ ρ₁
 \end{code}
+\end{AgdaAlign}
 
 For semantic rows, we likewise identify a row literal equivalent to $\tau$ (with suitable orderedness evidence) and assert, via \Function[Metatheory.Consistency.Relation][⟦\Underscore⟧≈ᵣ\Underscore]{⟦\Dash⟧≈ᵣ\Dash}, that the contents of the row literal (a list of label-type pairs) is related to the contents of the semantic row (a finite map to semantic types). The helper \Function[Metatheory.Consistency.Relation][⟦\Underscore⟧≈₂\Underscore]{⟦\Dash⟧≈₂\Dash} asserts that the first components of each pair are equal and the second components are related under the consistency relation.
 
+\begin{AgdaAlign}
 \begin{code}
   ⟦_⟧≈_ {κ = R[ κ ]} τ (row ρ ω) =
     let xs = ⇑ᵣ (reifyRow ρ) in 
@@ -1575,9 +1651,11 @@ module FundConsistencyStatement where
 \begin{code}[hide]
   reflect-⟦⟧≈ = Consistency.reflect-⟦⟧≈
 \end{code}
+\end{AgdaAlign}
 
 \Ni Dually, types related to semantic objects are equivalent to their reification:
 
+\begin{AgdaAlign}
 \begin{code}
   reify-⟦⟧≈ : {τ : Type Δ κ} {V :  SemType Δ κ} → 
               ⟦ τ ⟧≈ V → τ ≡ₜ ⇑ (reify V)
@@ -1585,24 +1663,29 @@ module FundConsistencyStatement where
 \begin{code}[hide]
   reify-⟦⟧≈ = Consistency.reify-⟦⟧≈
 \end{code}
+\end{AgdaAlign}
 
 \paragraph{The fundamental lemma}
 
-The fundamental lemma proves that the substitution of type $\tau$ by $\sigma$ is related to its evaluation in semantic environment $\eta$:
+The fundamental lemma prov\-es that the substitution of type $\tau$ by $\sigma$ is related to its evaluation in semantic environment $\eta$:
 
+\begin{AgdaAlign}
+\begin{code}[hide]
+  module _ {Δ₁} {Δ₂} {κ} {σ : Substitution Δ₁ Δ₂} {η : SemEnv Δ₁ Δ₂} where      
+\end{code}
 \begin{code}
-  fund-⟦⟧≈ : ∀ (τ : Type Δ₁ κ)
-            {σ : Substitution Δ₁ Δ₂}
-            {η : SemEnv Δ₁ Δ₂} → 
-            ⟦ σ ⟧≈ₑ η  → 
-            ⟦ τ [ σ ]ₛ ⟧≈ ⟦ τ ⟧ η
+    fund-⟦⟧≈ : (τ : Type Δ₁ κ) → 
+               ⟦ σ ⟧≈ₑ η  → 
+               ⟦ τ [ σ ]ₛ ⟧≈ ⟦ τ ⟧ η
 \end{code}
 \begin{code}[hide]
-  fund-⟦⟧≈ = Consistency.fund-⟦⟧≈
+    fund-⟦⟧≈ τ = Consistency.fund-⟦⟧≈ τ {σ = σ} {η}
 \end{code}
+\end{AgdaAlign}
 
 \Ni provided a pointwise relation of $\sigma$ and $\eta$:
 
+\begin{AgdaAlign}
 \begin{code}[hide]
 module ConsistencyRest where
   open import Rome.Types ; open import Rome.Kinds 
@@ -1616,21 +1699,24 @@ module ConsistencyRest where
 \begin{code}
   ⟦_⟧≈ₑ_ : Substitution Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
   ⟦_⟧≈ₑ_ {Δ₁ = Δ₁} σ η = 
-    ∀ {κ : Kind} (α : TVar Δ₁ κ) → ⟦ σ α ⟧≈ η α
+    ∀ {κ} (α : TVar Δ₁ κ) → ⟦ σ α ⟧≈ η α
 \end{code}
+\end{AgdaAlign}
 
 A natural corollary of the fundamental lemma is that the substitution of \Var{τ} by the identity substitution \Constructor{`} relates to the evaluation of \Var{τ} in the identity environment, or more simply that $\tau$ relates to its evaluation:
 
+\begin{AgdaAlign}
 \begin{code}
-  ⊢⟦_⟧≈ : ∀ (τ : Type Δ κ) → ⟦ τ ⟧≈ ⟦ τ ⟧ idEnv
+  ⊢⟦_⟧≈ : (τ : Type Δ κ) → ⟦ τ ⟧≈ ⟦ τ ⟧ idEnv
 \end{code}
 \begin{code}[hide]
   ⊢⟦ τ ⟧≈ = subst (⟦_⟧≈ ⟦ τ ⟧ idEnv) 
     (sub-id τ) (fund-⟦⟧≈ τ idEnv-⟦⟧≈)    
 \end{code}
+\end{AgdaAlign}
 
 \Ni Consistency follows directly from the reification of this fact.
-
+\begin{AgdaAlign}
 \begin{code}
   consistency : (τ : Type Δ κ) → τ ≡ₜ ⇑ (⇓ τ) 
   consistency = reify-⟦⟧≈ ∘ ⊢⟦_⟧≈
@@ -1639,7 +1725,7 @@ A natural corollary of the fundamental lemma is that the substitution of \Var{τ
 
 \paragraph{Completeness}
 
-\emph{Completeness} \SourceP{Metatheory.Completeness} is a simple corollary of consistency. The derivation is given below using custom support (\Record[Types.Equivalence][≡ₜ-Reasoning]{\Dash≡ₜ⟨\Dash⟩\Dash}, \Source{Types.Equivalence}) for equational reasoning over type equivalence. The helper \Function[Types.Equivalence]{inst} reflects propositional equality to type equivalence, and the suffix (\Constructor[Types.Equivalence][≡ₜ-Groupoid]{⁻¹}) witnesses symmetry of type equivalence.
+\emph{Completeness} \SourceP{Metatheory.Completeness}{Metatheory.Completeness} is a simple corollary of consistency. The derivation is given below using custom support (\Record[Types.Equivalence][≡ₜ-Reasoning]{\Dash≡ₜ⟨\Dash⟩\Dash}, \Source{Types.Equivalence}{Types.Equivalence}) for equational reasoning over type equivalence. The helper \Function[Types.Equivalence]{inst} reflects propositional equality to type equivalence, and the suffix (\Constructor[Types.Equivalence][≡ₜ-Groupoid]{⁻¹}) witnesses symmetry of type equivalence.
 
 \begin{AgdaAlign}
 \begin{code}[hide] 
@@ -1649,15 +1735,15 @@ module Completeness where
   open import Rome.NBE
   open import Rome.Metatheory.Consistency
   open ≡ₜ-Reasoning
+  module _ {τ υ : Type Δ κ} where      
 \end{code}
 \begin{code}
-  completeness : {τ υ : Type Δ κ} →
-                 ⇓ τ ≡ ⇓ υ → τ ≡ₜ υ 
-  completeness {τ = τ} {υ} e = 
-   τ        ≡ₜ⟨ consistency τ ⟩ 
-   ⇑ (⇓ τ)  ≡ₜ⟨ inst (cong ⇑ e) ⟩ 
-   ⇑ (⇓ υ)  ≡ₜ⟨ consistency υ ⁻¹ ⟩ 
-   υ ∎ 
+    completeness : ⇓ τ ≡ ⇓ υ → τ ≡ₜ υ 
+    completeness e = 
+     τ        ≡ₜ⟨ consistency τ ⟩ 
+     ⇑ (⇓ τ)  ≡ₜ⟨ inst (cong ⇑ e) ⟩ 
+     ⇑ (⇓ υ)  ≡ₜ⟨ consistency υ ⁻¹ ⟩ 
+     υ ∎ 
 \end{code}
 \end{AgdaAlign}
 
@@ -1679,8 +1765,8 @@ module DecTyEquiv where
   open import Rome.NormalTypes.Properties.Decidability
 \end{code}
 \begin{code}
-  _≡ₜ?_ : ∀ (τ₁ τ₂ : Type Δ κ) → Dec (τ₁ ≡ₜ τ₂)
-  τ₁ ≡ₜ? τ₂  with (⇓ τ₁) ≡? (⇓ τ₂)
+  _≡ₜ?_ : (τ υ : Type Δ κ) → Dec (τ ≡ₜ υ)
+  τ ≡ₜ? υ  with (⇓ τ) ≡? (⇓ υ)
   ... | yes p = yes (completeness p)
   ... | no  p = no (p ∘ soundness)
 \end{code}
@@ -1703,11 +1789,11 @@ Another area worth exploration is reusability, \ala{} \citet{AllaisACMM21} or \c
 
 \subsection{Other Higher-Order Row Calculi}
 
-Existing formalizations of row calculi with type-level computation differ in both the expressiveness of their row language and in their semantic accounts. We distinguish denotational approaches from elaboration-based approaches, which translate source types into a target calculus with an established metatheory.
+Existing formalizations of row calculi with type-level computation differ in both the expressiveness of their row language and in their semantic accounts. In contrast to our direct account, these approaches are either denotational or elaboration-based, which we distinguish below.
 
-\paragraph{Denotational semantics} System \RO (the predecessor to \Rome) is given a denotational semantics by \Citet{HubersM23}, whose soundness result shows that equivalent types have the same denotation, and that well-typed terms inhabit the denotations of their types. This establishes semantic soundness of the equational theory, but does not characterize normal forms or give a complete decision procedure for type equivalence.
+\paragraph{Denotational} System \RO (the predecessor to \Rome) is given a denotational semantics by \Citet{HubersM23}, whose soundness result shows that equivalent types have the same denotation, and that well-typed terms inhabit the denotations of their types. This establishes \emph{semantic soundness} of the equational theory, but this semantics cannot invert back to syntax, and hence does not characterize normal forms or give a complete decision procedure for type equivalence. Indeed, our work was in part motivated by the incompleteness of \RO's equational theory, which lacked crucial rules for the reduction of higher-order rows.
 
-\paragraph{Elaboration-based semantics} In contrast, \Citet{Chlipala10} elaborates Ur, a web-programming based language with type-level records, to Rocq~\citep{Rocq}, but only conjectures that a terminating and confluent type-reduction procedure could be given. \Citet{TooheyCJX26} elaborate their system $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. But, unlike our normalizer, their proof relies on a logical relation that lives in \Datatype{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms. 
+\paragraph{Elaboration-based} In contrast, \Citet{Chlipala10} elaborates Ur, a web-programming based language with type-level records, to Rocq~\citep{Rocq}, but only conjectures that a terminating and confluent type-reduction procedure could be given. \Citet{TooheyCJX26} elaborate their system $\LamRho{}$ into $\FOPlus{}$, an extension of System~$\FO$ with products and sums, and formalize normalization of the target calculus in Lean~4~\citep{Lean4}. But, unlike our normalizer, their proof relies on a logical relation that lives in \Datatype{Prop}, and hence provides no constructive algorithm mapping type syntax to normal forms. 
 
 \subsection{NbE and Intrinsic Mechanization}
 

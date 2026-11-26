@@ -1,5 +1,8 @@
 {
   "search.exclude": {
     "docs/**": true
-  }
+  },
+  "task.autoDetect": "off",
+  "npm.autoDetect": "off",
+  "typescript.tsc.autoDetect": "off"
 }
